@@ -3,6 +3,7 @@ package com.starlightuniverse;
 import com.starlightuniverse.auth.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.*;
+import com.starlightuniverse.shop.*;
 import com.starlightuniverse.world.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private QueueManager queueManager;
     private LobbyManager lobbyManager;
     private EconomyManager economyManager;
+    private ShopManager shopManager;
 
     @Override
     public void onEnable() {
@@ -48,10 +50,13 @@ public final class StarlightUniverse extends JavaPlugin {
 
         economyManager = new EconomyManager(databaseManager);
 
+        shopManager = new ShopManager(this, economyManager);
+
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(worldManager, this);
         Bukkit.getPluginManager().registerEvents(lobbyManager, this);
         Bukkit.getPluginManager().registerEvents(new EconomyListener(economyManager), this);
+        Bukkit.getPluginManager().registerEvents(new ShopListener(this, shopManager), this);
 
         Bukkit.getCommandMap().register("starlightuniverse", new RegisterCommand(this, authManager));
         Bukkit.getCommandMap().register("starlightuniverse", new LoginCommand(this, authManager));
@@ -61,6 +66,7 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getCommandMap().register("starlightuniverse", new GiveMoneyCommand(this, economyManager));
         Bukkit.getCommandMap().register("starlightuniverse", new GiveGemsCommand(this, economyManager));
         Bukkit.getCommandMap().register("starlightuniverse", new GiveStarsCommand(this, economyManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new ShopCommand(shopManager));
 
         getLogger().info("[SU] Enabled!");
     }
@@ -122,5 +128,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public EconomyManager getEconomyManager() {
         return economyManager;
+    }
+
+    public ShopManager getShopManager() {
+        return shopManager;
     }
 }

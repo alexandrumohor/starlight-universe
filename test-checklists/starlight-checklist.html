@@ -158,6 +158,34 @@
     <div class="task"><input type="checkbox" id="p4_15"><label for="p4_15">Non-OP player tries /givemoney — gets "No permission!" error</label></div>
     <div class="task"><input type="checkbox" id="p4_16"><label for="p4_16">Tab-complete works: /pay shows player names, then money/gems/stars</label></div>
 
+    <!-- PHASE 5 -->
+    <h2>Phase 5 — Server Shop</h2>
+    <div class="task"><input type="checkbox" id="p5_1"><label for="p5_1">Type /shop — a GUI opens with "Shop" title in gold</label></div>
+    <div class="task"><input type="checkbox" id="p5_2"><label for="p5_2">Main menu shows 3 Daily Deals at the top with discount tags and sale prices</label></div>
+    <div class="task"><input type="checkbox" id="p5_3"><label for="p5_3">Main menu shows 13 categories: Building, Decoration, Redstone, Transport, Food, Tools, Weapons, Armor, Brewing, Materials, Dyes, Spawn Eggs, Misc</label></div>
+    <div class="task"><input type="checkbox" id="p5_4"><label for="p5_4">Click on "Building" category — opens a page with building blocks (Dirt $1, Cobblestone $2, Stone $5, etc.)</label></div>
+    <div class="task"><input type="checkbox" id="p5_5"><label for="p5_5">Each item shows its price in green and category in gray in the lore</label></div>
+    <div class="task"><input type="checkbox" id="p5_6"><label for="p5_6">Click on an item (e.g. Dirt) — buy screen opens with quantity buttons</label></div>
+    <div class="task"><input type="checkbox" id="p5_7"><label for="p5_7">Buy screen has 3 green panes (+1, +10, +64) and 3 red panes (-1, -10, -64)</label></div>
+    <div class="task"><input type="checkbox" id="p5_8"><label for="p5_8">Click +10 a few times — quantity increases by 10 each click, info panel updates</label></div>
+    <div class="task"><input type="checkbox" id="p5_9"><label for="p5_9">Click -1 — quantity goes down by 1 (minimum 1, never goes to 0)</label></div>
+    <div class="task"><input type="checkbox" id="p5_10"><label for="p5_10">Info panel (paper item) shows unit price, quantity, and total cost</label></div>
+    <div class="task"><input type="checkbox" id="p5_11"><label for="p5_11">Give yourself money (/givemoney YourName 100000), then click Confirm — you receive the items and money is deducted</label></div>
+    <div class="task"><input type="checkbox" id="p5_12"><label for="p5_12">Success message shows what you bought and the total cost with commas</label></div>
+    <div class="task"><input type="checkbox" id="p5_13"><label for="p5_13">Try to buy something you can't afford — get "Insufficient funds!" error</label></div>
+    <div class="task"><input type="checkbox" id="p5_14"><label for="p5_14">Click Cancel on buy screen — returns to the category page you came from</label></div>
+    <div class="task"><input type="checkbox" id="p5_15"><label for="p5_15">Click "Back" on a category page — returns to main shop menu</label></div>
+    <div class="task"><input type="checkbox" id="p5_16"><label for="p5_16">Type /shop search diamond — shows all items with "diamond" in the name</label></div>
+    <div class="task"><input type="checkbox" id="p5_17"><label for="p5_17">/shop search with a word that matches nothing — get "No items found" error message</label></div>
+    <div class="task"><input type="checkbox" id="p5_18"><label for="p5_18">Click a Daily Deal on the main page — buy screen shows the discounted price with "Daily Deal" info</label></div>
+    <div class="task"><input type="checkbox" id="p5_19"><label for="p5_19">Buy a Daily Deal item — you pay the discounted price, not the full price</label></div>
+    <div class="task"><input type="checkbox" id="p5_20"><label for="p5_20">Select 320+ items (5+ stacks) — info panel shows "Bulk Discount (10%)" line</label></div>
+    <div class="task"><input type="checkbox" id="p5_21"><label for="p5_21">Buy 320+ of a cheap item — verify the final price is 10% less than the subtotal</label></div>
+    <div class="task"><input type="checkbox" id="p5_22"><label for="p5_22">Buy with a full inventory — extra items drop on the ground near you</label></div>
+    <div class="task"><input type="checkbox" id="p5_23"><label for="p5_23">Tab-complete /shop shows "search" as a suggestion</label></div>
+    <div class="task"><input type="checkbox" id="p5_24"><label for="p5_24">There is NO sell option anywhere in the shop — buy only</label></div>
+    <div class="task"><input type="checkbox" id="p5_25"><label for="p5_25">Daily deals change to different items the next day (same items all day)</label></div>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');
