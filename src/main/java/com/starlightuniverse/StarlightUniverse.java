@@ -2,6 +2,7 @@ package com.starlightuniverse;
 
 import com.starlightuniverse.auth.*;
 import com.starlightuniverse.database.DatabaseManager;
+import com.starlightuniverse.economy.*;
 import com.starlightuniverse.world.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private InventoryManager inventoryManager;
     private QueueManager queueManager;
     private LobbyManager lobbyManager;
+    private EconomyManager economyManager;
 
     @Override
     public void onEnable() {
@@ -44,13 +46,21 @@ public final class StarlightUniverse extends JavaPlugin {
 
         lobbyManager = new LobbyManager(this, queueManager);
 
+        economyManager = new EconomyManager(databaseManager);
+
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(worldManager, this);
         Bukkit.getPluginManager().registerEvents(lobbyManager, this);
+        Bukkit.getPluginManager().registerEvents(new EconomyListener(economyManager), this);
 
         Bukkit.getCommandMap().register("starlightuniverse", new RegisterCommand(this, authManager));
         Bukkit.getCommandMap().register("starlightuniverse", new LoginCommand(this, authManager));
         Bukkit.getCommandMap().register("starlightuniverse", new ChangePassCommand(this, authManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new BalCommand(economyManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new PayCommand(economyManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new GiveMoneyCommand(this, economyManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new GiveGemsCommand(this, economyManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new GiveStarsCommand(this, economyManager));
 
         getLogger().info("[SU] Enabled!");
     }
@@ -108,5 +118,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public LobbyManager getLobbyManager() {
         return lobbyManager;
+    }
+
+    public EconomyManager getEconomyManager() {
+        return economyManager;
     }
 }

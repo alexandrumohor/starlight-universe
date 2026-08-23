@@ -139,6 +139,25 @@
     <div class="task"><input type="checkbox" id="p3_18"><label for="p3_18">Dragon respawn: at 00:00, 06:00, 12:00 or 18:00 (RO time) players in dragon world get teleported out, entry is blocked</label></div>
     <div class="task"><input type="checkbox" id="p3_19"><label for="p3_19">After reset: chat shows "The Dragon has been respawned!" — entry reopens 15 seconds later</label></div>
 
+    <!-- PHASE 4 -->
+    <h2>Phase 4 — Economy + Currencies</h2>
+    <div class="task"><input type="checkbox" id="p4_1"><label for="p4_1">Log in and type /bal — you see your balance: $0, ◆0, ★0 with colored icons</label></div>
+    <div class="task"><input type="checkbox" id="p4_2"><label for="p4_2">As OP, type /givemoney YourName 5000 — you get a message saying you received $5,000</label></div>
+    <div class="task"><input type="checkbox" id="p4_3"><label for="p4_3">Type /bal — Money now shows $5,000</label></div>
+    <div class="task"><input type="checkbox" id="p4_4"><label for="p4_4">/givegems YourName 200 — Gems shows ◆200 in /bal</label></div>
+    <div class="task"><input type="checkbox" id="p4_5"><label for="p4_5">/givestars YourName 50 — Stars shows ★50 in /bal</label></div>
+    <div class="task"><input type="checkbox" id="p4_6"><label for="p4_6">With a second player online, type /pay Player2 money 1000 — you lose $1,000 and they get $980 (2% tax)</label></div>
+    <div class="task"><input type="checkbox" id="p4_7"><label for="p4_7">Both you and Player2 see confirmation messages with the amounts</label></div>
+    <div class="task"><input type="checkbox" id="p4_8"><label for="p4_8">Try /pay Player2 gems 100 — get error "Gems and Stars are non-tradeable!"</label></div>
+    <div class="task"><input type="checkbox" id="p4_9"><label for="p4_9">Try /pay Player2 stars 10 — same error about non-tradeable</label></div>
+    <div class="task"><input type="checkbox" id="p4_10"><label for="p4_10">Try /pay YourName money 100 — get error "You cannot pay yourself!"</label></div>
+    <div class="task"><input type="checkbox" id="p4_11"><label for="p4_11">Try /pay Player2 money 999999 (more than you have) — get "Insufficient funds!" error</label></div>
+    <div class="task"><input type="checkbox" id="p4_12"><label for="p4_12">Numbers format with commas: $1,500 not $1500</label></div>
+    <div class="task"><input type="checkbox" id="p4_13"><label for="p4_13">Disconnect and reconnect — /bal shows the same amounts (saved in database)</label></div>
+    <div class="task"><input type="checkbox" id="p4_14"><label for="p4_14">/givemoney OfflinePlayer 1000 while they're offline — says "(offline)" in confirmation</label></div>
+    <div class="task"><input type="checkbox" id="p4_15"><label for="p4_15">Non-OP player tries /givemoney — gets "No permission!" error</label></div>
+    <div class="task"><input type="checkbox" id="p4_16"><label for="p4_16">Tab-complete works: /pay shows player names, then money/gems/stars</label></div>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

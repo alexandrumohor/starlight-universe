@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlight Universe — Currency Icons Mockup</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0a0a1a;
+            color: #e0e0e0;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 {
+            background: linear-gradient(90deg, #FFD700, #FF8C00, #FF4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle { color: #888; margin-bottom: 2rem; }
+        .icons-container {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+        .icon-card {
+            background: #1a1a2e;
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 240px;
+        }
+        .icon-card h3 { margin-bottom: 1rem; font-size: 1rem; }
+        .money-title { color: #FFD700; }
+        .gems-title { color: #55FFFF; }
+        .stars-title { color: #AA00AA; }
+        canvas.preview {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            width: 160px;
+            height: 160px;
+            background: #111;
+            border: 1px solid #444;
+            display: block;
+            margin: 0 auto 1rem;
+        }
+        .info { color: #666; font-size: 0.75rem; margin-bottom: 0.75rem; }
+        button {
+            background: #2a2a4a;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        button:hover { background: #3a3a5a; }
+        .instructions {
+            max-width: 600px;
+            margin: 2rem auto;
+            text-align: left;
+            background: #1a1a2e;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .instructions h3 { color: #FFD700; margin-bottom: 0.75rem; }
+        .instructions ol { padding-left: 1.25rem; }
+        .instructions li { margin-bottom: 0.5rem; color: #ccc; }
+        .instructions code { color: #55FF55; background: #0a0a1a; padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Starlight Universe</h1>
+    <p class="subtitle">Currency Icons Mockup — 16x16 pixel art for resource pack</p>
+
+    <div class="icons-container">
+        <div class="icon-card">
+            <h3 class="money-title">Money ($) — \\uE001</h3>
+            <canvas id="money" width="16" height="16" class="preview"></canvas>
+            <p class="info">Gold coin icon — yellow #FFD700</p>
+            <button onclick="download('money', 'money_icon.png')">Download PNG</button>
+        </div>
+        <div class="icon-card">
+            <h3 class="gems-title">Gems (&#9670;) — \\uE002</h3>
+            <canvas id="gems" width="16" height="16" class="preview"></canvas>
+            <p class="info">Diamond gem icon — cyan #55FFFF</p>
+            <button onclick="download('gems', 'gems_icon.png')">Download PNG</button>
+        </div>
+        <div class="icon-card">
+            <h3 class="stars-title">Stars (&#9733;) — \\uE003</h3>
+            <canvas id="stars" width="16" height="16" class="preview"></canvas>
+            <p class="info">Star icon — violet #AA00AA</p>
+            <button onclick="download('stars', 'stars_icon.png')">Download PNG</button>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>How to use</h3>
+        <ol>
+            <li>Click <strong>Download PNG</strong> on each icon above</li>
+            <li>Save the 3 PNGs to:<br><code>resourcepack/assets/starlight/textures/font/</code></li>
+            <li>Files should be named: <code>money_icon.png</code>, <code>gems_icon.png</code>, <code>stars_icon.png</code></li>
+            <li>The font definition is already at <code>assets/minecraft/font/default.json</code></li>
+        </ol>
+    </div>
+
+    <script>
+    var PALETTES = {
+        money: {
+            1: [107, 76, 0, 255],
+            2: [184, 134, 11, 255],
+            3: [255, 215, 0, 255],
+            4: [255, 248, 176, 255]
+        },
+        gems: {
+            1: [0, 64, 64, 255],
+            2: [0, 139, 139, 255],
+            3: [85, 255, 255, 255],
+            4: [176, 255, 255, 255]
+        },
+        stars: {
+            1: [51, 0, 51, 255],
+            2: [119, 0, 119, 255],
+            3: [170, 0, 170, 255],
+            4: [221, 85, 221, 255]
+        }
+    };
+
+    // 0=transparent, 1=darkest outline, 2=shadow, 3=base, 4=highlight
+    var MONEY_DATA = [
+        '0000001111000000',
+        '0000114444110000',
+        '0001444444443100',
+        '0014444444443310',
+        '0144444444433310',
+        '1444444444333321',
+        '1444444443333221',
+        '1444444433332221',
+        '1444444333322221',
+        '1444443333222221',
+        '1444433332222221',
+        '0144333322222210',
+        '0013333222222100',
+        '0001332222221000',
+        '0000112222110000',
+        '0000001111000000'
+    ];
+
+    var GEMS_DATA = [
+        '0000000110000000',
+        '0000001441000000',
+        '0000014443100000',
+        '0000144433310000',
+        '0001444333310000',
+        '0014443333221000',
+        '0144433332221100',
+        '1444333322221110',
+        '1333332222211110',
+        '0133322222111100',
+        '0013322221111000',
+        '0001322211110000',
+        '0000122111100000',
+        '0000012111000000',
+        '0000001110000000',
+        '0000000100000000'
+    ];
+
+    var STARS_DATA = [
+        '0000000110000000',
+        '0000000330000000',
+        '0000001331000000',
+        '0000013443100000',
+        '0000013443100000',
+        '1111134443311111',
+        '0134444444443210',
+        '0013444444432100',
+        '0001344444321000',
+        '0001344443321000',
+        '0013443334432100',
+        '0134432002344310',
+        '1344320000234421',
+        '1343200000023321',
+        '1332000000013221',
+        '1110000000001110'
+    ];
+
+    function drawIcon(canvasId, data, palette) {
+        var canvas = document.getElementById(canvasId);
+        var ctx = canvas.getContext('2d');
+        var imgData = ctx.createImageData(16, 16);
+        for (var y = 0; y < 16; y++) {
+            for (var x = 0; x < 16; x++) {
+                var idx = (y * 16 + x) * 4;
+                var val = parseInt(data[y][x]);
+                if (val === 0) {
+                    imgData.data[idx] = 0;
+                    imgData.data[idx+1] = 0;
+                    imgData.data[idx+2] = 0;
+                    imgData.data[idx+3] = 0;
+                } else {
+                    var c = palette[val];
+                    imgData.data[idx] = c[0];
+                    imgData.data[idx+1] = c[1];
+                    imgData.data[idx+2] = c[2];
+                    imgData.data[idx+3] = c[3];
+                }
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    function download(canvasId, filename) {
+        var canvas = document.getElementById(canvasId);
+        var link = document.createElement('a');
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    drawIcon('money', MONEY_DATA, PALETTES.money);
+    drawIcon('gems', GEMS_DATA, PALETTES.gems);
+    drawIcon('stars', STARS_DATA, PALETTES.stars);
+    </script>
+</body>
+</html>
