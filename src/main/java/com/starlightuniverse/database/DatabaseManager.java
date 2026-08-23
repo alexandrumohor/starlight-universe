@@ -73,6 +73,7 @@ public class DatabaseManager {
             }
 
             createTables();
+            runMigrations();
             return true;
         } catch (Exception e) {
             plugin.getLogger().severe("[SU] Failed to connect to database: " + e.getMessage());
@@ -159,6 +160,21 @@ public class DatabaseManager {
                     """);
 
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
+        }
+    }
+
+    private void runMigrations() {
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN last_login_ip VARCHAR(45) DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN last_login_time BIGINT DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            plugin.getLogger().info("[SU] Database migrations applied.");
+        } catch (SQLException e) {
+            plugin.getLogger().warning("[SU] Migration check failed: " + e.getMessage());
         }
     }
 

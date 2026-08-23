@@ -176,6 +176,104 @@
             </div>
         </div>
 
+        <!-- PHASE 2 -->
+        <div class="phase">
+            <div class="phase-header">
+                Phase 2 — Login / Register
+                <span class="progress" id="p2-progress">0/18</span>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-1" onchange="updateProgress()">
+                <label for="p2-1">Compileaza proiectul cu <code>./gradlew build</code> — trebuie sa mearga fara erori</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-2" onchange="updateProgress()">
+                <label for="p2-2">Porneste serverul si intra pe server. Esti complet blocat: nu poti sa te misti, sa spargi blocuri, sa deschizi inventarul, sa scrii in chat, sau sa interactionezi cu nimic. Poti doar sa te uiti in jur cu mouse-ul</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-3" onchange="updateProgress()">
+                <label for="p2-3">Scrie orice comanda (ex: <code>/help</code>) — primesti mesaj de eroare colorat care iti spune sa te loghezi</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-4" onchange="updateProgress()">
+                <label for="p2-4">Primesti automat mesajul "Welcome! Type /register &lt;password&gt; &lt;confirm&gt;" pentru ca nu ai cont inca</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-5" onchange="updateProgress()">
+                <label for="p2-5">Scrie <code>/register ab ab</code> (parola prea scurta) — primesti eroare ca parola trebuie sa aiba minim 3 caractere</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-6" onchange="updateProgress()">
+                <label for="p2-6">Scrie <code>/register test123 test456</code> (parole diferite) — primesti eroare ca parolele nu se potrivesc</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-7" onchange="updateProgress()">
+                <label for="p2-7">Scrie <code>/register test123 test123</code> — mesaj de succes, esti deblocat si poti sa te misti, sa interactionezi, sa scrii in chat</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-8" onchange="updateProgress()">
+                <label for="p2-8">Verifica in MySQL ca in tabela <code>su_players</code> exista contul tau cu <code>password_hash</code> completat, <code>register_date</code> setat, si <code>last_login_ip</code> completat</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-9" onchange="updateProgress()">
+                <label for="p2-9">Deconecteaza-te si reconecteaza-te in mai putin de 5 minute — esti logat automat fara sa scrii parola (session token)</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-10" onchange="updateProgress()">
+                <label for="p2-10">Asteapta peste 5 minute si reconecteaza-te — de data asta primesti mesajul "Welcome back! Type /login &lt;password&gt;"</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-11" onchange="updateProgress()">
+                <label for="p2-11">Scrie <code>/login parolagresita</code> — primesti eroare "Wrong password!"</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-12" onchange="updateProgress()">
+                <label for="p2-12">Scrie <code>/login test123</code> (parola corecta) — esti deblocat cu mesaj de succes</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-13" onchange="updateProgress()">
+                <label for="p2-13">Incearca sa gresesti parola de 5 ori rapid — la a 6-a incercare primesti mesaj ca trebuie sa astepti 60 de secunde</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-14" onchange="updateProgress()">
+                <label for="p2-14">Dupa login, scrie <code>/changepass test123 newpass123</code> — primesti mesaj de succes ca parola a fost schimbata</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-15" onchange="updateProgress()">
+                <label for="p2-15">Deconecteaza-te, asteapta 5+ minute, reconecteaza-te si logheaza-te cu noua parola — functioneaza</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-16" onchange="updateProgress()">
+                <label for="p2-16">Incearca sa faci <code>/register</code> dupa ce ai deja cont — primesti eroare ca deja existi</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-17" onchange="updateProgress()">
+                <label for="p2-17">Fa 2 conturi de pe acelasi IP, apoi incearca al 3-lea — esti dat afara cu mesaj "Maximum 2 accounts per IP"</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p2-18" onchange="updateProgress()">
+                <label for="p2-18">Daca ai cont Mojang (premium), intri pe server si esti logat automat cu mesaj "Premium account detected!" si skin-ul tau real apare. Daca esti pe cracked, primesti un skin random (nu Steve/Alex)</label>
+            </div>
+        </div>
+
     </div>
 
     <script>
