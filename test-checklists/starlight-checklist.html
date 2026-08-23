@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlight Universe - Test Checklist</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a1a;
+            color: #e0e0e0;
+            padding: 40px 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            font-size: 2.2em;
+            background: linear-gradient(90deg, #FFD700, #FF8C00, #FF4500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 40px;
+            font-size: 0.9em;
+        }
+        .phase {
+            background: #12122a;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .phase-header {
+            font-size: 1.4em;
+            color: #FFD700;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2a2a4a;
+        }
+        .phase-header .progress {
+            float: right;
+            font-size: 0.6em;
+            color: #888;
+            margin-top: 6px;
+        }
+        .test-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px 0;
+            gap: 12px;
+        }
+        .test-item input[type="checkbox"] {
+            margin-top: 4px;
+            width: 18px;
+            height: 18px;
+            accent-color: #FFD700;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .test-item label {
+            cursor: pointer;
+            line-height: 1.5;
+        }
+        .test-item input:checked + label {
+            text-decoration: line-through;
+            color: #555;
+        }
+        .overall-progress {
+            text-align: center;
+            padding: 16px;
+            background: #12122a;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #1a1a3a;
+            border-radius: 6px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #FF8C00);
+            border-radius: 6px;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Starlight Universe</h1>
+        <p class="subtitle">Test Checklist — all phases, all tests</p>
+
+        <div class="overall-progress">
+            <strong id="overall-text">0 / 0 completed</strong>
+            <div class="progress-bar">
+                <div class="progress-fill" id="overall-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- PHASE 0 -->
+        <div class="phase">
+            <div class="phase-header">
+                Phase 0 — Schelet + Repository
+                <span class="progress" id="phase0-progress">0/5</span>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p0-1" onchange="updateProgress()">
+                <label for="p0-1">Deschide folderul proiectului si verifica ca exista fisierele: build.gradle, settings.gradle, .gitignore, README.md</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p0-2" onchange="updateProgress()">
+                <label for="p0-2">Ruleaza <code>./gradlew build</code> in terminal si verifica ca se compileaza fara erori. In <code>build/libs/</code> trebuie sa apara <code>StarlightUniverse-1.0.0.jar</code></label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p0-3" onchange="updateProgress()">
+                <label for="p0-3">Pune JAR-ul in folderul <code>plugins/</code> al serverului Paper si porneste serverul. In consola trebuie sa apara mesajul <code>[SU] Enabled!</code></label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p0-4" onchange="updateProgress()">
+                <label for="p0-4">Opreste serverul si verifica ca in consola apare <code>[SU] Disabled!</code></label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p0-5" onchange="updateProgress()">
+                <label for="p0-5">Verifica ca folderul <code>resourcepack/</code> exista si contine <code>pack.mcmeta</code> si structura <code>assets/starlight/</code> cu subfolderele: textures/font, textures/gui, font, sounds, models</label>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function updateProgress() {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            var total = checkboxes.length;
+            var checked = 0;
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) checked++;
+            }
+            document.getElementById('overall-text').textContent = checked + ' / ' + total + ' completed';
+            document.getElementById('overall-fill').style.width = (total > 0 ? (checked / total * 100) : 0) + '%';
+
+            var phases = {};
+            for (var i = 0; i < checkboxes.length; i++) {
+                var id = checkboxes[i].id;
+                var phase = id.split('-')[0];
+                if (!phases[phase]) phases[phase] = { total: 0, checked: 0 };
+                phases[phase].total++;
+                if (checkboxes[i].checked) phases[phase].checked++;
+            }
+            for (var p in phases) {
+                var el = document.getElementById(p + '-progress');
+                if (el) el.textContent = phases[p].checked + '/' + phases[p].total;
+            }
+
+            try { localStorage.setItem('su-checklist', JSON.stringify(getState())); } catch(e) {}
+        }
+
+        function getState() {
+            var state = {};
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                state[checkboxes[i].id] = checkboxes[i].checked;
+            }
+            return state;
+        }
+
+        function loadState() {
+            try {
+                var saved = localStorage.getItem('su-checklist');
+                if (saved) {
+                    var state = JSON.parse(saved);
+                    for (var id in state) {
+                        var el = document.getElementById(id);
+                        if (el) el.checked = state[id];
+                    }
+                }
+            } catch(e) {}
+            updateProgress();
+        }
+
+        loadState();
+    </script>
+</body>
+</html>
