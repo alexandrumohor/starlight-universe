@@ -38,6 +38,14 @@ public final class InspectCommands {
             Msg.success(player, "Viewing " + target.getName() + "'s inventory.");
             return true;
         }
+        @Override
+        public boolean execute(@org.jetbrains.annotations.NotNull org.bukkit.command.CommandSender sender,
+                               @org.jetbrains.annotations.NotNull String label,
+                               @org.jetbrains.annotations.NotNull String[] args) {
+            if (sender instanceof Player p && adminManager.getPremiumLevel(p.getUniqueId()) >= 5)
+                return onCommand(p, args);
+            return super.execute(sender, label, args);
+        }
     }
 
     private static class EnderseeCmd extends AdminCommand {

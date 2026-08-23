@@ -53,6 +53,10 @@ public class RegisterCommand extends Command {
                         authManager.setAuthenticated(player.getUniqueId());
                         Msg.success(player, "Account registered successfully! You are now logged in.");
                         StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
+                        if (StarlightUniverse.getInstance().getPremiumManager() != null) {
+                            StarlightUniverse.getInstance().getPremiumManager().grantTrial(username);
+                            Msg.info(player, "You received a 3-day Meteor trial! Check /premium for perks.");
+                        }
                     }
                     case PASSWORD_TOO_SHORT -> Msg.error(player, "Password must be at least 3 characters!");
                     case PASSWORD_MISMATCH -> Msg.error(player, "Passwords do not match!");

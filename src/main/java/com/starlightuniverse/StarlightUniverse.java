@@ -7,6 +7,7 @@ import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.*;
 import com.starlightuniverse.home.*;
 import com.starlightuniverse.order.*;
+import com.starlightuniverse.premium.*;
 import com.starlightuniverse.shop.*;
 import com.starlightuniverse.world.*;
 import org.bukkit.Bukkit;
@@ -30,6 +31,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private OrderManager orderManager;
     private AdminManager adminManager;
     private HomeManager homeManager;
+    private PremiumManager premiumManager;
 
     @Override
     public void onEnable() {
@@ -73,6 +75,9 @@ public final class StarlightUniverse extends JavaPlugin {
         homeManager.initialize();
         homeManager.loadGolems();
 
+        premiumManager = new PremiumManager(this, databaseManager, economyManager, adminManager);
+        premiumManager.initialize();
+
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(new AdminListener(this, adminManager), this);
         Bukkit.getPluginManager().registerEvents(worldManager, this);
@@ -82,6 +87,7 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new AuctionListener(this, auctionManager), this);
         Bukkit.getPluginManager().registerEvents(new OrderListener(this, orderManager), this);
         Bukkit.getPluginManager().registerEvents(new HomeListener(this, homeManager), this);
+        Bukkit.getPluginManager().registerEvents(new PremiumListener(this, premiumManager, adminManager, economyManager), this);
 
         Bukkit.getCommandMap().register("starlightuniverse", new RegisterCommand(this, authManager));
         Bukkit.getCommandMap().register("starlightuniverse", new LoginCommand(this, authManager));
@@ -118,6 +124,9 @@ public final class StarlightUniverse extends JavaPlugin {
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
         Bukkit.getCommandMap().register("starlightuniverse", new HomeProtectCommand(homeManager));
 
+        for (Command cmd : PremiumCommands.create(premiumManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
+
         getLogger().info("[SU] Enabled!");
     }
 
@@ -132,6 +141,10 @@ public final class StarlightUniverse extends JavaPlugin {
                     }
                 }
             }
+        }
+
+        if (premiumManager != null) {
+            premiumManager.shutdown();
         }
 
         if (homeManager != null) {
@@ -210,5 +223,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public HomeManager getHomeManager() {
         return homeManager;
+    }
+
+    public PremiumManager getPremiumManager() {
+        return premiumManager;
     }
 }

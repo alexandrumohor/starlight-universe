@@ -79,6 +79,12 @@ public final class StaffToolCommands {
             }
             return true;
         }
+        @Override
+        public boolean execute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+            if (sender instanceof Player p && adminManager.getPremiumLevel(p.getUniqueId()) >= 5)
+                return onCommand(p, args);
+            return super.execute(sender, label, args);
+        }
         @Override public @NotNull List<String> tabComplete(@NotNull CommandSender s, @NotNull String a, @NotNull String[] args) {
             return List.of();
         }

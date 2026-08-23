@@ -356,6 +356,18 @@ public class DatabaseManager {
             try {
                 stmt.execute("ALTER TABLE su_players ADD COLUMN extra_home_slots INT DEFAULT 0");
             } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN premium_expire_date DATETIME DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN daily_bonus_date DATE DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN monthly_stars_date VARCHAR(7) DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN referred_by VARCHAR(16) DEFAULT NULL");
+            } catch (SQLException ignored) {}
             plugin.getLogger().info("[SU] Database migrations applied.");
         } catch (SQLException e) {
             plugin.getLogger().warning("[SU] Migration check failed: " + e.getMessage());
