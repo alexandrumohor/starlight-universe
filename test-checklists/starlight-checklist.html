@@ -403,6 +403,215 @@
     <div class="task"><input type="checkbox" id="p9_56"><label for="p9_56">Disconnect and reconnect — all homes and protection are saved and restored from the database</label></div>
     <div class="task"><input type="checkbox" id="p9_57"><label for="p9_57">Check MySQL — tables su_homes, su_protections, su_protection_members, su_protection_logs, su_golems exist</label></div>
 
+    <h2>Phase 10 — Premium Ranks (Meteor → Galaxy)</h2>
+
+    <h3>Rank Overview & Purchase</h3>
+    <div class="task"><input type="checkbox" id="p10_1"><label for="p10_1">Type /premium — opens a GUI showing 5 ranks: Meteor, Comet, Nebula, Supernova, Galaxy with prices</label></div>
+    <div class="task"><input type="checkbox" id="p10_2"><label for="p10_2">Click a rank you don't own — opens Buy confirmation with "Stars" and "Gems" options</label></div>
+    <div class="task"><input type="checkbox" id="p10_3"><label for="p10_3">Click "Cancel" in Buy GUI — returns to overview</label></div>
+    <div class="task"><input type="checkbox" id="p10_4"><label for="p10_4">Give yourself enough Stars, buy Meteor (500 Stars) — success message, broadcast to server</label></div>
+    <div class="task"><input type="checkbox" id="p10_5"><label for="p10_5">Type /rankup — offers to buy Comet (next rank) directly</label></div>
+    <div class="task"><input type="checkbox" id="p10_6"><label for="p10_6">In /premium GUI, Meteor now shows "OWNED" instead of prices</label></div>
+    <div class="task"><input type="checkbox" id="p10_7"><label for="p10_7">Try buying Meteor again — "You already own this rank or higher!"</label></div>
+
+    <h3>Premium Trial (New Players)</h3>
+    <div class="task"><input type="checkbox" id="p10_8"><label for="p10_8">Register a brand new account — "You received a 3-day Meteor trial!" message</label></div>
+    <div class="task"><input type="checkbox" id="p10_9"><label for="p10_9">The new player can use Meteor perks (e.g., /hat, /feed, /sit)</label></div>
+    <div class="task"><input type="checkbox" id="p10_10"><label for="p10_10">After trial expires (check DB: set premium_expire_date to past), login shows "Your premium trial has expired!"</label></div>
+
+    <h3>Referral System</h3>
+    <div class="task"><input type="checkbox" id="p10_11"><label for="p10_11">Type /referral Player2 — both you and Player2 get 20 Stars bonus</label></div>
+    <div class="task"><input type="checkbox" id="p10_12"><label for="p10_12">Type /referral Player2 again — "You have already used your referral!"</label></div>
+    <div class="task"><input type="checkbox" id="p10_13"><label for="p10_13">Type /referral YourOwnName — "You can't refer yourself!"</label></div>
+
+    <h3>Meteor Perks (Rank 1)</h3>
+    <div class="task"><input type="checkbox" id="p10_14"><label for="p10_14">Type /hat while holding an item — item goes on your head</label></div>
+    <div class="task"><input type="checkbox" id="p10_15"><label for="p10_15">Type /feed — hunger bar fills up</label></div>
+    <div class="task"><input type="checkbox" id="p10_16"><label for="p10_16">Type /craftingtable — portable crafting table opens</label></div>
+    <div class="task"><input type="checkbox" id="p10_17"><label for="p10_17">Type /trash or /disposal — trash GUI opens, put items in, close it — items destroyed</label></div>
+    <div class="task"><input type="checkbox" id="p10_18"><label for="p10_18">Type /sit — you sit down on an invisible armor stand, type /sit again to stand</label></div>
+    <div class="task"><input type="checkbox" id="p10_19"><label for="p10_19">Type /repair while holding a damaged tool — costs $2,000, repairs the item</label></div>
+    <div class="task"><input type="checkbox" id="p10_20"><label for="p10_20">Type /condense with iron ingots in inventory — converts 9 ingots into 1 iron block</label></div>
+    <div class="task"><input type="checkbox" id="p10_21"><label for="p10_21">Type /near — shows nearby players within 100 blocks</label></div>
+    <div class="task"><input type="checkbox" id="p10_22"><label for="p10_22">Type /ptime day — personal time changes to day (only for you)</label></div>
+    <div class="task"><input type="checkbox" id="p10_23"><label for="p10_23">Type /colors — shows hex color chart with color names</label></div>
+
+    <h3>Comet Perks (Rank 2)</h3>
+    <div class="task"><input type="checkbox" id="p10_24"><label for="p10_24">Type /anvil — portable anvil opens</label></div>
+    <div class="task"><input type="checkbox" id="p10_25"><label for="p10_25">Type /heal — heals to full health, removes fire and poisons</label></div>
+    <div class="task"><input type="checkbox" id="p10_26"><label for="p10_26">Type /trail — trail selection GUI opens with 10 trail types</label></div>
+    <div class="task"><input type="checkbox" id="p10_27"><label for="p10_27">Select a trail (e.g., "Hearts") — particles follow you as you walk</label></div>
+    <div class="task"><input type="checkbox" id="p10_28"><label for="p10_28">Type /back — teleports to your last death location</label></div>
+    <div class="task"><input type="checkbox" id="p10_29"><label for="p10_29">Type /seen Player2 — shows when they were last online (or "currently online")</label></div>
+    <div class="task"><input type="checkbox" id="p10_30"><label for="p10_30">Type /lay — you lay down (swimming animation)</label></div>
+    <div class="task"><input type="checkbox" id="p10_31"><label for="p10_31">Type /loom — portable loom opens</label></div>
+    <div class="task"><input type="checkbox" id="p10_32"><label for="p10_32">Type /compass Player2 — your compass now points to Player2</label></div>
+    <div class="task"><input type="checkbox" id="p10_33"><label for="p10_33">Type /firework — launches a decorative firework</label></div>
+    <div class="task"><input type="checkbox" id="p10_34"><label for="p10_34">Type /pweather clear — personal weather changes to clear</label></div>
+    <div class="task"><input type="checkbox" id="p10_35"><label for="p10_35">Type /autosort — inventory items get sorted alphabetically</label></div>
+    <div class="task"><input type="checkbox" id="p10_36"><label for="p10_36">Type /bottle with XP levels — stores levels as XP bottles in inventory</label></div>
+    <div class="task"><input type="checkbox" id="p10_37"><label for="p10_37">Kill a mob — you get bonus money on top of regular XP</label></div>
+    <div class="task"><input type="checkbox" id="p10_38"><label for="p10_38">Die as Comet — armor is kept, some XP is preserved (50%)</label></div>
+
+    <h3>Nebula Perks (Rank 3)</h3>
+    <div class="task"><input type="checkbox" id="p10_39"><label for="p10_39">Type /grindstone — portable grindstone opens</label></div>
+    <div class="task"><input type="checkbox" id="p10_40"><label for="p10_40">Type /smithingtable — portable smithing table opens</label></div>
+    <div class="task"><input type="checkbox" id="p10_41"><label for="p10_41">Type /stonecutter — portable stonecutter opens</label></div>
+    <div class="task"><input type="checkbox" id="p10_42"><label for="p10_42">Type /uncondense with iron blocks — converts blocks back to 9 ingots each</label></div>
+    <div class="task"><input type="checkbox" id="p10_43"><label for="p10_43">Type /iteminfo while holding an item — shows type, amount, durability, enchantments</label></div>
+    <div class="task"><input type="checkbox" id="p10_44"><label for="p10_44">Type /stack — merges partial stacks of same items together</label></div>
+    <div class="task"><input type="checkbox" id="p10_45"><label for="p10_45">Type /fly in the lobby — flight enables, "Flight enabled!" message</label></div>
+    <div class="task"><input type="checkbox" id="p10_46"><label for="p10_46">Type /fly in survival (not in protection) — "You can only fly in the lobby!"</label></div>
+    <div class="task"><input type="checkbox" id="p10_47"><label for="p10_47">Die as Nebula — 75% XP kept, 30% of inventory items preserved</label></div>
+
+    <h3>Supernova Perks (Rank 4)</h3>
+    <div class="task"><input type="checkbox" id="p10_48"><label for="p10_48">Type /bodyglow — you start glowing, type again to disable</label></div>
+    <div class="task"><input type="checkbox" id="p10_49"><label for="p10_49">Type /enderchest — opens your ender chest remotely</label></div>
+    <div class="task"><input type="checkbox" id="p10_50"><label for="p10_50">Type /smelt while holding raw iron — converts to iron ingots in your hand</label></div>
+    <div class="task"><input type="checkbox" id="p10_51"><label for="p10_51">Type /skull Player2 — get Player2's head as an item</label></div>
+    <div class="task"><input type="checkbox" id="p10_52"><label for="p10_52">Type /nightvision — night vision toggles on/off (infinite duration)</label></div>
+    <div class="task"><input type="checkbox" id="p10_53"><label for="p10_53">Type /speed 3 — walk and fly speed increase</label></div>
+    <div class="task"><input type="checkbox" id="p10_54"><label for="p10_54">Type /hdb — head database GUI opens with decorative heads</label></div>
+    <div class="task"><input type="checkbox" id="p10_55"><label for="p10_55">Click a head in /hdb — the head is added to your inventory</label></div>
+    <div class="task"><input type="checkbox" id="p10_56"><label for="p10_56">Type /fix while holding a damaged item — repairs it (30min cooldown)</label></div>
+    <div class="task"><input type="checkbox" id="p10_57"><label for="p10_57">Type /fix again immediately — "Cooldown: XXm XXs remaining!"</label></div>
+    <div class="task"><input type="checkbox" id="p10_58"><label for="p10_58">Type /top — teleports you to the highest block at your position</label></div>
+    <div class="task"><input type="checkbox" id="p10_59"><label for="p10_59">Type /jump — teleports you to the block you're looking at</label></div>
+    <div class="task"><input type="checkbox" id="p10_60"><label for="p10_60">Die as Supernova — 90% XP kept, 60% inventory preserved, armor kept</label></div>
+    <div class="task"><input type="checkbox" id="p10_61"><label for="p10_61">Earn XP as Supernova — get 25% more XP than normal</label></div>
+    <div class="task"><input type="checkbox" id="p10_62"><label for="p10_62">Priority queue — Supernova+ players get moved ahead when entering survival</label></div>
+
+    <h3>Galaxy Perks (Rank 5)</h3>
+    <div class="task"><input type="checkbox" id="p10_63"><label for="p10_63">Type /etable — portable enchanting table opens</label></div>
+    <div class="task"><input type="checkbox" id="p10_64"><label for="p10_64">Type /disenchant while holding enchanted item — enchantments removed into books</label></div>
+    <div class="task"><input type="checkbox" id="p10_65"><label for="p10_65">Type /fixall — repairs ALL items in inventory (1h cooldown)</label></div>
+    <div class="task"><input type="checkbox" id="p10_66"><label for="p10_66">Type /rename Cool Sword — item in hand gets renamed to "Cool Sword"</label></div>
+    <div class="task"><input type="checkbox" id="p10_67"><label for="p10_67">Type /lore add Legendary Blade — adds a lore line to the held item</label></div>
+    <div class="task"><input type="checkbox" id="p10_68"><label for="p10_68">Type /lore clear — removes all lore from the held item</label></div>
+    <div class="task"><input type="checkbox" id="p10_69"><label for="p10_69">Type /unbreakable — held item becomes unbreakable (24h cooldown)</label></div>
+    <div class="task"><input type="checkbox" id="p10_70"><label for="p10_70">Die as Galaxy — 100% XP kept, ALL inventory and armor preserved (keep inventory)</label></div>
+    <div class="task"><input type="checkbox" id="p10_71"><label for="p10_71">Earn XP as Galaxy — get 50% more XP than normal</label></div>
+    <div class="task"><input type="checkbox" id="p10_72"><label for="p10_72">Type /fly in a protection you own — flight works (Galaxy can fly in protections)</label></div>
+    <div class="task"><input type="checkbox" id="p10_73"><label for="p10_73">Type /invsee Player2 as Galaxy (no admin rank) — can view Player2's inventory</label></div>
+    <div class="task"><input type="checkbox" id="p10_74"><label for="p10_74">Type /vanish as Galaxy (no admin rank) — you become invisible</label></div>
+
+    <h3>Daily Bonus & Monthly Stars</h3>
+    <div class="task"><input type="checkbox" id="p10_75"><label for="p10_75">Login as Meteor — receive daily $500 bonus</label></div>
+    <div class="task"><input type="checkbox" id="p10_76"><label for="p10_76">Login again same day — no duplicate daily bonus</label></div>
+    <div class="task"><input type="checkbox" id="p10_77"><label for="p10_77">Login next day — daily bonus received again</label></div>
+    <div class="task"><input type="checkbox" id="p10_78"><label for="p10_78">Login as Nebula+ in a new month — receive monthly Stars bonus</label></div>
+
+    <h3>Permission Checks</h3>
+    <div class="task"><input type="checkbox" id="p10_79"><label for="p10_79">Without any premium rank, type /hat — "You need Meteor rank to use this!"</label></div>
+    <div class="task"><input type="checkbox" id="p10_80"><label for="p10_80">As Meteor, type /heal — "You need Comet rank to use this!"</label></div>
+    <div class="task"><input type="checkbox" id="p10_81"><label for="p10_81">As Comet, type /grindstone — "You need Nebula rank to use this!"</label></div>
+    <div class="task"><input type="checkbox" id="p10_82"><label for="p10_82">All tab-complete works: /ptime, /pweather, /compass, /skull, /speed, /lore</label></div>
+
+    <h3>Database & Cleanup</h3>
+    <div class="task"><input type="checkbox" id="p10_83"><label for="p10_83">Check MySQL — su_players has columns: premium_expire_date, daily_bonus_date, monthly_stars_date, referred_by</label></div>
+    <div class="task"><input type="checkbox" id="p10_84"><label for="p10_84">Disconnect while sitting — armor stand is removed, no orphaned entities</label></div>
+    <div class="task"><input type="checkbox" id="p10_85"><label for="p10_85">Disconnect while flying — flight is properly disabled</label></div>
+    <div class="task"><input type="checkbox" id="p10_86"><label for="p10_86">Disconnect with active trail — trail particles stop</label></div>
+
+    <h2>Phase 11 — Team System</h2>
+
+    <h3>Team Creation &amp; Basics</h3>
+    <label><input type="checkbox" id="p11_01"> Type /team with no args and see the help menu</label>
+    <label><input type="checkbox" id="p11_02"> Create a team with /team create TestTeam (costs $5,000)</label>
+    <label><input type="checkbox" id="p11_03"> Try creating a second team while already in one — should say you're already in a team</label>
+    <label><input type="checkbox" id="p11_04"> Try a name longer than 16 chars — should be rejected</label>
+    <label><input type="checkbox" id="p11_05"> Try a name with special characters — should be rejected</label>
+    <label><input type="checkbox" id="p11_06"> Type /team info and see your team details (name, leader, level, members)</label>
+
+    <h3>Invites &amp; Members</h3>
+    <label><input type="checkbox" id="p11_07"> Invite a second player with /team invite PlayerB</label>
+    <label><input type="checkbox" id="p11_08"> As PlayerB, type /team accept to join the team</label>
+    <label><input type="checkbox" id="p11_09"> Type /team info again and see both members listed</label>
+    <label><input type="checkbox" id="p11_10"> Invite a player and have them /team deny — invite is denied</label>
+    <label><input type="checkbox" id="p11_11"> Wait 2 minutes without accepting — invite expires</label>
+
+    <h3>Ranks (Promote / Demote / Kick)</h3>
+    <label><input type="checkbox" id="p11_12"> As Leader, /team promote PlayerB — should go Member -> Senior Member</label>
+    <label><input type="checkbox" id="p11_13"> Promote again to Veteran, then Officer, then Co-Leader</label>
+    <label><input type="checkbox" id="p11_14"> /team demote PlayerB — should go down one rank</label>
+    <label><input type="checkbox" id="p11_15"> As a Member, try /team kick — should say no permission</label>
+    <label><input type="checkbox" id="p11_16"> As Leader, /team kick PlayerB — player is removed from team</label>
+
+    <h3>Leave &amp; Disband</h3>
+    <label><input type="checkbox" id="p11_17"> As a non-leader member, /team leave — you leave the team</label>
+    <label><input type="checkbox" id="p11_18"> As Leader with members, /team leave — should say to transfer leadership or disband</label>
+    <label><input type="checkbox" id="p11_19"> As Leader (solo), /team disband — team is dissolved, bank funds returned</label>
+
+    <h3>Team Home</h3>
+    <label><input type="checkbox" id="p11_20"> As Co-Leader+, /team sethome — sets the team home</label>
+    <label><input type="checkbox" id="p11_21"> /team home — teleports you to the team home</label>
+    <label><input type="checkbox" id="p11_22"> Use /team home again immediately — cooldown message (5s)</label>
+    <label><input type="checkbox" id="p11_23"> As Member, try /team sethome — should say no permission</label>
+
+    <h3>Colors &amp; Name</h3>
+    <label><input type="checkbox" id="p11_24"> /team setcolor #FF5555 — team color changes to red</label>
+    <label><input type="checkbox" id="p11_25"> /team setcolor #FF0000 #00FF00 #0000FF — gradient with 3 colors</label>
+    <label><input type="checkbox" id="p11_26"> /team setname NewName — team is renamed (costs $2,000)</label>
+    <label><input type="checkbox" id="p11_27"> Try renaming to an existing team name — should be rejected</label>
+
+    <h3>Friendly Fire</h3>
+    <label><input type="checkbox" id="p11_28"> /team friendlyfire — toggles friendly fire</label>
+    <label><input type="checkbox" id="p11_29"> With FF off, attack a teammate — damage is cancelled</label>
+    <label><input type="checkbox" id="p11_30"> With FF on, attack a teammate — damage goes through</label>
+
+    <h3>Team Chat</h3>
+    <label><input type="checkbox" id="p11_31"> /team chat — toggles team chat mode on</label>
+    <label><input type="checkbox" id="p11_32"> Type a message — only team members see it, prefixed [TC]</label>
+    <label><input type="checkbox" id="p11_33"> /team chat again — back to global chat</label>
+    <label><input type="checkbox" id="p11_34"> /tc Hello team! — sends a one-off team message</label>
+
+    <h3>Allies</h3>
+    <label><input type="checkbox" id="p11_35"> Create two teams. Leader of Team1: /team ally Team2</label>
+    <label><input type="checkbox" id="p11_36"> Leader of Team2: /team ally Team1 — alliance is formed (both sides accepted)</label>
+    <label><input type="checkbox" id="p11_37"> Attack an ally — damage is cancelled</label>
+    <label><input type="checkbox" id="p11_38"> /team unally Team2 — alliance is broken</label>
+    <label><input type="checkbox" id="p11_39"> Try having more than 3 allies — should say max reached</label>
+
+    <h3>Team Bank</h3>
+    <label><input type="checkbox" id="p11_40"> /team deposit money 1000 — money moves from your wallet to team bank</label>
+    <label><input type="checkbox" id="p11_41"> /team deposit gems 50 — gems deposited</label>
+    <label><input type="checkbox" id="p11_42"> /team bank — shows current team bank balance</label>
+    <label><input type="checkbox" id="p11_43"> As Co-Leader+, /team withdraw money 500 — money withdrawn to your wallet</label>
+    <label><input type="checkbox" id="p11_44"> As Member, try /team withdraw — should say no permission</label>
+
+    <h3>Team Vault</h3>
+    <label><input type="checkbox" id="p11_45"> Try /team vault at team level below 10 — message says vault unlocks at level 10</label>
+    <label><input type="checkbox" id="p11_46"> At team level 10+, /team vault — opens a shared chest GUI</label>
+    <label><input type="checkbox" id="p11_47"> Put items in the vault, close it, reopen — items persist</label>
+    <label><input type="checkbox" id="p11_48"> Another team member opens the vault and sees the same items</label>
+
+    <h3>Team Level &amp; Missions</h3>
+    <label><input type="checkbox" id="p11_49"> /team missions — shows 3 daily missions with progress</label>
+    <label><input type="checkbox" id="p11_50"> Mine blocks, kill mobs, etc. to progress missions</label>
+    <label><input type="checkbox" id="p11_51"> Complete a mission — team gets XP, broadcast to team</label>
+    <label><input type="checkbox" id="p11_52"> Team levels up when enough XP is earned — broadcast with new level</label>
+    <label><input type="checkbox" id="p11_53"> /team info shows current level and XP progress</label>
+
+    <h3>Team PvP Battles</h3>
+    <label><input type="checkbox" id="p11_54"> /teampvp request OtherTeam 5 — sends a 5-minute PvP challenge</label>
+    <label><input type="checkbox" id="p11_55"> Other team leader: /teampvp accept — battle starts</label>
+    <label><input type="checkbox" id="p11_56"> Kill members of the other team during the battle — kills are tracked</label>
+    <label><input type="checkbox" id="p11_57"> Battle ends after time — results shown to both teams</label>
+    <label><input type="checkbox" id="p11_58"> /teampvp cancel — surrenders the battle early</label>
+
+    <h3>Team Wars</h3>
+    <label><input type="checkbox" id="p11_59"> /team war OtherTeam — sends war declaration</label>
+    <label><input type="checkbox" id="p11_60"> Other leader: /team war YourTeam — war begins (both accepted)</label>
+    <label><input type="checkbox" id="p11_61"> Kills during war give bonus team XP</label>
+    <label><input type="checkbox" id="p11_62"> /team war surrender — ends the war, winner gets XP bonus</label>
+
+    <h3>Team List &amp; Top</h3>
+    <label><input type="checkbox" id="p11_63"> /team list — opens a GUI showing all teams with their level and member count</label>
+    <label><input type="checkbox" id="p11_64"> /team top — shows top 10 teams by level in chat</label>
+
+    <h3>Resource Sharing</h3>
+    <label><input type="checkbox" id="p11_65"> Hold an item and /team request 10 — allies get a notification about your request</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

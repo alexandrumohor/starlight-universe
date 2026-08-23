@@ -340,6 +340,76 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_teams (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        name VARCHAR(32) NOT NULL UNIQUE,
+                        leader_username VARCHAR(16) NOT NULL,
+                        color1 VARCHAR(7) DEFAULT '#FFFFFF',
+                        color2 VARCHAR(7) DEFAULT NULL,
+                        color3 VARCHAR(7) DEFAULT NULL,
+                        color4 VARCHAR(7) DEFAULT NULL,
+                        color5 VARCHAR(7) DEFAULT NULL,
+                        friendly_fire TINYINT(1) DEFAULT 0,
+                        level INT DEFAULT 1,
+                        xp BIGINT DEFAULT 0,
+                        bank_money DOUBLE DEFAULT 0,
+                        bank_gems DOUBLE DEFAULT 0,
+                        bank_stars DOUBLE DEFAULT 0,
+                        vault_data MEDIUMTEXT DEFAULT NULL,
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_team_allies (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        team_id INT NOT NULL,
+                        ally_team_id INT NOT NULL,
+                        allied_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE KEY uk_ally (team_id, ally_team_id),
+                        FOREIGN KEY (team_id) REFERENCES su_teams(id) ON DELETE CASCADE,
+                        FOREIGN KEY (ally_team_id) REFERENCES su_teams(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_team_homes (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        team_id INT NOT NULL UNIQUE,
+                        world VARCHAR(64) NOT NULL,
+                        x DOUBLE NOT NULL,
+                        y DOUBLE NOT NULL,
+                        z DOUBLE NOT NULL,
+                        yaw FLOAT NOT NULL,
+                        pitch FLOAT NOT NULL,
+                        FOREIGN KEY (team_id) REFERENCES su_teams(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_team_missions (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        team_id INT NOT NULL,
+                        mission_type VARCHAR(32) NOT NULL,
+                        target_amount INT NOT NULL,
+                        current_amount INT DEFAULT 0,
+                        mission_date DATE NOT NULL,
+                        completed TINYINT(1) DEFAULT 0,
+                        UNIQUE KEY uk_mission (team_id, mission_type, mission_date),
+                        FOREIGN KEY (team_id) REFERENCES su_teams(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_team_vault (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        team_id INT NOT NULL UNIQUE,
+                        vault_data MEDIUMTEXT,
+                        FOREIGN KEY (team_id) REFERENCES su_teams(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

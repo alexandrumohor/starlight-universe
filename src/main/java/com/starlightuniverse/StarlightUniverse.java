@@ -9,6 +9,7 @@ import com.starlightuniverse.home.*;
 import com.starlightuniverse.order.*;
 import com.starlightuniverse.premium.*;
 import com.starlightuniverse.shop.*;
+import com.starlightuniverse.team.*;
 import com.starlightuniverse.world.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -32,6 +33,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private AdminManager adminManager;
     private HomeManager homeManager;
     private PremiumManager premiumManager;
+    private TeamManager teamManager;
 
     @Override
     public void onEnable() {
@@ -78,6 +80,9 @@ public final class StarlightUniverse extends JavaPlugin {
         premiumManager = new PremiumManager(this, databaseManager, economyManager, adminManager);
         premiumManager.initialize();
 
+        teamManager = new TeamManager(this, databaseManager, economyManager);
+        teamManager.initialize();
+
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(new AdminListener(this, adminManager), this);
         Bukkit.getPluginManager().registerEvents(worldManager, this);
@@ -88,6 +93,7 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new OrderListener(this, orderManager), this);
         Bukkit.getPluginManager().registerEvents(new HomeListener(this, homeManager), this);
         Bukkit.getPluginManager().registerEvents(new PremiumListener(this, premiumManager, adminManager, economyManager), this);
+        Bukkit.getPluginManager().registerEvents(new TeamListener(this, teamManager), this);
 
         Bukkit.getCommandMap().register("starlightuniverse", new RegisterCommand(this, authManager));
         Bukkit.getCommandMap().register("starlightuniverse", new LoginCommand(this, authManager));
@@ -127,6 +133,10 @@ public final class StarlightUniverse extends JavaPlugin {
         for (Command cmd : PremiumCommands.create(premiumManager))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
 
+        for (Command cmd : TeamCommand.create(teamManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
+        Bukkit.getCommandMap().register("starlightuniverse", new TeamPvPCommand(teamManager));
+
         getLogger().info("[SU] Enabled!");
     }
 
@@ -141,6 +151,10 @@ public final class StarlightUniverse extends JavaPlugin {
                     }
                 }
             }
+        }
+
+        if (teamManager != null) {
+            teamManager.shutdown();
         }
 
         if (premiumManager != null) {
@@ -227,5 +241,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public PremiumManager getPremiumManager() {
         return premiumManager;
+    }
+
+    public TeamManager getTeamManager() {
+        return teamManager;
     }
 }
