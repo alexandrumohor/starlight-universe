@@ -138,6 +138,44 @@
             </div>
         </div>
 
+        <!-- PHASE 1 -->
+        <div class="phase">
+            <div class="phase-header">
+                Phase 1 — Database
+                <span class="progress" id="p1-progress">0/6</span>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p1-1" onchange="updateProgress()">
+                <label for="p1-1">Compileaza proiectul cu <code>./gradlew build</code> — trebuie sa mearga fara erori</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p1-2" onchange="updateProgress()">
+                <label for="p1-2">Pune JAR-ul pe server si porneste prima data. In consola apare un warning ca <code>database.yml</code> a fost creat cu valori default si plugin-ul se dezactiveaza singur</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p1-3" onchange="updateProgress()">
+                <label for="p1-3">Deschide <code>plugins/StarlightUniverse/database.yml</code> si pune datele tale de MySQL (host, port, database, username, password). Asigura-te ca baza de date exista in MySQL</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p1-4" onchange="updateProgress()">
+                <label for="p1-4">Reporneste serverul. In consola trebuie sa vezi: "Database connected successfully!", "Database tables created/verified successfully!" si "[SU] Enabled!"</label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p1-5" onchange="updateProgress()">
+                <label for="p1-5">Deschide MySQL si verifica ca exista 4 tabele: <code>su_players</code>, <code>su_bans</code>, <code>su_mutes</code>, <code>su_warns</code></label>
+            </div>
+
+            <div class="test-item">
+                <input type="checkbox" id="p1-6" onchange="updateProgress()">
+                <label for="p1-6">Pune o parola gresita in database.yml si reporneste. Plugin-ul trebuie sa arate eroare si sa se dezactiveze singur. Pune parola buna inapoi si reporneste — trebuie sa mearga din nou</label>
+            </div>
+        </div>
+
     </div>
 
     <script>

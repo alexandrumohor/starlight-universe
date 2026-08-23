@@ -1,5 +1,6 @@
 name: StarlightUniverse
 version: '1.0.0'
 main: com.starlightuniverse.StarlightUniverse
+loader: com.starlightuniverse.StarlightLoader
 description: Starlight Universe Minecraft Server Plugin
 api-version: '1.21.4'
