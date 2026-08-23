@@ -183,6 +183,47 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_auction_listings (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        seller_username VARCHAR(16) NOT NULL,
+                        item_data MEDIUMTEXT NOT NULL,
+                        item_material VARCHAR(64) NOT NULL,
+                        item_amount INT NOT NULL,
+                        remaining_amount INT NOT NULL,
+                        price_per_unit DOUBLE NOT NULL,
+                        listed_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        expire_date DATETIME NOT NULL,
+                        active TINYINT(1) DEFAULT 1,
+                        collected TINYINT(1) DEFAULT 0,
+                        INDEX idx_active (active),
+                        INDEX idx_seller (seller_username),
+                        INDEX idx_expire (expire_date)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_auction_history (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        item_material VARCHAR(64) NOT NULL,
+                        item_amount INT NOT NULL,
+                        price_per_unit DOUBLE NOT NULL,
+                        total_price DOUBLE NOT NULL,
+                        seller_username VARCHAR(16) NOT NULL,
+                        buyer_username VARCHAR(16) NOT NULL,
+                        sold_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        INDEX idx_material (item_material),
+                        INDEX idx_sold_date (sold_date)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_auction_blacklist (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        material VARCHAR(64) NOT NULL UNIQUE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

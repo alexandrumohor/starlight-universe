@@ -186,6 +186,46 @@
     <div class="task"><input type="checkbox" id="p5_24"><label for="p5_24">There is NO sell option anywhere in the shop — buy only</label></div>
     <div class="task"><input type="checkbox" id="p5_25"><label for="p5_25">Daily deals change to different items the next day (same items all day)</label></div>
 
+    <!-- PHASE 6 -->
+    <h2>Phase 6 — Auction House</h2>
+    <div class="task"><input type="checkbox" id="p6_1"><label for="p6_1">Type /ah — the Auction House GUI opens with gold title, empty listings area, and bottom bar with My Listings, Collect, Sort, Filter buttons</label></div>
+    <div class="task"><input type="checkbox" id="p6_2"><label for="p6_2">Hold an item (e.g. 64 dirt) and type /ah sell 5 — item is removed from hand, you see a success message with item name, price, and listing fee</label></div>
+    <div class="task"><input type="checkbox" id="p6_3"><label for="p6_3">Check your balance — the 5% listing fee was deducted (64 dirt at $5 each = $320 total, fee = $16)</label></div>
+    <div class="task"><input type="checkbox" id="p6_4"><label for="p6_4">Open /ah — your listed item now appears with seller name, price per unit, amount, and expiry time</label></div>
+    <div class="task"><input type="checkbox" id="p6_5"><label for="p6_5">Try clicking your own listing — you get an error "You cannot buy your own listing!"</label></div>
+    <div class="task"><input type="checkbox" id="p6_6"><label for="p6_6">With a second player, open /ah and click the listing — buy screen opens with +1/+10/+64 and -1/-10/-64 buttons</label></div>
+    <div class="task"><input type="checkbox" id="p6_7"><label for="p6_7">Buy screen shows the item, seller name, price per unit, quantity selection, and total cost</label></div>
+    <div class="task"><input type="checkbox" id="p6_8"><label for="p6_8">Click +10 a few times — quantity increases, max is the remaining amount (can't buy more than listed)</label></div>
+    <div class="task"><input type="checkbox" id="p6_9"><label for="p6_9">Buy a partial amount (e.g. 30 out of 64) — you receive 30 items and pay 30 x price</label></div>
+    <div class="task"><input type="checkbox" id="p6_10"><label for="p6_10">The seller (if online) gets a message that their item was bought and money added</label></div>
+    <div class="task"><input type="checkbox" id="p6_11"><label for="p6_11">Open /ah again — the listing still shows with 34 remaining (64 - 30)</label></div>
+    <div class="task"><input type="checkbox" id="p6_12"><label for="p6_12">Buy the remaining 34 — listing disappears from the Auction House</label></div>
+    <div class="task"><input type="checkbox" id="p6_13"><label for="p6_13">Try buying with insufficient funds — get "Insufficient funds!" error</label></div>
+    <div class="task"><input type="checkbox" id="p6_14"><label for="p6_14">Click Cancel on the buy screen — returns to the browse view</label></div>
+    <div class="task"><input type="checkbox" id="p6_15"><label for="p6_15">Click the Sort button (comparator) — sort cycles between Newest, Cheapest, Most Expensive</label></div>
+    <div class="task"><input type="checkbox" id="p6_16"><label for="p6_16">With multiple listings at different prices, sorting works correctly</label></div>
+    <div class="task"><input type="checkbox" id="p6_17"><label for="p6_17">Click the Filter button (book) — category filter GUI opens with all 13 categories + "All Categories"</label></div>
+    <div class="task"><input type="checkbox" id="p6_18"><label for="p6_18">Click a category (e.g. Materials) — browse view shows only items in that category</label></div>
+    <div class="task"><input type="checkbox" id="p6_19"><label for="p6_19">Click "All Categories" — all listings show again</label></div>
+    <div class="task"><input type="checkbox" id="p6_20"><label for="p6_20">Click "My Listings" — shows only your active listings with "Click to cancel!" lore</label></div>
+    <div class="task"><input type="checkbox" id="p6_21"><label for="p6_21">Click a listing in My Listings — it gets cancelled, you see a message to use /ah collect</label></div>
+    <div class="task"><input type="checkbox" id="p6_22"><label for="p6_22">Click "Collect Items" (or /ah collect) — cancelled/expired items appear with "Click to collect!" lore</label></div>
+    <div class="task"><input type="checkbox" id="p6_23"><label for="p6_23">Click an item in Collect — it goes into your inventory, disappears from the collect screen</label></div>
+    <div class="task"><input type="checkbox" id="p6_24"><label for="p6_24">Click "Collect All" button — all items are collected at once</label></div>
+    <div class="task"><input type="checkbox" id="p6_25"><label for="p6_25">Collect with full inventory — overflow items drop on the ground</label></div>
+    <div class="task"><input type="checkbox" id="p6_26"><label for="p6_26">Type /ah history diamond — shows last sales of diamonds (or "No sale history" if none)</label></div>
+    <div class="task"><input type="checkbox" id="p6_27"><label for="p6_27">After buying diamonds, /ah history diamond shows the transaction with buyer, seller, amount, and price</label></div>
+    <div class="task"><input type="checkbox" id="p6_28"><label for="p6_28">As OP, /ah blacklist add dirt — success message. Try to sell dirt — get "blacklisted" error</label></div>
+    <div class="task"><input type="checkbox" id="p6_29"><label for="p6_29">/ah blacklist remove dirt — success message. Can sell dirt again</label></div>
+    <div class="task"><input type="checkbox" id="p6_30"><label for="p6_30">Non-OP tries /ah blacklist — gets "No permission!" error</label></div>
+    <div class="task"><input type="checkbox" id="p6_31"><label for="p6_31">/ah sell with empty hand — get "You must hold an item to sell!" error</label></div>
+    <div class="task"><input type="checkbox" id="p6_32"><label for="p6_32">/ah sell 0 or /ah sell -5 — get "Price must be greater than $0!" error</label></div>
+    <div class="task"><input type="checkbox" id="p6_33"><label for="p6_33">Listings expire after 48 hours (can test by checking the timer shows correct countdown)</label></div>
+    <div class="task"><input type="checkbox" id="p6_34"><label for="p6_34">Tab-complete /ah shows: sell, collect, history (and blacklist for OP)</label></div>
+    <div class="task"><input type="checkbox" id="p6_35"><label for="p6_35">If pages of listings exist, Previous/Next Page arrows work correctly</label></div>
+    <div class="task"><input type="checkbox" id="p6_36"><label for="p6_36">Enchanted items keep their enchantments when listed, bought, and collected</label></div>
+    <div class="task"><input type="checkbox" id="p6_37"><label for="p6_37">There is no price cap — you can list items at any price (free market)</label></div>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

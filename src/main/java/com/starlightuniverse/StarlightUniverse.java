@@ -1,5 +1,6 @@
 package com.starlightuniverse;
 
+import com.starlightuniverse.auction.*;
 import com.starlightuniverse.auth.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.*;
@@ -21,6 +22,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private LobbyManager lobbyManager;
     private EconomyManager economyManager;
     private ShopManager shopManager;
+    private AuctionManager auctionManager;
 
     @Override
     public void onEnable() {
@@ -52,11 +54,15 @@ public final class StarlightUniverse extends JavaPlugin {
 
         shopManager = new ShopManager(this, economyManager);
 
+        auctionManager = new AuctionManager(this, economyManager, databaseManager);
+        auctionManager.initialize();
+
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(worldManager, this);
         Bukkit.getPluginManager().registerEvents(lobbyManager, this);
         Bukkit.getPluginManager().registerEvents(new EconomyListener(economyManager), this);
         Bukkit.getPluginManager().registerEvents(new ShopListener(this, shopManager), this);
+        Bukkit.getPluginManager().registerEvents(new AuctionListener(this, auctionManager), this);
 
         Bukkit.getCommandMap().register("starlightuniverse", new RegisterCommand(this, authManager));
         Bukkit.getCommandMap().register("starlightuniverse", new LoginCommand(this, authManager));
@@ -67,6 +73,7 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getCommandMap().register("starlightuniverse", new GiveGemsCommand(this, economyManager));
         Bukkit.getCommandMap().register("starlightuniverse", new GiveStarsCommand(this, economyManager));
         Bukkit.getCommandMap().register("starlightuniverse", new ShopCommand(shopManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new AuctionCommand(auctionManager));
 
         getLogger().info("[SU] Enabled!");
     }
@@ -82,6 +89,10 @@ public final class StarlightUniverse extends JavaPlugin {
                     }
                 }
             }
+        }
+
+        if (auctionManager != null) {
+            auctionManager.shutdown();
         }
 
         if (queueManager != null) {
@@ -132,5 +143,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public ShopManager getShopManager() {
         return shopManager;
+    }
+
+    public AuctionManager getAuctionManager() {
+        return auctionManager;
     }
 }

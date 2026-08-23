@@ -740,7 +740,7 @@ public class ShopManager {
         return item;
     }
 
-    static String formatMaterial(Material material) {
+    public static String formatMaterial(Material material) {
         String name = material.name();
         if (name.equals("TNT")) return "TNT";
         StringBuilder sb = new StringBuilder();
