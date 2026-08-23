@@ -1,5 +1,6 @@
 package com.starlightuniverse.auth;
 
+import com.starlightuniverse.StarlightUniverse;
 import com.starlightuniverse.util.Msg;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -54,6 +55,7 @@ public class LoginCommand extends Command {
                     case SUCCESS -> {
                         authManager.setAuthenticated(player.getUniqueId());
                         Msg.success(player, "Successfully logged in! Welcome back.");
+                        StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
                     }
                     case WRONG_PASSWORD -> Msg.error(player, "Wrong password!");
                     case NOT_REGISTERED -> Msg.error(player, "Account not found! Use /register <password> <confirm>");

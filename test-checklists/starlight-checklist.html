@@ -1,332 +1,168 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starlight Universe - Test Checklist</title>
+    <title>Starlight Universe — Test Checklist</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             background: #0a0a1a;
             color: #e0e0e0;
-            padding: 40px 20px;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
         }
-        .container { max-width: 800px; margin: 0 auto; }
         h1 {
             text-align: center;
-            font-size: 2.2em;
             background: linear-gradient(90deg, #FFD700, #FF8C00, #FF4500);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
         .subtitle {
             text-align: center;
             color: #888;
-            margin-bottom: 40px;
-            font-size: 0.9em;
+            margin-bottom: 2rem;
         }
-        .phase {
-            background: #12122a;
-            border: 1px solid #2a2a4a;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
+        .progress-bar {
+            background: #1a1a2e;
+            border-radius: 8px;
+            height: 24px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            position: relative;
         }
-        .phase-header {
-            font-size: 1.4em;
+        .progress-fill {
+            background: linear-gradient(90deg, #55FF55, #00CC00);
+            height: 100%;
+            transition: width 0.3s;
+            border-radius: 8px;
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 4px rgba(0,0,0,0.8);
+        }
+        h2 {
             color: #FFD700;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #2a2a4a;
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
         }
-        .phase-header .progress {
-            float: right;
-            font-size: 0.6em;
-            color: #888;
-            margin-top: 6px;
-        }
-        .test-item {
+        .task {
             display: flex;
             align-items: flex-start;
-            padding: 8px 0;
-            gap: 12px;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.25rem;
+            transition: background 0.15s;
         }
-        .test-item input[type="checkbox"] {
-            margin-top: 4px;
+        .task:hover { background: #1a1a2e; }
+        .task input[type="checkbox"] {
+            margin-top: 3px;
             width: 18px;
             height: 18px;
-            accent-color: #FFD700;
+            accent-color: #55FF55;
             cursor: pointer;
             flex-shrink: 0;
         }
-        .test-item label {
+        .task label {
             cursor: pointer;
             line-height: 1.5;
         }
-        .test-item input:checked + label {
+        .task input:checked + label {
             text-decoration: line-through;
-            color: #555;
-        }
-        .overall-progress {
-            text-align: center;
-            padding: 16px;
-            background: #12122a;
-            border: 1px solid #2a2a4a;
-            border-radius: 12px;
-            margin-bottom: 24px;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 12px;
-            background: #1a1a3a;
-            border-radius: 6px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #FFD700, #FF8C00);
-            border-radius: 6px;
-            transition: width 0.3s;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Starlight Universe</h1>
-        <p class="subtitle">Test Checklist — all phases, all tests</p>
-
-        <div class="overall-progress">
-            <strong id="overall-text">0 / 0 completed</strong>
-            <div class="progress-bar">
-                <div class="progress-fill" id="overall-fill" style="width: 0%"></div>
-            </div>
-        </div>
-
-        <!-- PHASE 0 -->
-        <div class="phase">
-            <div class="phase-header">
-                Phase 0 — Schelet + Repository
-                <span class="progress" id="phase0-progress">0/5</span>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p0-1" onchange="updateProgress()">
-                <label for="p0-1">Deschide folderul proiectului si verifica ca exista fisierele: build.gradle, settings.gradle, .gitignore, README.md</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p0-2" onchange="updateProgress()">
-                <label for="p0-2">Ruleaza <code>./gradlew build</code> in terminal si verifica ca se compileaza fara erori. In <code>build/libs/</code> trebuie sa apara <code>StarlightUniverse-1.0.0.jar</code></label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p0-3" onchange="updateProgress()">
-                <label for="p0-3">Pune JAR-ul in folderul <code>plugins/</code> al serverului Paper si porneste serverul. In consola trebuie sa apara mesajul <code>[SU] Enabled!</code></label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p0-4" onchange="updateProgress()">
-                <label for="p0-4">Opreste serverul si verifica ca in consola apare <code>[SU] Disabled!</code></label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p0-5" onchange="updateProgress()">
-                <label for="p0-5">Verifica ca folderul <code>resourcepack/</code> exista si contine <code>pack.mcmeta</code> si structura <code>assets/starlight/</code> cu subfolderele: textures/font, textures/gui, font, sounds, models</label>
-            </div>
-        </div>
-
-        <!-- PHASE 1 -->
-        <div class="phase">
-            <div class="phase-header">
-                Phase 1 — Database
-                <span class="progress" id="p1-progress">0/6</span>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p1-1" onchange="updateProgress()">
-                <label for="p1-1">Compileaza proiectul cu <code>./gradlew build</code> — trebuie sa mearga fara erori</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p1-2" onchange="updateProgress()">
-                <label for="p1-2">Pune JAR-ul pe server si porneste prima data. In consola apare un warning ca <code>database.yml</code> a fost creat cu valori default si plugin-ul se dezactiveaza singur</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p1-3" onchange="updateProgress()">
-                <label for="p1-3">Deschide <code>plugins/StarlightUniverse/database.yml</code> si pune datele tale de MySQL (host, port, database, username, password). Asigura-te ca baza de date exista in MySQL</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p1-4" onchange="updateProgress()">
-                <label for="p1-4">Reporneste serverul. In consola trebuie sa vezi: "Database connected successfully!", "Database tables created/verified successfully!" si "[SU] Enabled!"</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p1-5" onchange="updateProgress()">
-                <label for="p1-5">Deschide MySQL si verifica ca exista 4 tabele: <code>su_players</code>, <code>su_bans</code>, <code>su_mutes</code>, <code>su_warns</code></label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p1-6" onchange="updateProgress()">
-                <label for="p1-6">Pune o parola gresita in database.yml si reporneste. Plugin-ul trebuie sa arate eroare si sa se dezactiveze singur. Pune parola buna inapoi si reporneste — trebuie sa mearga din nou</label>
-            </div>
-        </div>
-
-        <!-- PHASE 2 -->
-        <div class="phase">
-            <div class="phase-header">
-                Phase 2 — Login / Register
-                <span class="progress" id="p2-progress">0/18</span>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-1" onchange="updateProgress()">
-                <label for="p2-1">Compileaza proiectul cu <code>./gradlew build</code> — trebuie sa mearga fara erori</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-2" onchange="updateProgress()">
-                <label for="p2-2">Porneste serverul si intra pe server. Esti complet blocat: nu poti sa te misti, sa spargi blocuri, sa deschizi inventarul, sa scrii in chat, sau sa interactionezi cu nimic. Poti doar sa te uiti in jur cu mouse-ul</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-3" onchange="updateProgress()">
-                <label for="p2-3">Scrie orice comanda (ex: <code>/help</code>) — primesti mesaj de eroare colorat care iti spune sa te loghezi</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-4" onchange="updateProgress()">
-                <label for="p2-4">Primesti automat mesajul "Welcome! Type /register &lt;password&gt; &lt;confirm&gt;" pentru ca nu ai cont inca</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-5" onchange="updateProgress()">
-                <label for="p2-5">Scrie <code>/register ab ab</code> (parola prea scurta) — primesti eroare ca parola trebuie sa aiba minim 3 caractere</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-6" onchange="updateProgress()">
-                <label for="p2-6">Scrie <code>/register test123 test456</code> (parole diferite) — primesti eroare ca parolele nu se potrivesc</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-7" onchange="updateProgress()">
-                <label for="p2-7">Scrie <code>/register test123 test123</code> — mesaj de succes, esti deblocat si poti sa te misti, sa interactionezi, sa scrii in chat</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-8" onchange="updateProgress()">
-                <label for="p2-8">Verifica in MySQL ca in tabela <code>su_players</code> exista contul tau cu <code>password_hash</code> completat, <code>register_date</code> setat, si <code>last_login_ip</code> completat</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-9" onchange="updateProgress()">
-                <label for="p2-9">Deconecteaza-te si reconecteaza-te in mai putin de 5 minute — esti logat automat fara sa scrii parola (session token)</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-10" onchange="updateProgress()">
-                <label for="p2-10">Asteapta peste 5 minute si reconecteaza-te — de data asta primesti mesajul "Welcome back! Type /login &lt;password&gt;"</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-11" onchange="updateProgress()">
-                <label for="p2-11">Scrie <code>/login parolagresita</code> — primesti eroare "Wrong password!"</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-12" onchange="updateProgress()">
-                <label for="p2-12">Scrie <code>/login test123</code> (parola corecta) — esti deblocat cu mesaj de succes</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-13" onchange="updateProgress()">
-                <label for="p2-13">Incearca sa gresesti parola de 5 ori rapid — la a 6-a incercare primesti mesaj ca trebuie sa astepti 60 de secunde</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-14" onchange="updateProgress()">
-                <label for="p2-14">Dupa login, scrie <code>/changepass test123 newpass123</code> — primesti mesaj de succes ca parola a fost schimbata</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-15" onchange="updateProgress()">
-                <label for="p2-15">Deconecteaza-te, asteapta 5+ minute, reconecteaza-te si logheaza-te cu noua parola — functioneaza</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-16" onchange="updateProgress()">
-                <label for="p2-16">Incearca sa faci <code>/register</code> dupa ce ai deja cont — primesti eroare ca deja existi</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-17" onchange="updateProgress()">
-                <label for="p2-17">Fa 2 conturi de pe acelasi IP, apoi incearca al 3-lea — esti dat afara cu mesaj "Maximum 2 accounts per IP"</label>
-            </div>
-
-            <div class="test-item">
-                <input type="checkbox" id="p2-18" onchange="updateProgress()">
-                <label for="p2-18">Daca ai cont Mojang (premium), intri pe server si esti logat automat cu mesaj "Premium account detected!" si skin-ul tau real apare. Daca esti pe cracked, primesti un skin random (nu Steve/Alex)</label>
-            </div>
-        </div>
-
+    <h1>Starlight Universe</h1>
+    <p class="subtitle">Test Checklist — check each step as you verify it</p>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-text" id="progressText"></div>
     </div>
+
+    <!-- PHASE 0 -->
+    <h2>Phase 0 — Skeleton + Repository</h2>
+    <div class="task"><input type="checkbox" id="p0_1"><label for="p0_1">Start the server — console shows "[SU] Enabled!"</label></div>
+    <div class="task"><input type="checkbox" id="p0_2"><label for="p0_2">Stop the server — console shows "[SU] Disabled!"</label></div>
+    <div class="task"><input type="checkbox" id="p0_3"><label for="p0_3">Check that the resourcepack/ folder exists with the correct subfolders</label></div>
+
+    <!-- PHASE 1 -->
+    <h2>Phase 1 — Database</h2>
+    <div class="task"><input type="checkbox" id="p1_1"><label for="p1_1">Start the server with correct database.yml — console shows "Database connected successfully!"</label></div>
+    <div class="task"><input type="checkbox" id="p1_2"><label for="p1_2">Check MySQL: tables su_players, su_bans, su_mutes, su_warns exist</label></div>
+    <div class="task"><input type="checkbox" id="p1_3"><label for="p1_3">Start with wrong DB credentials — plugin disables with a clear error</label></div>
+
+    <!-- PHASE 2 -->
+    <h2>Phase 2 — Login / Register</h2>
+    <div class="task"><input type="checkbox" id="p2_1"><label for="p2_1">Join the server — you are blocked (can't move, can't chat, can't interact)</label></div>
+    <div class="task"><input type="checkbox" id="p2_2"><label for="p2_2">First time: see message to /register. Type /register pass pass — you're logged in</label></div>
+    <div class="task"><input type="checkbox" id="p2_3"><label for="p2_3">Reconnect — see message to /login. Type /login pass — you're logged in</label></div>
+    <div class="task"><input type="checkbox" id="p2_4"><label for="p2_4">Type /login wrongpass — get error. Do it 5 times — get cooldown message</label></div>
+    <div class="task"><input type="checkbox" id="p2_5"><label for="p2_5">Reconnect within 5 minutes — session restores automatically, no login needed</label></div>
+    <div class="task"><input type="checkbox" id="p2_6"><label for="p2_6">/changepass old new — password changes successfully</label></div>
+    <div class="task"><input type="checkbox" id="p2_7"><label for="p2_7">Try /register with password under 3 characters — get error</label></div>
+    <div class="task"><input type="checkbox" id="p2_8"><label for="p2_8">Try /register with mismatched passwords — get error</label></div>
+
+    <!-- PHASE 3 -->
+    <h2>Phase 3 — World Wiring + Lobby + Queue</h2>
+    <div class="task"><input type="checkbox" id="p3_1"><label for="p3_1">Start the server — console shows "world_dragon" being created (other worlds already exist)</label></div>
+    <div class="task"><input type="checkbox" id="p3_2"><label for="p3_2">Check MySQL: tables su_inventories and su_server_data exist</label></div>
+    <div class="task"><input type="checkbox" id="p3_3"><label for="p3_3">Join the server — you spawn in the lobby world (permanent night, no mobs)</label></div>
+    <div class="task"><input type="checkbox" id="p3_4"><label for="p3_4">In lobby: your gamemode is ADVENTURE, it's always night, no rain, no mobs</label></div>
+    <div class="task"><input type="checkbox" id="p3_5"><label for="p3_5">Log in or register — you get a Nether Star named "★ Survival Teleport" in the middle slot</label></div>
+    <div class="task"><input type="checkbox" id="p3_6"><label for="p3_6">Try dropping the Nether Star — it doesn't drop</label></div>
+    <div class="task"><input type="checkbox" id="p3_7"><label for="p3_7">Right-click the Nether Star — you see a "joining queue" message</label></div>
+    <div class="task"><input type="checkbox" id="p3_8"><label for="p3_8">Wait in queue — action bar shows "Pozitia ta: 1 / 1" then you get teleported to survivallobby</label></div>
+    <div class="task"><input type="checkbox" id="p3_9"><label for="p3_9">In survivallobby: your gamemode is ADVENTURE (safe zone)</label></div>
+    <div class="task"><input type="checkbox" id="p3_10"><label for="p3_10">Travel to the overworld — gamemode switches to SURVIVAL, PvP is on</label></div>
+    <div class="task"><input type="checkbox" id="p3_11"><label for="p3_11">Grab some items in survival, then disconnect</label></div>
+    <div class="task"><input type="checkbox" id="p3_12"><label for="p3_12">Reconnect — you're back in lobby with ONLY the Nether Star (no survival items)</label></div>
+    <div class="task"><input type="checkbox" id="p3_13"><label for="p3_13">Right-click Nether Star again, queue, enter survival — your items from before are restored</label></div>
+    <div class="task"><input type="checkbox" id="p3_14"><label for="p3_14">Travel to Nether or End — your inventory stays the same (shared across survival worlds)</label></div>
+    <div class="task"><input type="checkbox" id="p3_15"><label for="p3_15">Click the Nether Star while already in queue — get "already in queue" message</label></div>
+    <div class="task"><input type="checkbox" id="p3_16"><label for="p3_16">world_dragon exists as an End world — you can enter and fight the dragon</label></div>
+    <div class="task"><input type="checkbox" id="p3_17"><label for="p3_17">In world_dragon: try using an End Gateway portal — it's blocked</label></div>
+    <div class="task"><input type="checkbox" id="p3_18"><label for="p3_18">Dragon respawn: at 00:00, 06:00, 12:00 or 18:00 (RO time) players in dragon world get teleported out, entry is blocked</label></div>
+    <div class="task"><input type="checkbox" id="p3_19"><label for="p3_19">After reset: chat shows "The Dragon has been respawned!" — entry reopens 15 seconds later</label></div>
 
     <script>
         function updateProgress() {
-            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            var total = checkboxes.length;
-            var checked = 0;
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].checked) checked++;
-            }
-            document.getElementById('overall-text').textContent = checked + ' / ' + total + ' completed';
-            document.getElementById('overall-fill').style.width = (total > 0 ? (checked / total * 100) : 0) + '%';
-
-            var phases = {};
-            for (var i = 0; i < checkboxes.length; i++) {
-                var id = checkboxes[i].id;
-                var phase = id.split('-')[0];
-                if (!phases[phase]) phases[phase] = { total: 0, checked: 0 };
-                phases[phase].total++;
-                if (checkboxes[i].checked) phases[phase].checked++;
-            }
-            for (var p in phases) {
-                var el = document.getElementById(p + '-progress');
-                if (el) el.textContent = phases[p].checked + '/' + phases[p].total;
-            }
-
-            try { localStorage.setItem('su-checklist', JSON.stringify(getState())); } catch(e) {}
+            var boxes = document.querySelectorAll('input[type="checkbox"]');
+            var checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+            var pct = Math.round((checked / boxes.length) * 100);
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressText').textContent = checked + ' / ' + boxes.length + ' (' + pct + '%)';
+            var data = {};
+            boxes.forEach(function(cb) { data[cb.id] = cb.checked; });
+            try { localStorage.setItem('su_checklist', JSON.stringify(data)); } catch(e) {}
         }
-
-        function getState() {
-            var state = {};
-            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            for (var i = 0; i < checkboxes.length; i++) {
-                state[checkboxes[i].id] = checkboxes[i].checked;
-            }
-            return state;
-        }
-
-        function loadState() {
+        (function() {
             try {
-                var saved = localStorage.getItem('su-checklist');
-                if (saved) {
-                    var state = JSON.parse(saved);
-                    for (var id in state) {
-                        var el = document.getElementById(id);
-                        if (el) el.checked = state[id];
-                    }
-                }
+                var saved = JSON.parse(localStorage.getItem('su_checklist') || '{}');
+                Object.keys(saved).forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.checked = saved[id];
+                });
             } catch(e) {}
             updateProgress();
-        }
-
-        loadState();
+            document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+                cb.addEventListener('change', updateProgress);
+            });
+        })();
     </script>
 </body>
 </html>

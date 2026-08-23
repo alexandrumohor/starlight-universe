@@ -1,9 +1,13 @@
 package com.starlightuniverse.auth;
 
+import com.starlightuniverse.StarlightUniverse;
 import com.starlightuniverse.util.Msg;
+import com.starlightuniverse.world.InventoryManager;
+import com.starlightuniverse.world.WorldManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.GameMode;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,6 +40,8 @@ public class AuthListener implements Listener {
         String username = player.getName();
         String ip = player.getAddress() != null ? player.getAddress().getAddress().getHostAddress() : "unknown";
 
+        prepareForLobby(player);
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             boolean registered = authManager.isRegistered(username);
 
@@ -46,6 +52,7 @@ public class AuthListener implements Listener {
                         if (player.isOnline()) {
                             authManager.setAuthenticated(player.getUniqueId());
                             Msg.success(player, "Session restored! Welcome back.");
+                            StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
                         }
                     });
                     return;
@@ -62,6 +69,7 @@ public class AuthListener implements Listener {
                                 authManager.setAuthenticated(player.getUniqueId());
                                 Msg.success(player, "Premium account verified! Auto-login successful.");
                                 if (skin != null) skinManager.applySkin(player, skin);
+                                StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
                             }
                         });
                         return;
@@ -88,6 +96,7 @@ public class AuthListener implements Listener {
                             authManager.setAuthenticated(player.getUniqueId());
                             Msg.success(player, "Premium account detected! Auto-registered and logged in.");
                             if (skin != null) skinManager.applySkin(player, skin);
+                            StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
                         }
                     });
                     return;
@@ -110,7 +119,32 @@ public class AuthListener implements Listener {
         });
     }
 
-    @EventHandler
+    private void prepareForLobby(Player player) {
+        WorldManager.WorldGroup currentGroup = WorldManager.getWorldGroup(player.getWorld());
+        if (currentGroup == WorldManager.WorldGroup.SURVIVAL) {
+            InventoryManager invManager = StarlightUniverse.getInstance().getInventoryManager();
+            if (invManager != null) {
+                invManager.saveInventory(player, WorldManager.WorldGroup.SURVIVAL);
+            }
+        }
+
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        player.getInventory().setItemInOffHand(null);
+        player.setLevel(0);
+        player.setExp(0);
+        player.setFoodLevel(20);
+        player.setSaturation(5.0f);
+        player.setHealth(player.getMaxHealth());
+        player.setGameMode(GameMode.ADVENTURE);
+
+        World lobby = Bukkit.getWorld(WorldManager.LOBBY);
+        if (lobby != null && !player.getWorld().getName().equals(WorldManager.LOBBY)) {
+            player.teleport(lobby.getSpawnLocation());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (authManager.isAuthenticated(player.getUniqueId())) {
@@ -124,8 +158,8 @@ public class AuthListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onMove(PlayerMoveEvent event) {
         if (authManager.isAuthenticated(event.getPlayer().getUniqueId())) return;
-        Location from = event.getFrom();
-        Location to = event.getTo();
+        org.bukkit.Location from = event.getFrom();
+        org.bukkit.Location to = event.getTo();
         if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
             event.setTo(from.clone().setDirection(to.getDirection()));
         }

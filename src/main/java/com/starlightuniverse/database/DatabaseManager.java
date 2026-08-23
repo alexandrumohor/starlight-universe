@@ -159,6 +159,30 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_inventories (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        username VARCHAR(16) NOT NULL,
+                        inventory_group VARCHAR(16) NOT NULL,
+                        inventory_data MEDIUMTEXT,
+                        armor_data MEDIUMTEXT,
+                        offhand_data MEDIUMTEXT,
+                        exp_level INT DEFAULT 0,
+                        exp_progress FLOAT DEFAULT 0,
+                        health DOUBLE DEFAULT 20,
+                        food_level INT DEFAULT 20,
+                        saturation FLOAT DEFAULT 5,
+                        UNIQUE KEY uk_player_group (username, inventory_group)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_server_data (
+                        data_key VARCHAR(64) PRIMARY KEY,
+                        data_value VARCHAR(255)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

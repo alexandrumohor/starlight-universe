@@ -1,5 +1,6 @@
 package com.starlightuniverse.auth;
 
+import com.starlightuniverse.StarlightUniverse;
 import com.starlightuniverse.util.Msg;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -51,6 +52,7 @@ public class RegisterCommand extends Command {
                     case SUCCESS -> {
                         authManager.setAuthenticated(player.getUniqueId());
                         Msg.success(player, "Account registered successfully! You are now logged in.");
+                        StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
                     }
                     case PASSWORD_TOO_SHORT -> Msg.error(player, "Password must be at least 3 characters!");
                     case PASSWORD_MISMATCH -> Msg.error(player, "Passwords do not match!");
