@@ -107,36 +107,9 @@ public class AdminListener implements Listener {
         Player player = event.getPlayer();
         java.util.UUID uuid = player.getUniqueId();
 
-        if (adminManager.isInStaffChat(uuid)) {
-            event.setCancelled(true);
-            Component staffMsg = Component.text("[SC] ", RED)
-                    .append(Component.text(player.getName(), WHITE))
-                    .append(Component.text(": ", GRAY))
-                    .append(event.message());
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                for (Player online : Bukkit.getOnlinePlayers()) {
-                    if (adminManager.getAdminLevel(online.getUniqueId()) > 0) {
-                        online.sendMessage(staffMsg);
-                    }
-                }
-            });
-            return;
-        }
-
         if (adminManager.isMuted(uuid)) {
             event.setCancelled(true);
             Bukkit.getScheduler().runTask(plugin, () -> Msg.error(player, "You are muted!"));
-            return;
-        }
-
-        if (adminManager.getAdminLevel(uuid) == 0 && !adminManager.canChat(uuid)) {
-            event.setCancelled(true);
-            Bukkit.getScheduler().runTask(plugin, () ->
-                    Msg.error(player, "Chat is in slow mode! Wait " + adminManager.getSlowModeSeconds() + "s."));
-            return;
-        }
-        if (adminManager.getAdminLevel(uuid) == 0) {
-            adminManager.recordChat(uuid);
         }
     }
 

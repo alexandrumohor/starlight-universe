@@ -612,6 +612,56 @@
     <h3>Resource Sharing</h3>
     <label><input type="checkbox" id="p11_65"> Hold an item and /team request 10 — allies get a notification about your request</label>
 
+    <h2>Phase 12 — Chat System</h2>
+
+    <h3>Chat Format</h3>
+    <label><input type="checkbox" id="p12_1"> Type a message in chat — format shows: [Team] [Admin] [Premium] YourName >> message</label>
+    <label><input type="checkbox" id="p12_2"> If you have no team, no admin rank, no premium — just shows: YourName >> message</label>
+    <label><input type="checkbox" id="p12_3"> If you have a team, it shows [TeamName] in the team's color(s) before your name</label>
+    <label><input type="checkbox" id="p12_4"> If you have an admin rank (Owner/Moderator/Helper/Trial Helper), it shows the rank prefix in its color</label>
+    <label><input type="checkbox" id="p12_5"> If you have a premium rank (Meteor/Comet/etc.), it shows the rank prefix in its color</label>
+
+    <h3>Custom Tag</h3>
+    <label><input type="checkbox" id="p12_6"> /settag CoolTag — sets your custom tag (requires any premium rank)</label>
+    <label><input type="checkbox" id="p12_7"> After setting a tag, chat shows [CoolTag] instead of the premium rank prefix</label>
+    <label><input type="checkbox" id="p12_8"> /settag clear — removes your tag, premium rank shows again</label>
+    <label><input type="checkbox" id="p12_9"> Without any premium rank, /settag gives an error</label>
+
+    <h3>Reply System</h3>
+    <label><input type="checkbox" id="p12_10"> /reply PlayerName hello — sends a public message: YourName replies to PlayerName >> hello</label>
+    <label><input type="checkbox" id="p12_11"> When someone @mentions you, /r hello — automatically replies to them</label>
+    <label><input type="checkbox" id="p12_12"> /r with no arguments — shows usage hint</label>
+
+    <h3>Colored Chat</h3>
+    <label><input type="checkbox" id="p12_13"> Nebula+ players with a chat color set see their messages in that color</label>
+    <label><input type="checkbox" id="p12_14"> Players below Nebula rank see their messages in white regardless of chat color</label>
+
+    <h3>@Mentions</h3>
+    <label><input type="checkbox" id="p12_15"> Type @PlayerName in chat — the @name appears highlighted in gold/bold</label>
+    <label><input type="checkbox" id="p12_16"> The mentioned player hears a notification sound</label>
+    <label><input type="checkbox" id="p12_17"> @mentions for offline or non-existent players just show as normal text</label>
+
+    <h3>Cooldown &amp; Filters</h3>
+    <label><input type="checkbox" id="p12_18"> Non-staff: can't send two messages within 1.5 seconds — get a cooldown error</label>
+    <label><input type="checkbox" id="p12_19"> Staff members can chat without cooldown</label>
+    <label><input type="checkbox" id="p12_20"> Type a URL in chat (non-staff) — blocked with an error message</label>
+    <label><input type="checkbox" id="p12_21"> Staff can send links freely</label>
+    <label><input type="checkbox" id="p12_22"> Swear words get censored with asterisks (e.g. "f***")</label>
+
+    <h3>Chat Channels</h3>
+    <label><input type="checkbox" id="p12_23"> /g — switches to global chat, messages go to everyone</label>
+    <label><input type="checkbox" id="p12_24"> /tc — toggles team chat, messages only go to your team members</label>
+    <label><input type="checkbox" id="p12_25"> /tc without a team — error message</label>
+    <label><input type="checkbox" id="p12_26"> /sc — toggles staff chat (staff only), messages go to staff members</label>
+    <label><input type="checkbox" id="p12_27"> /sc as non-staff — error message</label>
+    <label><input type="checkbox" id="p12_28"> /l — toggles local chat, messages only reach players within 100 blocks</label>
+    <label><input type="checkbox" id="p12_29"> Local chat messages show [L] prefix</label>
+    <label><input type="checkbox" id="p12_30"> Switching channels (e.g. /tc then /g) clears the previous channel</label>
+
+    <h3>Spy Integration</h3>
+    <label><input type="checkbox" id="p12_31"> Staff with /spy enabled see [SPY] prefixed local chat messages even when out of range</label>
+    <label><input type="checkbox" id="p12_32"> Staff with /spy enabled see [SPY-TC] team chat messages from other teams</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

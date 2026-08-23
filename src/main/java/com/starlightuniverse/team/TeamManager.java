@@ -208,6 +208,8 @@ public class TeamManager {
 
     public boolean isInTeamChat(UUID uuid) { return teamChatToggle.contains(uuid); }
 
+    public void disableTeamChat(UUID uuid) { teamChatToggle.remove(uuid); }
+
     public Collection<Team> getAllTeams() { return teamCache.values(); }
 
     // ==================== CREATE ====================

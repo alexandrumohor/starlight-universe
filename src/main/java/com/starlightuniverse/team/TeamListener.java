@@ -9,7 +9,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -48,16 +47,6 @@ public class TeamListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         manager.unloadPlayer(event.getPlayer().getUniqueId());
-    }
-
-    @EventHandler(priority = EventPriority.LOW)
-    public void onChat(AsyncPlayerChatEvent event) {
-        Player player = event.getPlayer();
-        if (manager.isInTeamChat(player.getUniqueId())) {
-            event.setCancelled(true);
-            org.bukkit.Bukkit.getScheduler().runTask(plugin, () ->
-                    manager.sendTeamChat(player, event.getMessage()));
-        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
