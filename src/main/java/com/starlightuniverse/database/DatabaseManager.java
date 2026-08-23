@@ -276,6 +276,70 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_homes (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        username VARCHAR(16) NOT NULL,
+                        home_number INT NOT NULL,
+                        home_name VARCHAR(32) DEFAULT NULL,
+                        world VARCHAR(64) NOT NULL,
+                        x DOUBLE NOT NULL,
+                        y DOUBLE NOT NULL,
+                        z DOUBLE NOT NULL,
+                        yaw FLOAT NOT NULL,
+                        pitch FLOAT NOT NULL,
+                        icon_material VARCHAR(64) DEFAULT 'GRASS_BLOCK',
+                        UNIQUE KEY uk_player_home (username, home_number),
+                        INDEX idx_username (username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_protections (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        owner_username VARCHAR(16) NOT NULL,
+                        world VARCHAR(64) NOT NULL,
+                        center_x INT NOT NULL,
+                        center_z INT NOT NULL,
+                        radius INT NOT NULL DEFAULT 25,
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        INDEX idx_owner (owner_username),
+                        INDEX idx_world (world)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_protection_members (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        protection_id INT NOT NULL,
+                        username VARCHAR(16) NOT NULL,
+                        permission_level INT NOT NULL DEFAULT 0,
+                        UNIQUE KEY uk_prot_player (protection_id, username),
+                        FOREIGN KEY (protection_id) REFERENCES su_protections(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_protection_logs (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        protection_id INT NOT NULL,
+                        username VARCHAR(16) NOT NULL,
+                        action VARCHAR(255) NOT NULL,
+                        log_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (protection_id) REFERENCES su_protections(id) ON DELETE CASCADE,
+                        INDEX idx_prot (protection_id)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_golems (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        protection_id INT NOT NULL,
+                        golem_uuid VARCHAR(36) NOT NULL,
+                        FOREIGN KEY (protection_id) REFERENCES su_protections(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }
@@ -288,6 +352,9 @@ public class DatabaseManager {
             } catch (SQLException ignored) {}
             try {
                 stmt.execute("ALTER TABLE su_players ADD COLUMN last_login_time BIGINT DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN extra_home_slots INT DEFAULT 0");
             } catch (SQLException ignored) {}
             plugin.getLogger().info("[SU] Database migrations applied.");
         } catch (SQLException e) {

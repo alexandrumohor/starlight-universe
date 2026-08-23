@@ -336,6 +336,73 @@
     <div class="task"><input type="checkbox" id="p8_56"><label for="p8_56">Helper tries /ban (Owner command) — gets "No permission!" error</label></div>
     <div class="task"><input type="checkbox" id="p8_57"><label for="p8_57">All admin commands show staff notifications to other online admins</label></div>
 
+    <!-- PHASE 9 -->
+    <h2>Phase 9 — Homes + Protection</h2>
+
+    <div class="task"><input type="checkbox" id="p9_1"><label for="p9_1">Go to a survival world and type /sethome 1 — message confirms "Home #1 set at (world, x, y, z)"</label></div>
+    <div class="task"><input type="checkbox" id="p9_2"><label for="p9_2">Type /sethome 2 at a different location — second home set</label></div>
+    <div class="task"><input type="checkbox" id="p9_3"><label for="p9_3">Type /sethome 3 without buying extra slots — error "Invalid home number! You have 2 slots (1-2)"</label></div>
+    <div class="task"><input type="checkbox" id="p9_4"><label for="p9_4">Type /home 1 — you teleport to your first home location</label></div>
+    <div class="task"><input type="checkbox" id="p9_5"><label for="p9_5">Immediately type /home 2 — get cooldown error (3s cooldown)</label></div>
+    <div class="task"><input type="checkbox" id="p9_6"><label for="p9_6">Wait 3 seconds, type /home 2 — teleport works</label></div>
+    <div class="task"><input type="checkbox" id="p9_7"><label for="p9_7">Type /sethomename 1 My Base — message says "Home #1 renamed to 'My Base'"</label></div>
+    <div class="task"><input type="checkbox" id="p9_8"><label for="p9_8">Type /homes — GUI opens showing your 2 homes with names and coordinates</label></div>
+    <div class="task"><input type="checkbox" id="p9_9"><label for="p9_9">Left-click a home in /homes — you teleport to it</label></div>
+    <div class="task"><input type="checkbox" id="p9_10"><label for="p9_10">Right-click a home in /homes — manage menu opens with Rename, Change Icon, Share, Delete, Back</label></div>
+    <div class="task"><input type="checkbox" id="p9_11"><label for="p9_11">Click "Change Icon" — icon selection GUI opens with 28 block options</label></div>
+    <div class="task"><input type="checkbox" id="p9_12"><label for="p9_12">Click a block icon (e.g. Diamond Block) — home icon changes, "Icon changed!" message</label></div>
+    <div class="task"><input type="checkbox" id="p9_13"><label for="p9_13">Open /homes again — the home now shows with the new icon</label></div>
+    <div class="task"><input type="checkbox" id="p9_14"><label for="p9_14">Click "Delete Home" in manage menu — home is deleted, goes back to homes list</label></div>
+    <div class="task"><input type="checkbox" id="p9_15"><label for="p9_15">Type /delhome 2 — home #2 deleted</label></div>
+    <div class="task"><input type="checkbox" id="p9_16"><label for="p9_16">With another player online, type /sharehome 1 Player2 — both get messages, Player2 sees coordinates</label></div>
+    <div class="task"><input type="checkbox" id="p9_17"><label for="p9_17">In /homes GUI, click "Buy Extra Home Slot" — opens purchase screen with Money ($10,000) and Gems (500) options</label></div>
+    <div class="task"><input type="checkbox" id="p9_18"><label for="p9_18">Give yourself money (/givemoney YourName 10000), then buy with Money — "Home slot purchased!" message</label></div>
+    <div class="task"><input type="checkbox" id="p9_19"><label for="p9_19">Now /sethome 3 works — you have 3 home slots</label></div>
+    <div class="task"><input type="checkbox" id="p9_20"><label for="p9_20">Try /sethome 1 in lobby — error "You can only set homes in survival worlds!"</label></div>
+    <div class="task"><input type="checkbox" id="p9_21"><label for="p9_21">Try /home 1 in lobby — error "You can only teleport to homes from survival worlds!"</label></div>
+
+    <div class="task"><input type="checkbox" id="p9_22"><label for="p9_22">Hold a Golden Shovel and right-click a block in survival — "Protection created!" with area size (51x51)</label></div>
+    <div class="task"><input type="checkbox" id="p9_23"><label for="p9_23">Green particle border appears around the protection area for about 10 seconds</label></div>
+    <div class="task"><input type="checkbox" id="p9_24"><label for="p9_24">Try right-clicking Golden Shovel again — error "You already have a protection!"</label></div>
+    <div class="task"><input type="checkbox" id="p9_25"><label for="p9_25">With a second player, try right-clicking Golden Shovel in the same area — error about overlapping protection</label></div>
+    <div class="task"><input type="checkbox" id="p9_26"><label for="p9_26">As Player2, try breaking a block inside your protection — error "You can't break blocks in this protected area!"</label></div>
+    <div class="task"><input type="checkbox" id="p9_27"><label for="p9_27">As Player2, try placing a block inside your protection — error "You can't place blocks in this protected area!"</label></div>
+    <div class="task"><input type="checkbox" id="p9_28"><label for="p9_28">As Player2, try opening a chest inside your protection — error "You can't interact with this in a protected area!"</label></div>
+    <div class="task"><input type="checkbox" id="p9_29"><label for="p9_29">As the owner, you can freely build/break/interact inside your protection</label></div>
+    <div class="task"><input type="checkbox" id="p9_30"><label for="p9_30">Place TNT near the protection and ignite it — blocks inside the protection survive the explosion</label></div>
+    <div class="task"><input type="checkbox" id="p9_31"><label for="p9_31">Place lava/water outside the protection flowing toward it — the flow stops at the border</label></div>
+    <div class="task"><input type="checkbox" id="p9_32"><label for="p9_32">Enderman inside the protection can't pick up blocks</label></div>
+    <div class="task"><input type="checkbox" id="p9_33"><label for="p9_33">Creeper explodes inside protection — no block damage</label></div>
+    <div class="task"><input type="checkbox" id="p9_34"><label for="p9_34">Place a piston outside protection pushing blocks into it — piston push is cancelled</label></div>
+    <div class="task"><input type="checkbox" id="p9_35"><label for="p9_35">PvP inside the protection is disabled — attacker gets "PvP is disabled in protected areas!"</label></div>
+
+    <div class="task"><input type="checkbox" id="p9_36"><label for="p9_36">Type /homeprotect — GUI opens with Protection Info, Members, Expand, Spawn Golem, View Logs, Visualize</label></div>
+    <div class="task"><input type="checkbox" id="p9_37"><label for="p9_37">Click "Protection Info" — shows world, center coordinates, and size (51x51)</label></div>
+    <div class="task"><input type="checkbox" id="p9_38"><label for="p9_38">Click "Members" — opens member management GUI with "Add Member" button</label></div>
+    <div class="task"><input type="checkbox" id="p9_39"><label for="p9_39">Click "Add Member" — prompted to type a player name in chat</label></div>
+    <div class="task"><input type="checkbox" id="p9_40"><label for="p9_40">Type Player2's name — they're added as Visitor, confirmation message</label></div>
+    <div class="task"><input type="checkbox" id="p9_41"><label for="p9_41">Click Player2's name in Members GUI — permission cycles to Builder</label></div>
+    <div class="task"><input type="checkbox" id="p9_42"><label for="p9_42">As Player2 (now Builder), they can build/break inside the protection but can't open chests</label></div>
+    <div class="task"><input type="checkbox" id="p9_43"><label for="p9_43">Click Player2 again — cycles to Full Access. Now they can also open chests</label></div>
+    <div class="task"><input type="checkbox" id="p9_44"><label for="p9_44">Shift-right-click Player2 in Members GUI — they're removed from the protection</label></div>
+
+    <div class="task"><input type="checkbox" id="p9_45"><label for="p9_45">Click "Expand" — expand GUI shows 3 options: Money ($5,000), Gems (100), Stars (10)</label></div>
+    <div class="task"><input type="checkbox" id="p9_46"><label for="p9_46">Give yourself $5,000 and click "Expand with Money" — "Protection expanded to 71x71!" message</label></div>
+    <div class="task"><input type="checkbox" id="p9_47"><label for="p9_47">Click "Expand" again — prices are higher for the next tier ($10,000 / 200 Gems / 10 Stars)</label></div>
+
+    <div class="task"><input type="checkbox" id="p9_48"><label for="p9_48">Click "Spawn Guardian Golem" — a named Iron Golem spawns, costs $5,000</label></div>
+    <div class="task"><input type="checkbox" id="p9_49"><label for="p9_49">The golem doesn't attack the protection owner or trusted members</label></div>
+    <div class="task"><input type="checkbox" id="p9_50"><label for="p9_50">An untrusted Player2 enters the protection — the golem attacks them</label></div>
+    <div class="task"><input type="checkbox" id="p9_51"><label for="p9_51">If Player2 dies to the golem, they keep their inventory and XP (no drops)</label></div>
+    <div class="task"><input type="checkbox" id="p9_52"><label for="p9_52">The golem does NOT chase players outside the protection boundary</label></div>
+
+    <div class="task"><input type="checkbox" id="p9_53"><label for="p9_53">Click "View Logs" — shows recent protection activity (created, members added/removed, expanded)</label></div>
+    <div class="task"><input type="checkbox" id="p9_54"><label for="p9_54">Click "Visualize Boundary" — green particles show the protection border for 10 seconds</label></div>
+
+    <div class="task"><input type="checkbox" id="p9_55"><label for="p9_55">Tab-complete works: /sethome shows numbers, /home shows existing home numbers, /sharehome shows home numbers then player names</label></div>
+    <div class="task"><input type="checkbox" id="p9_56"><label for="p9_56">Disconnect and reconnect — all homes and protection are saved and restored from the database</label></div>
+    <div class="task"><input type="checkbox" id="p9_57"><label for="p9_57">Check MySQL — tables su_homes, su_protections, su_protection_members, su_protection_logs, su_golems exist</label></div>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');
