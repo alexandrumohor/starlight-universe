@@ -153,7 +153,7 @@ public class AuctionManager {
 
     // --- Category Mapping ---
 
-    static ShopCategory categorize(Material mat) {
+    public static ShopCategory categorize(Material mat) {
         String name = mat.name();
         if (name.endsWith("_SWORD") || name.equals("BOW") || name.equals("CROSSBOW")
                 || name.equals("TRIDENT") || name.equals("MACE") || name.endsWith("_ARROW")

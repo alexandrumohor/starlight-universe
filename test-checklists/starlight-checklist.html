@@ -226,6 +226,44 @@
     <div class="task"><input type="checkbox" id="p6_36"><label for="p6_36">Enchanted items keep their enchantments when listed, bought, and collected</label></div>
     <div class="task"><input type="checkbox" id="p6_37"><label for="p6_37">There is no price cap — you can list items at any price (free market)</label></div>
 
+    <!-- PHASE 7 -->
+    <h2>Phase 7 — Item Order System</h2>
+    <div class="task"><input type="checkbox" id="p7_1"><label for="p7_1">Type /order — a menu opens with 4 options: Browse All Orders, My Orders, Create Order, Storage</label></div>
+    <div class="task"><input type="checkbox" id="p7_2"><label for="p7_2">Click "Create Order" — a category selection screen appears (Building, Food, Tools, etc.) plus a Search button</label></div>
+    <div class="task"><input type="checkbox" id="p7_3"><label for="p7_3">Click a category (e.g. Materials) — all items of that type appear, paginated</label></div>
+    <div class="task"><input type="checkbox" id="p7_4"><label for="p7_4">Click an item (e.g. Diamond) — a setup screen opens with Quantity and Price buttons</label></div>
+    <div class="task"><input type="checkbox" id="p7_5"><label for="p7_5">Use +1/+10/+64 and -1/-10/-64 buttons to change the quantity — display updates</label></div>
+    <div class="task"><input type="checkbox" id="p7_6"><label for="p7_6">Use +$100/+$1,000/+$10,000 and -$100/-$1,000/-$10,000 to change price — display updates</label></div>
+    <div class="task"><input type="checkbox" id="p7_7"><label for="p7_7">The Order Summary paper shows item, quantity, price per unit, subtotal, 3% fee, and total cost</label></div>
+    <div class="task"><input type="checkbox" id="p7_8"><label for="p7_8">Click Confirm — money is deducted from your balance (escrow). You get a success message</label></div>
+    <div class="task"><input type="checkbox" id="p7_9"><label for="p7_9">Try to create an order with less than $100 total — get a "Minimum order" error</label></div>
+    <div class="task"><input type="checkbox" id="p7_10"><label for="p7_10">Try to create an order without enough money — get "Insufficient funds!" error</label></div>
+    <div class="task"><input type="checkbox" id="p7_11"><label for="p7_11">Click "Browse All Orders" — your order appears showing item, price, and how many are needed</label></div>
+    <div class="task"><input type="checkbox" id="p7_12"><label for="p7_12">On a second account, open /order and click "Browse All Orders" — see the order with "Click to deliver!"</label></div>
+    <div class="task"><input type="checkbox" id="p7_13"><label for="p7_13">Click the order to deliver — an empty chest inventory opens (e.g. "Deliver: 64x Diamond")</label></div>
+    <div class="task"><input type="checkbox" id="p7_14"><label for="p7_14">Put matching items (e.g. diamonds) from your inventory into the chest and close it</label></div>
+    <div class="task"><input type="checkbox" id="p7_15"><label for="p7_15">A confirm screen appears showing how many items you're delivering and how much you'll earn</label></div>
+    <div class="task"><input type="checkbox" id="p7_16"><label for="p7_16">Click Confirm — items are taken, money is added to your balance. Success message shown</label></div>
+    <div class="task"><input type="checkbox" id="p7_17"><label for="p7_17">If you put wrong items (not what the order asks for), they are returned to you</label></div>
+    <div class="task"><input type="checkbox" id="p7_18"><label for="p7_18">If you put more items than needed, extras are returned and only the needed amount is taken</label></div>
+    <div class="task"><input type="checkbox" id="p7_19"><label for="p7_19">Click Cancel on the confirm screen — all items are returned to your inventory</label></div>
+    <div class="task"><input type="checkbox" id="p7_20"><label for="p7_20">The order creator (if online) gets a message saying items were delivered to their storage</label></div>
+    <div class="task"><input type="checkbox" id="p7_21"><label for="p7_21">On the order creator account, type /order storage — delivered items appear</label></div>
+    <div class="task"><input type="checkbox" id="p7_22"><label for="p7_22">Click an item in storage — it goes into your inventory</label></div>
+    <div class="task"><input type="checkbox" id="p7_23"><label for="p7_23">Click "Take All" — all storage items go into your inventory (overflow drops on ground)</label></div>
+    <div class="task"><input type="checkbox" id="p7_24"><label for="p7_24">Click "Sell All" — items with a shop price are sold at 50% value, items without shop price are kept</label></div>
+    <div class="task"><input type="checkbox" id="p7_25"><label for="p7_25">Click "My Orders" — your active orders appear with progress (delivered/total) and "Click to cancel!"</label></div>
+    <div class="task"><input type="checkbox" id="p7_26"><label for="p7_26">Click an order in My Orders — it cancels and refunds money for undelivered items only</label></div>
+    <div class="task"><input type="checkbox" id="p7_27"><label for="p7_27">If the order was partially fulfilled, only the remaining (undelivered) money is refunded</label></div>
+    <div class="task"><input type="checkbox" id="p7_28"><label for="p7_28">When all items are delivered, the order completes automatically and disappears from browse</label></div>
+    <div class="task"><input type="checkbox" id="p7_29"><label for="p7_29">Wait 5 minutes with items in storage — an action bar message reminds you to collect</label></div>
+    <div class="task"><input type="checkbox" id="p7_30"><label for="p7_30">Click the Search button in Create Order — type an item name in chat — matching items appear</label></div>
+    <div class="task"><input type="checkbox" id="p7_31"><label for="p7_31">Type /order search diamond — items matching "diamond" appear ready to order</label></div>
+    <div class="task"><input type="checkbox" id="p7_32"><label for="p7_32">Type /order storage — opens storage directly without going through the main menu</label></div>
+    <div class="task"><input type="checkbox" id="p7_33"><label for="p7_33">Try to fulfill your own order — get "You can't fulfill your own order!" error</label></div>
+    <div class="task"><input type="checkbox" id="p7_34"><label for="p7_34">Tab-complete /order shows: storage, search</label></div>
+    <div class="task"><input type="checkbox" id="p7_35"><label for="p7_35">If pages of orders/items exist, Previous/Next Page arrows work correctly</label></div>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

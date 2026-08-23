@@ -267,6 +267,13 @@ public class ShopManager {
         ALL_ITEMS.add(new ShopItem(material, price, category));
     }
 
+    public int getShopPrice(Material material) {
+        for (ShopItem item : ALL_ITEMS) {
+            if (item.material() == material) return item.price();
+        }
+        return -1;
+    }
+
     public record DailyDeal(ShopItem item, int discountPercent) {}
 
     private final JavaPlugin plugin;

@@ -224,6 +224,34 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_orders (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        creator_username VARCHAR(16) NOT NULL,
+                        item_material VARCHAR(64) NOT NULL,
+                        item_amount INT NOT NULL,
+                        delivered_amount INT DEFAULT 0,
+                        price_per_unit DOUBLE NOT NULL,
+                        escrow_amount DOUBLE NOT NULL,
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        active TINYINT(1) DEFAULT 1,
+                        INDEX idx_active (active),
+                        INDEX idx_creator (creator_username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_order_storage (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        username VARCHAR(16) NOT NULL,
+                        item_data MEDIUMTEXT NOT NULL,
+                        item_material VARCHAR(64) NOT NULL,
+                        item_amount INT NOT NULL,
+                        stored_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        INDEX idx_username (username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

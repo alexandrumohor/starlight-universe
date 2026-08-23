@@ -4,6 +4,7 @@ import com.starlightuniverse.auction.*;
 import com.starlightuniverse.auth.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.*;
+import com.starlightuniverse.order.*;
 import com.starlightuniverse.shop.*;
 import com.starlightuniverse.world.*;
 import org.bukkit.Bukkit;
@@ -23,6 +24,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private EconomyManager economyManager;
     private ShopManager shopManager;
     private AuctionManager auctionManager;
+    private OrderManager orderManager;
 
     @Override
     public void onEnable() {
@@ -57,12 +59,16 @@ public final class StarlightUniverse extends JavaPlugin {
         auctionManager = new AuctionManager(this, economyManager, databaseManager);
         auctionManager.initialize();
 
+        orderManager = new OrderManager(this, economyManager, databaseManager, shopManager);
+        orderManager.initialize();
+
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(worldManager, this);
         Bukkit.getPluginManager().registerEvents(lobbyManager, this);
         Bukkit.getPluginManager().registerEvents(new EconomyListener(economyManager), this);
         Bukkit.getPluginManager().registerEvents(new ShopListener(this, shopManager), this);
         Bukkit.getPluginManager().registerEvents(new AuctionListener(this, auctionManager), this);
+        Bukkit.getPluginManager().registerEvents(new OrderListener(this, orderManager), this);
 
         Bukkit.getCommandMap().register("starlightuniverse", new RegisterCommand(this, authManager));
         Bukkit.getCommandMap().register("starlightuniverse", new LoginCommand(this, authManager));
@@ -74,6 +80,7 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getCommandMap().register("starlightuniverse", new GiveStarsCommand(this, economyManager));
         Bukkit.getCommandMap().register("starlightuniverse", new ShopCommand(shopManager));
         Bukkit.getCommandMap().register("starlightuniverse", new AuctionCommand(auctionManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new OrderCommand(orderManager));
 
         getLogger().info("[SU] Enabled!");
     }
@@ -89,6 +96,10 @@ public final class StarlightUniverse extends JavaPlugin {
                     }
                 }
             }
+        }
+
+        if (orderManager != null) {
+            orderManager.shutdown();
         }
 
         if (auctionManager != null) {
@@ -147,5 +158,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public AuctionManager getAuctionManager() {
         return auctionManager;
+    }
+
+    public OrderManager getOrderManager() {
+        return orderManager;
     }
 }
