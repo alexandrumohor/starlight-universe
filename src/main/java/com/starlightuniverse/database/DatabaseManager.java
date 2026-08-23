@@ -252,6 +252,30 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_admin_notes (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        player_id INT NOT NULL,
+                        note_by VARCHAR(16) NOT NULL,
+                        note_text TEXT NOT NULL,
+                        note_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (player_id) REFERENCES su_players(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_reports (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        reporter_username VARCHAR(16) NOT NULL,
+                        reported_username VARCHAR(16) NOT NULL,
+                        reason TEXT NOT NULL,
+                        report_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        active TINYINT(1) DEFAULT 1,
+                        responded_by VARCHAR(16) DEFAULT NULL,
+                        INDEX idx_active (active)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

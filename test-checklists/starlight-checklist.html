@@ -264,6 +264,78 @@
     <div class="task"><input type="checkbox" id="p7_34"><label for="p7_34">Tab-complete /order shows: storage, search</label></div>
     <div class="task"><input type="checkbox" id="p7_35"><label for="p7_35">If pages of orders/items exist, Previous/Next Page arrows work correctly</label></div>
 
+    <!-- PHASE 8 -->
+    <h2>Phase 8 — Admin System + Ban/Mute/Warn</h2>
+
+    <div class="task"><input type="checkbox" id="p8_1"><label for="p8_1">As OP, type /setadmin YourName owner — you get "You are now Owner!" and auto-receive OP</label></div>
+    <div class="task"><input type="checkbox" id="p8_2"><label for="p8_2">/setadmin Player2 moderator — they get notified they are now Moderator</label></div>
+    <div class="task"><input type="checkbox" id="p8_3"><label for="p8_3">/setadmin Player3 helper — they are now Helper</label></div>
+    <div class="task"><input type="checkbox" id="p8_4"><label for="p8_4">/setadmin Player4 trialhelper — they are now Trial Helper</label></div>
+    <div class="task"><input type="checkbox" id="p8_5"><label for="p8_5">/removeadmin Player4 — their admin rank is removed</label></div>
+    <div class="task"><input type="checkbox" id="p8_6"><label for="p8_6">/setpremium Player2 3 — they get Nebula rank (message says "Nebula")</label></div>
+    <div class="task"><input type="checkbox" id="p8_7"><label for="p8_7">/removepremium Player2 — their premium rank is removed</label></div>
+    <div class="task"><input type="checkbox" id="p8_8"><label for="p8_8">Disconnect and reconnect as Owner — you auto-get OP and other online admins see "[Owner] YourName has logged in."</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_9"><label for="p8_9">As Helper+: /warn Player2 Breaking rules — Player2 sees "You have been warned! (1/5)"</label></div>
+    <div class="task"><input type="checkbox" id="p8_10"><label for="p8_10">Warn them 4 more times (5 total) — at the 5th warn, they get auto-kicked</label></div>
+    <div class="task"><input type="checkbox" id="p8_11"><label for="p8_11">/removewarns Player2 — all warnings are cleared</label></div>
+    <div class="task"><input type="checkbox" id="p8_12"><label for="p8_12">/warn Player2 test → /unwarn Player2 (warnId) — that specific warning is removed</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_13"><label for="p8_13">As Helper+: /mute Player2 hours 1 Spamming — Player2 sees "You have been muted for 1 hour!"</label></div>
+    <div class="task"><input type="checkbox" id="p8_14"><label for="p8_14">Muted player tries to chat — gets "You are muted!" error</label></div>
+    <div class="task"><input type="checkbox" id="p8_15"><label for="p8_15">/unmute Player2 — they can chat again</label></div>
+    <div class="task"><input type="checkbox" id="p8_16"><label for="p8_16">/mute Player2 min 0 Perm test — permanent mute (no expiration)</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_17"><label for="p8_17">As Owner: /ban Player2 Hacking — Player2 gets kicked with ban message showing reason and "Permanent"</label></div>
+    <div class="task"><input type="checkbox" id="p8_18"><label for="p8_18">Banned player tries to join — gets kicked with ban message (reason, banned by, duration)</label></div>
+    <div class="task"><input type="checkbox" id="p8_19"><label for="p8_19">/unban Player2 — they can join again</label></div>
+    <div class="task"><input type="checkbox" id="p8_20"><label for="p8_20">As Moderator+: /tempban Player2 hours 2 Test — Player2 gets temp-banned for 2 hours</label></div>
+    <div class="task"><input type="checkbox" id="p8_21"><label for="p8_21">/offlineban SomePlayer Cheating — bans a player who is offline</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_22"><label for="p8_22">As Moderator+: /kick Player2 Being disruptive — Player2 gets kicked with reason shown</label></div>
+    <div class="task"><input type="checkbox" id="p8_23"><label for="p8_23">/freeze Player2 — Player2 can't move, gets "You are frozen!" if they try</label></div>
+    <div class="task"><input type="checkbox" id="p8_24"><label for="p8_24">/freeze Player2 again — Player2 is unfrozen</label></div>
+    <div class="task"><input type="checkbox" id="p8_25"><label for="p8_25">/kill Player2 — Player2 dies</label></div>
+    <div class="task"><input type="checkbox" id="p8_26"><label for="p8_26">/setfire Player2 10 — Player2 catches fire for 10 seconds</label></div>
+    <div class="task"><input type="checkbox" id="p8_27"><label for="p8_27">/blind Player2 — Player2 gets Blindness effect</label></div>
+    <div class="task"><input type="checkbox" id="p8_28"><label for="p8_28">/slow Player2 — Player2 gets Slowness effect</label></div>
+    <div class="task"><input type="checkbox" id="p8_29"><label for="p8_29">/poison Player2 — Player2 gets Poison effect</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_30"><label for="p8_30">/tp Player2 — you teleport to Player2's location</label></div>
+    <div class="task"><input type="checkbox" id="p8_31"><label for="p8_31">/tphere Player2 — Player2 teleports to your location, they see a message</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_32"><label for="p8_32">/invsee Player2 — their inventory opens as a chest GUI, you can see and modify items</label></div>
+    <div class="task"><input type="checkbox" id="p8_33"><label for="p8_33">/endersee Player2 — their ender chest opens</label></div>
+    <div class="task"><input type="checkbox" id="p8_34"><label for="p8_34">/check Player2 — shows player info: admin rank, premium, money, gems, stars, kills, deaths, bans, mutes, warns</label></div>
+    <div class="task"><input type="checkbox" id="p8_35"><label for="p8_35">/history Player2 — shows punishment history (bans, mutes, warns) with dates and [ACTIVE] markers</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_36"><label for="p8_36">/staffchat — toggles staff chat mode. Messages only go to other admins (shown as "[SC] Name: message")</label></div>
+    <div class="task"><input type="checkbox" id="p8_37"><label for="p8_37">/staffchat again — exits staff chat mode, messages go to normal chat</label></div>
+    <div class="task"><input type="checkbox" id="p8_38"><label for="p8_38">/spy — enables command spy mode (toggle on/off)</label></div>
+    <div class="task"><input type="checkbox" id="p8_39"><label for="p8_39">/vanish — you disappear from non-admin players' view. /vanish again — you reappear</label></div>
+    <div class="task"><input type="checkbox" id="p8_40"><label for="p8_40">/clearchat — chat is cleared for all non-staff players (100 empty lines), message "Chat cleared by YourName"</label></div>
+    <div class="task"><input type="checkbox" id="p8_41"><label for="p8_41">/slowmode 5 — all non-staff get "Slow mode: 5s" message. Try chatting fast as non-staff — get error</label></div>
+    <div class="task"><input type="checkbox" id="p8_42"><label for="p8_42">/slowmode 0 — slow mode disabled</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_43"><label for="p8_43">/notes Player2 add Suspected of X-ray — "Note added" confirmation</label></div>
+    <div class="task"><input type="checkbox" id="p8_44"><label for="p8_44">/notes Player2 — shows the note with date and author</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_45"><label for="p8_45">As Trial Helper+: /report Player2 Cheating — "Report submitted" message, staff see the report notification</label></div>
+    <div class="task"><input type="checkbox" id="p8_46"><label for="p8_46">As Helper+: /reports — shows list of active reports with IDs</label></div>
+    <div class="task"><input type="checkbox" id="p8_47"><label for="p8_47">/respond (reportId) — report is closed</label></div>
+    <div class="task"><input type="checkbox" id="p8_48"><label for="p8_48">/helpop Need help with a player — staff see the help request</label></div>
+    <div class="task"><input type="checkbox" id="p8_49"><label for="p8_49">/reply Player2 We are looking into it — ALL players see the public reply with admin rank prefix</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_50"><label for="p8_50">As Owner: /removeblock — look at a block and type the command, the block is removed</label></div>
+    <div class="task"><input type="checkbox" id="p8_51"><label for="p8_51">/setpass newpass — changes your password without needing the old one</label></div>
+    <div class="task"><input type="checkbox" id="p8_52"><label for="p8_52">/osetpass Player2 newpass — sets Player2's password</label></div>
+    <div class="task"><input type="checkbox" id="p8_53"><label for="p8_53">/osetname Player2 NewName — renames Player2 (they get kicked to reconnect)</label></div>
+
+    <div class="task"><input type="checkbox" id="p8_54"><label for="p8_54">Non-admin tries /ban — gets "No permission!" error</label></div>
+    <div class="task"><input type="checkbox" id="p8_55"><label for="p8_55">Trial Helper tries /kick (Moderator command) — gets "No permission!" error</label></div>
+    <div class="task"><input type="checkbox" id="p8_56"><label for="p8_56">Helper tries /ban (Owner command) — gets "No permission!" error</label></div>
+    <div class="task"><input type="checkbox" id="p8_57"><label for="p8_57">All admin commands show staff notifications to other online admins</label></div>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');
