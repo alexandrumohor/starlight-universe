@@ -794,6 +794,103 @@
     <label><input type="checkbox" id="p14_48"> Check MySQL — table su_jobs exists with username, job_type, level, xp columns</label>
     <label><input type="checkbox" id="p14_49"> Restart the server — all job progress is preserved in the database</label>
 
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <h2>Phase 15 — Skills</h2>
+    <!-- ═══════════════════════════════════════════════════════ -->
+
+    <h3>/skills GUI</h3>
+    <label><input type="checkbox" id="p15_1"> Type /skills — a 6-row GUI opens titled "Skills"</label>
+    <label><input type="checkbox" id="p15_2"> You see 12 skill icons: Mining, Excavation, Woodcutting, Farming, Combat, Archery (top row) and Fishing, Acrobatics, Repair, Alchemy, Taming, Cooking (bottom row)</label>
+    <label><input type="checkbox" id="p15_3"> Each skill shows Level, XP, a progress bar, and a list of 5 milestones with checkmarks/crosses</label>
+    <label><input type="checkbox" id="p15_4"> There is a Nether Star info item in the bottom center</label>
+    <label><input type="checkbox" id="p15_5"> Clicking any item in the GUI does nothing (items cannot be taken out)</label>
+
+    <h3>Mining Skill</h3>
+    <label><input type="checkbox" id="p15_6"> Mine stone blocks in survival — Mining skill earns XP (check /skills)</label>
+    <label><input type="checkbox" id="p15_7"> Mine coal ore — earns 5 XP, mine diamond ore — earns 50 XP, mine ancient debris — earns 100 XP</label>
+    <label><input type="checkbox" id="p15_8"> Level Mining to 10 — you start seeing occasional double ore drops (5% chance)</label>
+    <label><input type="checkbox" id="p15_9"> Level Mining to 50 — you get Haste I effect while mining (5 second refresh)</label>
+    <label><input type="checkbox" id="p15_10"> Using Silk Touch on ores does NOT trigger double drops</label>
+
+    <h3>Excavation Skill</h3>
+    <label><input type="checkbox" id="p15_11"> Dig dirt, sand, gravel, clay in survival — Excavation skill earns XP</label>
+    <label><input type="checkbox" id="p15_12"> At higher Excavation levels, you occasionally get double drops from digging</label>
+
+    <h3>Woodcutting Skill</h3>
+    <label><input type="checkbox" id="p15_13"> Chop logs in survival — Woodcutting skill earns XP</label>
+    <label><input type="checkbox" id="p15_14"> Nether stems give 7 XP, regular logs give 5 XP</label>
+    <label><input type="checkbox" id="p15_15"> At higher levels, you get double log drops occasionally</label>
+
+    <h3>Farming Skill</h3>
+    <label><input type="checkbox" id="p15_16"> Harvest mature wheat/carrots/potatoes — Farming skill earns XP</label>
+    <label><input type="checkbox" id="p15_17"> At Farming level 10+, you sometimes get extra crop drops</label>
+    <label><input type="checkbox" id="p15_18"> At Farming level 50+, crops auto-replant when you harvest them</label>
+    <label><input type="checkbox" id="p15_19"> Breaking immature crops gives NO farming XP</label>
+
+    <h3>Combat Skill</h3>
+    <label><input type="checkbox" id="p15_20"> Kill a zombie with a sword — Combat skill earns 5 XP</label>
+    <label><input type="checkbox" id="p15_21"> Kill a warden — Combat skill earns 200 XP</label>
+    <label><input type="checkbox" id="p15_22"> At Combat level 10+, your melee attacks deal 3% more damage</label>
+    <label><input type="checkbox" id="p15_23"> At Combat level 50+, you heal a tiny amount when hitting mobs (lifesteal)</label>
+
+    <h3>Archery Skill</h3>
+    <label><input type="checkbox" id="p15_24"> Kill a mob with a bow — Archery skill earns XP (not Combat)</label>
+    <label><input type="checkbox" id="p15_25"> At Archery level 10+, arrow damage is increased by 5%</label>
+    <label><input type="checkbox" id="p15_26"> At Archery level 50+, you sometimes recover arrows after hitting a mob</label>
+
+    <h3>Fishing Skill</h3>
+    <label><input type="checkbox" id="p15_27"> Catch a fish — Fishing skill earns XP (cod=5, salmon=8, tropical=15, puffer=20)</label>
+    <label><input type="checkbox" id="p15_28"> Catching treasure items (bow, enchanted book, etc.) gives 30 XP</label>
+    <label><input type="checkbox" id="p15_29"> At Fishing level 50+, you sometimes get double catches</label>
+
+    <h3>Acrobatics Skill</h3>
+    <label><input type="checkbox" id="p15_30"> Take fall damage — Acrobatics skill earns XP based on damage taken</label>
+    <label><input type="checkbox" id="p15_31"> At Acrobatics level 10+, fall damage is reduced by 10%</label>
+    <label><input type="checkbox" id="p15_32"> At Acrobatics level 50+, you have a 5% chance to dodge melee attacks entirely (see "Dodged!" action bar)</label>
+
+    <h3>Repair Skill</h3>
+    <label><input type="checkbox" id="p15_33"> Use an anvil to repair an item — Repair skill earns 20 XP</label>
+
+    <h3>Alchemy Skill</h3>
+    <label><input type="checkbox" id="p15_34"> Brew potions in a brewing stand you interacted with — Alchemy skill earns 15 XP per potion</label>
+
+    <h3>Taming Skill</h3>
+    <label><input type="checkbox" id="p15_35"> Tame a wolf or cat — Taming skill earns 50 XP</label>
+    <label><input type="checkbox" id="p15_36"> At Taming level 10+, your tamed wolves deal 10% more damage</label>
+
+    <h3>Cooking Skill</h3>
+    <label><input type="checkbox" id="p15_37"> Smelt food (beef, chicken, etc.) and take it from the furnace — Cooking skill earns 3 XP per item</label>
+    <label><input type="checkbox" id="p15_38"> At higher Cooking levels, you sometimes get double food output</label>
+
+    <h3>Level Up & Milestones</h3>
+    <label><input type="checkbox" id="p15_39"> When a skill levels up, you see a message with the skill name and new level</label>
+    <label><input type="checkbox" id="p15_40"> When you hit a milestone level (10, 25, 50, 75, 100), you see a purple "Milestone unlocked" message</label>
+    <label><input type="checkbox" id="p15_41"> You hear a level-up sound (slightly higher pitch than jobs)</label>
+    <label><input type="checkbox" id="p15_42"> After leveling up, open /skills — progress and milestones are updated (checkmarks on unlocked ones)</label>
+
+    <h3>Max Level Reward</h3>
+    <label><input type="checkbox" id="p15_43"> When any skill reaches level 100, you get a special "MAXED!" message</label>
+    <label><input type="checkbox" id="p15_44"> You receive +5 Stars as a reward for maxing a skill</label>
+
+    <h3>Lobby / World Restrictions</h3>
+    <label><input type="checkbox" id="p15_45"> Actions in the lobby world do NOT give any skill XP or effects</label>
+    <label><input type="checkbox" id="p15_46"> Actions in survival worlds (overworld, nether, end, resource) DO give skill XP and effects</label>
+
+    <h3>No Vanilla XP Affected</h3>
+    <label><input type="checkbox" id="p15_47"> Skills use their own internal XP — vanilla experience orbs/bars are completely unaffected</label>
+
+    <h3>Anti-Exploit</h3>
+    <label><input type="checkbox" id="p15_48"> Player-placed blocks do NOT give Mining/Excavation/Woodcutting/Farming XP when broken</label>
+
+    <h3>Skills + Jobs Coexistence</h3>
+    <label><input type="checkbox" id="p15_49"> Mining an ore gives BOTH Job Money AND Skill XP — they are independent systems</label>
+    <label><input type="checkbox" id="p15_50"> /jobs and /skills are separate commands with separate GUIs</label>
+
+    <h3>Persistence</h3>
+    <label><input type="checkbox" id="p15_51"> Disconnect and reconnect — /skills shows the same levels and XP as before</label>
+    <label><input type="checkbox" id="p15_52"> Check MySQL — table su_skills exists with username, skill_type, level, xp columns</label>
+    <label><input type="checkbox" id="p15_53"> Restart the server — all skill progress is preserved in the database</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

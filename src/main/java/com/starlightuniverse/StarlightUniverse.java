@@ -7,6 +7,7 @@ import com.starlightuniverse.chat.*;
 import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.job.*;
+import com.starlightuniverse.skill.*;
 import com.starlightuniverse.economy.*;
 import com.starlightuniverse.home.*;
 import com.starlightuniverse.order.*;
@@ -40,6 +41,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private ChatManager chatManager;
     private CrateManager crateManager;
     private JobManager jobManager;
+    private SkillManager skillManager;
 
     @Override
     public void onEnable() {
@@ -96,6 +98,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
         jobManager = new JobManager(this, databaseManager, economyManager);
         jobManager.initialize();
+
+        skillManager = new SkillManager(this, databaseManager, economyManager);
+        skillManager.initialize();
 
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(new AdminListener(this, adminManager), this);
@@ -165,6 +170,10 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new JobDataListener(jobManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new JobCommand(jobManager));
 
+        Bukkit.getPluginManager().registerEvents(new SkillListener(this, skillManager, authManager, jobManager), this);
+        Bukkit.getPluginManager().registerEvents(new SkillDataListener(skillManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new SkillCommand(skillManager));
+
         getLogger().info("[SU] Enabled!");
     }
 
@@ -179,6 +188,10 @@ public final class StarlightUniverse extends JavaPlugin {
                     }
                 }
             }
+        }
+
+        if (skillManager != null) {
+            skillManager.shutdown();
         }
 
         if (jobManager != null) {
@@ -293,5 +306,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public JobManager getJobManager() {
         return jobManager;
+    }
+
+    public SkillManager getSkillManager() {
+        return skillManager;
     }
 }
