@@ -1826,6 +1826,72 @@
     <label><input type="checkbox" id="p24_pw_settings_22"> Every button in Settings shows an action hint like "Left-click: ..." in its lore</label>
     <label><input type="checkbox" id="p24_pw_settings_23"> All settings changes persist across server restart</label>
 
+    <h2>Phase 25 — Anti-Grief + Anti-Cheat + Logging</h2>
+
+    <h3>25A — Anti-Grief</h3>
+    <label><input type="checkbox" id="p25_ag_1"> An enderman near dirt/grass does NOT pick up any block (blocks remain untouched)</label>
+    <label><input type="checkbox" id="p25_ag_2"> A creeper exploding leaves ALL surrounding blocks intact (nothing is destroyed)</label>
+    <label><input type="checkbox" id="p25_ag_3"> Players still take damage from creeper explosions (only the block damage is removed)</label>
+    <label><input type="checkbox" id="p25_ag_7"> Chopping the bottom log of a tree causes leaves within 6 blocks to decay within ~2 seconds (fast leaf decay)</label>
+    <label><input type="checkbox" id="p25_ag_8"> Leaves placed by a player from their inventory stay in place forever even after nearby logs are removed (so decorative builds don't break)</label>
+
+    <h3>25B — Anti-Cheat (detection)</h3>
+    <label><input type="checkbox" id="p25_ac_fly_1"> Flying with a hacked client in Survival mode triggers a "Fly" violation after ~2.5s airborne — staff online see "[SU] [AC] &lt;player&gt; flagged Fly ..."</label>
+    <label><input type="checkbox" id="p25_ac_fly_2"> A legitimate Elytra flight does NOT flag Fly</label>
+    <label><input type="checkbox" id="p25_ac_fly_3"> A Nebula+ premium player with /fly enabled does NOT flag Fly</label>
+    <label><input type="checkbox" id="p25_ac_speed_1"> Running at hacked speed triggers a "Speed" violation with the measured value in staff notifications</label>
+    <label><input type="checkbox" id="p25_ac_speed_2"> Sprinting normally (with or without Speed potion) does NOT flag Speed</label>
+    <label><input type="checkbox" id="p25_ac_nofall_1"> Falling &gt;4 blocks and taking no fall damage (NoFall hack) triggers a "NoFall" violation</label>
+    <label><input type="checkbox" id="p25_ac_nofall_2"> Falling normally and taking fall damage does NOT flag NoFall</label>
+    <label><input type="checkbox" id="p25_ac_reach_1"> Hitting a mob/player from &gt;6 blocks away triggers a "Reach" violation with the measured distance</label>
+    <label><input type="checkbox" id="p25_ac_reach_2"> Normal melee attacks at ≤4 blocks do NOT flag Reach</label>
+    <label><input type="checkbox" id="p25_ac_fastbreak_1"> Breaking hard blocks (obsidian/ancient debris) faster than 45ms apart triggers a "FastBreak" violation</label>
+    <label><input type="checkbox" id="p25_ac_fastbreak_2"> Breaking dirt/stone at normal speed does NOT flag FastBreak</label>
+    <label><input type="checkbox" id="p25_ac_autoclick_1"> Clicking more than 20 times per second (autoclicker) triggers an "AutoClick" violation showing the measured CPS</label>
+    <label><input type="checkbox" id="p25_ac_autoclick_2"> Normal human clicking (≤15 CPS) does NOT flag AutoClick</label>
+    <label><input type="checkbox" id="p25_ac_scaffold_1"> Placing blocks under yourself while airborne and looking down (scaffold) triggers a "Scaffold" violation</label>
+    <label><input type="checkbox" id="p25_ac_scaffold_2"> Placing blocks while on the ground does NOT flag Scaffold</label>
+    <label><input type="checkbox" id="p25_ac_killaura_1"> Attacking a mob/player from behind you (kill aura — target has negative dot product with look) triggers a "KillAura" violation</label>
+    <label><input type="checkbox" id="p25_ac_killaura_2"> Normal front-facing attacks do NOT flag KillAura</label>
+
+    <h3>25B — Anti-Cheat (staff commands &amp; kick)</h3>
+    <label><input type="checkbox" id="p25_ac_cmd_1"> /ac check &lt;player&gt; (Helper+) shows the player's current violations by type and total</label>
+    <label><input type="checkbox" id="p25_ac_cmd_2"> /ac history &lt;player&gt; shows a timestamped list of the last 20 violations</label>
+    <label><input type="checkbox" id="p25_ac_cmd_3"> /ac clear &lt;player&gt; wipes all violations and history for that player and shows "Cleared violations for ..."</label>
+    <label><input type="checkbox" id="p25_ac_cmd_4"> A non-staff player running /ac shows "Helper+ required."</label>
+    <label><input type="checkbox" id="p25_ac_kick_1"> After accumulating 5 total violations, the player is auto-kicked with "[SU] Kicked by AntiCheat: &lt;type&gt; (5 violations)"</label>
+    <label><input type="checkbox" id="p25_ac_kick_2"> After the kick, the violation counters reset (player can rejoin cleanly)</label>
+    <label><input type="checkbox" id="p25_ac_exempt_1"> Staff (admin_level ≥ 1) never trigger any anti-cheat violation — they are fully exempt</label>
+    <label><input type="checkbox" id="p25_ac_exempt_2"> Creative and Spectator gamemode players are exempt from anti-cheat</label>
+    <label><input type="checkbox" id="p25_ac_decay_1"> After 5 minutes with no new violations, the running counter resets to 0 automatically</label>
+
+    <h3>25C — Logging (events captured)</h3>
+    <label><input type="checkbox" id="p25_log_1"> Every player join produces a "login" log entry with IP, coords, world, timestamp</label>
+    <label><input type="checkbox" id="p25_log_2"> Every player quit produces a "logout" log entry</label>
+    <label><input type="checkbox" id="p25_log_3"> Breaking any block produces a "block_break" entry with the block type</label>
+    <label><input type="checkbox" id="p25_log_4"> Placing any block produces a "block_place" entry with the block type</label>
+    <label><input type="checkbox" id="p25_log_5"> Dropping an item produces an "item_drop" entry with material + amount</label>
+    <label><input type="checkbox" id="p25_log_6"> Picking up an item produces an "item_pickup" entry with material + amount</label>
+    <label><input type="checkbox" id="p25_log_7"> Opening a chest / barrel / shulker / any container produces a "chest_open" entry with container type + coords</label>
+    <label><input type="checkbox" id="p25_log_8"> Starting to sneak produces a "sneak_start" entry (once per sneak, not spammed)</label>
+    <label><input type="checkbox" id="p25_log_9"> Starting to sprint produces a "sprint_start" entry (once per sprint, not spammed)</label>
+    <label><input type="checkbox" id="p25_log_10"> Sending any chat message produces a "chat" entry with the plain-text message</label>
+    <label><input type="checkbox" id="p25_log_11"> Running any command produces a "command" entry with the full command line</label>
+    <label><input type="checkbox" id="p25_log_12"> /login, /register, and /changepass commands are logged WITHOUT the password ("/login ***")</label>
+    <label><input type="checkbox" id="p25_log_13"> Killing a mob produces a "kill" entry with victim type = "mob"</label>
+    <label><input type="checkbox" id="p25_log_14"> Killing a player produces a "kill" entry for the killer with victim = player name, type = "player"</label>
+    <label><input type="checkbox" id="p25_log_15"> Player death produces a "death" entry (with killer name if PvP, else cause)</label>
+    <label><input type="checkbox" id="p25_log_16"> A villager trade produces a "trade" entry with index and resulting item material</label>
+    <label><input type="checkbox" id="p25_log_17"> Every 5 seconds, each moving authenticated player produces a "movement" entry (players who did not move are skipped)</label>
+
+    <h3>25C — Logging (transport &amp; fallback)</h3>
+    <label><input type="checkbox" id="p25_log_send_1"> Every 5 seconds, batched log entries are POSTed as JSON to the configured VPS endpoint (http://localhost:8080/starlight/log)</label>
+    <label><input type="checkbox" id="p25_log_send_2"> With no VPS reachable, entries are appended to plugins/StarlightUniverse/logs/log-YYYY-MM-DD.jsonl (one JSON object per line)</label>
+    <label><input type="checkbox" id="p25_log_send_3"> The local fallback file is created automatically on first flush (plugins/StarlightUniverse/logs/ folder appears)</label>
+    <label><input type="checkbox" id="p25_log_send_4"> When the VPS becomes reachable again, new batches are sent over HTTP (fallback is only used when HTTP fails)</label>
+    <label><input type="checkbox" id="p25_log_send_5"> On server /stop, any queued log entries are flushed one last time before the plugin disables</label>
+    <label><input type="checkbox" id="p25_log_send_6"> Log flush runs off the main thread — TPS is not affected even with many players moving/chatting</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

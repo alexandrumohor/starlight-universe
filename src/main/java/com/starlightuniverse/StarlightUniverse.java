@@ -1,6 +1,8 @@
 package com.starlightuniverse;
 
 import com.starlightuniverse.admin.*;
+import com.starlightuniverse.anticheat.*;
+import com.starlightuniverse.antigrief.*;
 import com.starlightuniverse.arena.*;
 import com.starlightuniverse.auction.*;
 import com.starlightuniverse.auth.*;
@@ -11,6 +13,7 @@ import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.emoji.*;
 import com.starlightuniverse.enchant.*;
+import com.starlightuniverse.logging.*;
 import com.starlightuniverse.job.*;
 import com.starlightuniverse.minigame.*;
 import com.starlightuniverse.mob.*;
@@ -72,6 +75,9 @@ public final class StarlightUniverse extends JavaPlugin {
     private RtpManager rtpManager;
     private TpaManager tpaManager;
     private PWarpManager pwarpManager;
+    private AntiCheatManager antiCheatManager;
+    private LogManager logManager;
+    private LogListener logListener;
 
     @Override
     public void onEnable() {
@@ -283,11 +289,31 @@ public final class StarlightUniverse extends JavaPlugin {
         for (Command cmd : PWarpCommand.create(pwarpManager))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
 
+        Bukkit.getPluginManager().registerEvents(new AntiGriefListener(this), this);
+
+        antiCheatManager = new AntiCheatManager(this, adminManager);
+        Bukkit.getPluginManager().registerEvents(new AntiCheatListener(antiCheatManager, authManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new AntiCheatCommand(antiCheatManager, adminManager));
+
+        logManager = new LogManager(this);
+        logManager.start();
+        logListener = new LogListener(this, logManager, authManager);
+        logListener.start();
+        Bukkit.getPluginManager().registerEvents(logListener, this);
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (logListener != null) {
+            logListener.shutdown();
+        }
+
+        if (logManager != null) {
+            logManager.shutdown();
+        }
+
         if (spawnerManager != null) {
             spawnerManager.shutdown();
         }
@@ -507,5 +533,13 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public PWarpManager getPwarpManager() {
         return pwarpManager;
+    }
+
+    public AntiCheatManager getAntiCheatManager() {
+        return antiCheatManager;
+    }
+
+    public LogManager getLogManager() {
+        return logManager;
     }
 }
