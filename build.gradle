@@ -27,6 +27,19 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+tasks.register('packageResourcePack', Zip) {
+    archiveFileName = 'starlight-pack.zip'
+    destinationDirectory = layout.buildDirectory.dir('pack')
+    from(file("$projectDir/resourcepack")) {
+        exclude '**/.gitkeep'
+    }
+}
+
+processResources {
+    dependsOn 'packageResourcePack'
+    from(layout.buildDirectory.file('pack/starlight-pack.zip'))
+}
+
 jar {
     archiveBaseName = 'StarlightUniverse'
 }

@@ -1,0 +1,32 @@
+{
+    "crate_open": {
+        "sounds": [{"name": "minecraft:entity.experience_orb.pickup", "type": "event"}]
+    },
+    "crate_reward": {
+        "sounds": [{"name": "minecraft:entity.player.levelup", "type": "event"}]
+    },
+    "menu_open": {
+        "sounds": [{"name": "minecraft:ui.button.click", "type": "event"}]
+    },
+    "menu_close": {
+        "sounds": [{"name": "minecraft:block.chest.close", "type": "event"}]
+    },
+    "money_gain": {
+        "sounds": [{"name": "minecraft:entity.item.pickup", "type": "event"}]
+    },
+    "gems_gain": {
+        "sounds": [{"name": "minecraft:block.amethyst_block.chime", "type": "event"}]
+    },
+    "stars_gain": {
+        "sounds": [{"name": "minecraft:entity.firework_rocket.twinkle", "type": "event"}]
+    },
+    "level_up": {
+        "sounds": [{"name": "minecraft:entity.player.levelup", "type": "event"}]
+    },
+    "warp": {
+        "sounds": [{"name": "minecraft:entity.enderman.teleport", "type": "event"}]
+    },
+    "error": {
+        "sounds": [{"name": "minecraft:entity.villager.no", "type": "event"}]
+    }
+}

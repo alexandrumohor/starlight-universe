@@ -21,6 +21,7 @@ import com.starlightuniverse.maintenance.*;
 import com.starlightuniverse.minigame.*;
 import com.starlightuniverse.mob.*;
 import com.starlightuniverse.nameplate.*;
+import com.starlightuniverse.pack.*;
 import com.starlightuniverse.skill.*;
 import com.starlightuniverse.economy.*;
 import com.starlightuniverse.home.*;
@@ -84,6 +85,8 @@ public final class StarlightUniverse extends JavaPlugin {
     private AnnouncementManager announcementManager;
     private MaintenanceManager maintenanceManager;
     private HotTimeManager hotTimeManager;
+    private PackServer packServer;
+    private ResourcePackManager resourcePackManager;
 
     @Override
     public void onEnable() {
@@ -323,11 +326,22 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getCommandMap().register("starlightuniverse", new HotTimeCommand(hotTimeManager, adminManager));
         jobManager.setHotTimeManager(hotTimeManager);
 
+        packServer = new PackServer(this);
+        if (packServer.start()) {
+            resourcePackManager = new ResourcePackManager(this, packServer);
+            Bukkit.getPluginManager().registerEvents(
+                    new ResourcePackListener(resourcePackManager), this);
+        }
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (packServer != null) {
+            packServer.stop();
+        }
+
         if (hotTimeManager != null) {
             hotTimeManager.stop();
         }

@@ -2007,6 +2007,36 @@
     <label><input type="checkbox" id="p26_ht_end_2"> After Hot Time ends, mob drops, XP orbs and job money return to normal values</label>
     <label><input type="checkbox" id="p26_ht_end_3"> /hottime stop while active ends Hot Time immediately (bar disappears, broadcast fires) — /hottime stop when inactive says "Hot Time is not active."</label>
 
+    <h2>Phase 27 — Resource Pack Final</h2>
+    <h3>Auto-send on join</h3>
+    <label><input type="checkbox" id="p27_join_prompt"> On first join, the client shows a prompt "Server would like to install a resource pack" with the Romanian description text — you can accept it.</label>
+    <label><input type="checkbox" id="p27_success_msg"> After the pack finishes loading, you see the green message "Resource pack încărcat." in chat.</label>
+    <label><input type="checkbox" id="p27_declined_kick"> If you decline the pack, you get the red error "Ai nevoie de resource pack pentru a juca. Reconnectează și acceptă." (pack is required).</label>
+    <label><input type="checkbox" id="p27_console_ok"> Console shows a line like "[SU] Pack server started on port 25566 (SHA-1: …, N bytes)" during startup.</label>
+    <label><input type="checkbox" id="p27_disk_zip"> A file named starlight-pack.zip appears in plugins/StarlightUniverse/ after the first start.</label>
+    <label><input type="checkbox" id="p27_reconnect_cached"> After a reconnect on the same client, the pack loads instantly (client cached it against the same SHA-1).</label>
+    <label><input type="checkbox" id="p27_new_hash_reprompt"> If the pack contents change (rebuild + restart), reconnecting reprompts you to download the new version.</label>
+
+    <h3>Currency icons (font)</h3>
+    <label><input type="checkbox" id="p27_money_icon"> /bal shows a yellow $ pixel icon next to your Money balance instead of a missing-char square.</label>
+    <label><input type="checkbox" id="p27_gems_icon"> /bal shows a cyan ◆ diamond icon next to your Gems balance instead of a missing-char square.</label>
+    <label><input type="checkbox" id="p27_stars_icon"> /bal shows a purple ★ star icon next to your Stars balance instead of a missing-char square.</label>
+    <label><input type="checkbox" id="p27_icons_in_guis"> Same three icons appear correctly in /shop, /ah, /starshop, /order and other menus wherever a price is displayed.</label>
+
+    <h3>Item textures &amp; models</h3>
+    <label><input type="checkbox" id="p27_crate_star_tex"> A Star Crate key/item (from /spawncrate star or reward) shows a green pixel-art crate texture with a white star, not a blank purple/black square.</label>
+    <label><input type="checkbox" id="p27_crate_cosmic_tex"> A Cosmic Crate item shows a cyan crate texture.</label>
+    <label><input type="checkbox" id="p27_crate_galaxy_tex"> A Galaxy Crate item shows a purple crate texture.</label>
+    <label><input type="checkbox" id="p27_crate_seasonal_tex"> A Seasonal Crate item shows a yellow crate texture.</label>
+
+    <h3>GUI background &amp; sounds</h3>
+    <label><input type="checkbox" id="p27_gui_bg_present"> The GUI background texture (assets/starlight/textures/gui/menu_background.png) is present in the shipped pack — a dark starfield with a soft blue vignette.</label>
+    <label><input type="checkbox" id="p27_sounds_json"> The pack's sounds.json defines these event names: crate_open, crate_reward, menu_open, menu_close, money_gain, gems_gain, stars_gain, level_up, warp, error.</label>
+
+    <h3>Pack integrity</h3>
+    <label><input type="checkbox" id="p27_pack_mcmeta"> pack.mcmeta inside the served zip has pack_format 42 and the "Starlight Universe Resource Pack" description.</label>
+    <label><input type="checkbox" id="p27_no_purple_black"> No purple/black missing-texture squares appear in the lobby, survival world, or any custom GUI after the pack is loaded.</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');
