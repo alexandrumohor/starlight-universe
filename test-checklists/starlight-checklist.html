@@ -1068,6 +1068,55 @@
     <label><input type="checkbox" id="p16_121"> Passive effects (night vision, speed, etc.) stop when you remove the enchanted armor</label>
     <label><input type="checkbox" id="p16_122"> Tab-completion works on /enchantbook — shows all enchant names</label>
 
+    <h2>Phase 17 — Custom Enchanting Table + Alchemist</h2>
+
+    <h3>17A — Custom Enchanting Table</h3>
+    <label><input type="checkbox" id="p17_1"> Right-click an Enchanting Table — a custom purple GUI opens instead of the vanilla enchanting screen</label>
+    <label><input type="checkbox" id="p17_2"> The GUI shows 5 tier slots: Stardust (gray), Starlight (green), Starborn (blue), Stellar (purple), Celestial (orange)</label>
+    <label><input type="checkbox" id="p17_3"> Each tier shows how many enchantments are in the pool, the money cost, and the XP cost</label>
+    <label><input type="checkbox" id="p17_4"> Costs you can afford show in green, costs you can't show in red</label>
+    <label><input type="checkbox" id="p17_5"> Click Stardust tier — it charges $1,000,000 (or 5,000 XP if not enough money) and gives a random Common enchant book</label>
+    <label><input type="checkbox" id="p17_6"> Click Starlight tier — charges $3,000,000 or 15,000 XP, gives random Uncommon book</label>
+    <label><input type="checkbox" id="p17_7"> Click Starborn tier — charges $8,000,000 or 40,000 XP, gives random Rare book</label>
+    <label><input type="checkbox" id="p17_8"> Click Stellar tier — charges $20,000,000 or 100,000 XP, gives random Epic book</label>
+    <label><input type="checkbox" id="p17_9"> Click Celestial tier — charges $75,000,000 or 375,000 XP, gives random Legendary book</label>
+    <label><input type="checkbox" id="p17_10"> Money is always charged first — only uses XP if you don't have enough money</label>
+    <label><input type="checkbox" id="p17_11"> If you have neither enough money nor XP, you get an error message and nothing is deducted</label>
+    <label><input type="checkbox" id="p17_12"> The rolled book appears in your inventory (or drops at your feet if inventory is full)</label>
+    <label><input type="checkbox" id="p17_13"> The rolled book is always Level I</label>
+    <label><input type="checkbox" id="p17_14"> Sneak + right-click on the Enchanting Table still lets you place blocks normally</label>
+    <label><input type="checkbox" id="p17_15"> An info item in the top row explains how the system works</label>
+
+    <h3>17B — Alchemist</h3>
+    <label><input type="checkbox" id="p17_16"> Type /alchemist — a purple Alchemist GUI opens</label>
+    <label><input type="checkbox" id="p17_17"> /alchimist also works (alias)</label>
+    <label><input type="checkbox" id="p17_18"> The GUI has two input slots where you can place enchant books</label>
+    <label><input type="checkbox" id="p17_19"> You can drag custom enchant books into the input slots</label>
+    <label><input type="checkbox" id="p17_20"> You can drag vanilla enchant books into the input slots</label>
+    <label><input type="checkbox" id="p17_21"> You cannot place non-book items in the input slots (they get returned)</label>
+    <label><input type="checkbox" id="p17_22"> Place 2 custom books of the same enchant and same level — the result slot shows the combined book (level +1)</label>
+    <label><input type="checkbox" id="p17_23"> Place 2 vanilla books of the same enchant and same level — the result slot also shows a combined book</label>
+    <label><input type="checkbox" id="p17_24"> If the two books don't match (different enchant or different level), the result shows "No valid combination"</label>
+    <label><input type="checkbox" id="p17_25"> Mixing a custom book with a vanilla book doesn't produce a result</label>
+    <label><input type="checkbox" id="p17_26"> The result slot shows the XP cost before you click</label>
+    <label><input type="checkbox" id="p17_27"> Combining to Level II costs 500 XP</label>
+    <label><input type="checkbox" id="p17_28"> Combining to Level III costs 1,500 XP</label>
+    <label><input type="checkbox" id="p17_29"> Combining to Level IV costs 4,000 XP</label>
+    <label><input type="checkbox" id="p17_30"> Combining to Level V costs 10,000 XP</label>
+    <label><input type="checkbox" id="p17_31"> Combining to Level VI costs 25,000 XP</label>
+    <label><input type="checkbox" id="p17_32"> Combining to Level VII costs 50,000 XP</label>
+    <label><input type="checkbox" id="p17_33"> Combining to Level VIII costs 100,000 XP</label>
+    <label><input type="checkbox" id="p17_34"> Combining to Level IX costs 200,000 XP</label>
+    <label><input type="checkbox" id="p17_35"> Combining to Level X costs 500,000 XP</label>
+    <label><input type="checkbox" id="p17_36"> Click the result slot to combine — both input books are consumed, you get the result book, XP is deducted</label>
+    <label><input type="checkbox" id="p17_37"> If you don't have enough XP, you get an error and nothing happens</label>
+    <label><input type="checkbox" id="p17_38"> You cannot combine beyond an enchant's max level (e.g., Stargazer max is I, so two Stargazer I books won't combine)</label>
+    <label><input type="checkbox" id="p17_39"> Vanilla enchants respect their vanilla max level (e.g., Sharpness caps at V)</label>
+    <label><input type="checkbox" id="p17_40"> When you close the Alchemist GUI, any books left in the input slots are returned to your inventory</label>
+    <label><input type="checkbox" id="p17_41"> Shift-clicking a book from your inventory places it in the first empty input slot</label>
+    <label><input type="checkbox" id="p17_42"> The combined book can be applied at an Anvil or used in the Alchemist again for further combining</label>
+    <label><input type="checkbox" id="p17_43"> No "Too Expensive" message — the Alchemist always works if you have the XP</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

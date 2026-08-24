@@ -45,6 +45,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private SkillManager skillManager;
     private EnchantManager enchantManager;
     private EnchantListener enchantListener;
+    private AlchemistListener alchemistListener;
 
     @Override
     public void onEnable() {
@@ -182,8 +183,12 @@ public final class StarlightUniverse extends JavaPlugin {
         enchantListener = new EnchantListener(this, enchantManager, authManager, economyManager);
         Bukkit.getPluginManager().registerEvents(enchantListener, this);
         Bukkit.getPluginManager().registerEvents(new EnchantGuiListener(), this);
+        Bukkit.getPluginManager().registerEvents(new EnchantTableListener(enchantManager, economyManager, authManager), this);
+        alchemistListener = new AlchemistListener(this, enchantManager, authManager);
+        Bukkit.getPluginManager().registerEvents(alchemistListener, this);
         for (Command cmd : EnchantCommand.create(enchantManager))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
+        Bukkit.getCommandMap().register("starlightuniverse", new AlchemistCommand(alchemistListener));
 
         getLogger().info("[SU] Enabled!");
     }
