@@ -2037,6 +2037,76 @@
     <label><input type="checkbox" id="p27_pack_mcmeta"> pack.mcmeta inside the served zip has pack_format 42 and the "Starlight Universe Resource Pack" description.</label>
     <label><input type="checkbox" id="p27_no_purple_black"> No purple/black missing-texture squares appear in the lobby, survival world, or any custom GUI after the pack is loaded.</label>
 
+    <h2>Phase 28 — Polish + Testing</h2>
+
+    <h3>Startup health</h3>
+    <label><input type="checkbox" id="p28_enable_line"> Server console shows "[SU] Enabled!" during startup with no red error above it.</label>
+    <label><input type="checkbox" id="p28_startup_summary"> Right after "[SU] Enabled!", console prints a "[SU] Startup summary:" line with worlds=, pack=ok(sha1=…), db=ok, players_in_db=N.</label>
+    <label><input type="checkbox" id="p28_no_stacktrace"> No stack trace is printed during startup for any Starlight subsystem (auth, world, economy, home, team, crate, chat, jobs, skills, enchant, nameplate, pvp, boss, mob raid, minigame, pwarp, announce, maintenance, hot time, pack).</label>
+
+    <h3>/sudiag command — permission gate</h3>
+    <label><input type="checkbox" id="p28_diag_owner_only"> As a normal player, /sudiag prints the red "No permission!" message and nothing else.</label>
+    <label><input type="checkbox" id="p28_diag_moderator_denied"> As a Moderator/Helper, /sudiag also prints "No permission!" — only Owner may run it.</label>
+
+    <h3>/sudiag status</h3>
+    <label><input type="checkbox" id="p28_diag_status_runs"> As Owner, /sudiag (no args) prints "=== Starlight Universe Diagnostics ===" followed by a block of cyan key + yellow value lines.</label>
+    <label><input type="checkbox" id="p28_diag_status_tps"> The status output includes a "TPS 1m/5m/15m" line with three numbers separated by " / " — all three are between 15.00 and 20.00 on an empty server.</label>
+    <label><input type="checkbox" id="p28_diag_status_memory"> The status output includes a "Memory (used/max)" line with two "N MB" values, and the used value is smaller than the max value.</label>
+    <label><input type="checkbox" id="p28_diag_status_worlds"> "Worlds / chunks" line shows the number of Starlight worlds (lobby, survival_lobby, overworld, nether, end, resource_overworld, resource_nether, resource_end) plus any arena worlds — matches the count you see with /worlds or in the console.</label>
+    <label><input type="checkbox" id="p28_diag_status_players"> "Online players" line matches the actual number of players currently connected to the server.</label>
+    <label><input type="checkbox" id="p28_diag_status_db"> "Database" line reads "ok" (green-yellow) on a healthy MySQL connection.</label>
+    <label><input type="checkbox" id="p28_diag_status_pack"> "Resource pack" line reads "ok (sha1=XXXXXXXX, port=25566)" when the pack server started successfully.</label>
+    <label><input type="checkbox" id="p28_diag_status_tasks"> "Scheduled Bukkit tasks" shows a small integer (the running Starlight tasks — queue, TPA expiry, announcement scheduler, spawner tick, etc.).</label>
+    <label><input type="checkbox" id="p28_diag_status_managers"> "Managers online" shows a count and a comma-separated list including at minimum: auth, world, economy, home, team, chat, crate, job, skill, enchant, pvp, boss, mobraid, minigame, emoji, benefit, nameplate, spawner, rtp, tpa, pwarp, anticheat, log, announce, maintenance, hottime.</label>
+
+    <h3>/sudiag counts (DB persistence)</h3>
+    <label><input type="checkbox" id="p28_diag_counts_runs"> /sudiag counts prints "=== Database Row Counts ===" and one line per Starlight table.</label>
+    <label><input type="checkbox" id="p28_diag_counts_no_missing"> No table shows the red "MISSING" tag — all su_ tables from every phase exist. If any show MISSING, note which and check DB migrations.</label>
+    <label><input type="checkbox" id="p28_diag_counts_players_ge_online"> The su_players count is at least the number of currently online players (registered accounts persist in DB).</label>
+    <label><input type="checkbox" id="p28_diag_counts_reflect_activity"> After buying a home ( /sethome 1 ), /sudiag counts shows su_homes increased by 1. After creating a team, su_teams increased. After a /warn, su_warns increased.</label>
+
+    <h3>/sudiag save (force persistence)</h3>
+    <label><input type="checkbox" id="p28_diag_save_runs"> /sudiag save prints "Saving all persistent state..." then "Saved N authenticated player(s), all worlds, all Bukkit player data." — N equals the online-authenticated count.</label>
+    <label><input type="checkbox" id="p28_diag_save_no_errors"> Console shows no red exceptions during /sudiag save.</label>
+
+    <h3>Restart persistence — everything survives the reboot</h3>
+    <label><input type="checkbox" id="p28_persist_money"> Set money via /givemoney &lt;player&gt; 12345, then stop and restart the server — after login, /bal still shows the same money.</label>
+    <label><input type="checkbox" id="p28_persist_gems_stars"> Same test for /givegems and /givestars — values survive the restart.</label>
+    <label><input type="checkbox" id="p28_persist_home"> Create /sethome 1 in the survival overworld, restart the server, /home 1 still teleports to the same coordinates.</label>
+    <label><input type="checkbox" id="p28_persist_team"> Create a team with /team create TestClan, restart, /team info still shows the team with your name as Leader.</label>
+    <label><input type="checkbox" id="p28_persist_jobs"> Get some Miner job XP by breaking a few ores, restart, /jobs still shows your Miner level and XP (not zero).</label>
+    <label><input type="checkbox" id="p28_persist_skills"> Similarly, /skills shows your Mining/Combat/etc. XP after restart.</label>
+    <label><input type="checkbox" id="p28_persist_admin_rank"> If you /setadmin someone Owner, after restart the target is still Owner (adminLevel persists).</label>
+    <label><input type="checkbox" id="p28_persist_premium_rank"> If you /setpremium someone Galaxy, after restart the tag is still Galaxy.</label>
+    <label><input type="checkbox" id="p28_persist_ban"> Ban a test account with a duration, restart the server, the account is still banned and cannot log in.</label>
+    <label><input type="checkbox" id="p28_persist_inventory"> Put items in the survival inventory, /stop the server cleanly, restart — items are still there when you re-login.</label>
+    <label><input type="checkbox" id="p28_persist_lobby_inventory"> Lobby inventory (the Nether Star teleport item) is still exactly one item after restart, in the same slot.</label>
+    <label><input type="checkbox" id="p28_persist_maintenance"> If maintenance was ON when you stopped the server, it is still ON after restart and the ETA is honored.</label>
+
+    <h3>Resource pack loading</h3>
+    <label><input type="checkbox" id="p28_pack_ok_startup"> After restart, console still shows a "Pack server started on port 25566" line and /sudiag reports pack=ok(sha1=…).</label>
+    <label><input type="checkbox" id="p28_pack_sha_stable"> The pack SHA-1 shown by /sudiag is identical across two consecutive restarts (the pack zip is deterministic while the resourcepack/ folder is unchanged).</label>
+    <label><input type="checkbox" id="p28_pack_client_reload"> On a client reconnect, the pack loads without a re-download (client cached against the SHA-1) and no purple/black textures appear anywhere.</label>
+
+    <h3>Performance — spark profiler (optional external tool)</h3>
+    <label><input type="checkbox" id="p28_spark_installed"> Optional: install spark (drop the spark plugin jar into plugins/) — it's the standard way to profile a Paper server, and Starlight does NOT ship it.</label>
+    <label><input type="checkbox" id="p28_spark_ping_low"> With spark installed, /spark tps shows TPS ≥ 19.5 on an idle server with the pack loaded and no players.</label>
+    <label><input type="checkbox" id="p28_spark_no_hotspots"> /spark profiler --timeout 60 with 1-2 players moving around does NOT flag any Starlight class (com.starlightuniverse.*) as consuming more than ~5% of the main thread.</label>
+    <label><input type="checkbox" id="p28_no_lag_on_join"> Multiple simultaneous joins (2-3 alt accounts joining within 5 seconds) do NOT drop TPS below 18 during the join burst.</label>
+
+    <h3>Conflict spot-checks between subsystems</h3>
+    <label><input type="checkbox" id="p28_conflict_pvp_pack"> Joining a PvP arena still triggers the pack listener (no double-send, no error), and PvP itself works.</label>
+    <label><input type="checkbox" id="p28_conflict_lobby_inventory"> Teleporting lobby → survival → lobby swaps inventories correctly (Nether Star in lobby, saved items in survival), even after ten round-trips.</label>
+    <label><input type="checkbox" id="p28_conflict_chat_nameplate"> Sending a chat message while a nameplate is visible above the player does not throw an error and the message renders with the correct prefixes.</label>
+    <label><input type="checkbox" id="p28_conflict_maintenance_pack"> Starting maintenance mode while a player is downloading the pack does NOT crash the plugin — the player either finishes and gets kicked with the maintenance message, or gets kicked with a clear reason.</label>
+    <label><input type="checkbox" id="p28_conflict_home_protect_grief"> Breaking a block inside a home protection while anti-grief is enabled shows the protection message (protection wins over anti-grief), not a stack trace.</label>
+    <label><input type="checkbox" id="p28_conflict_hottime_jobs"> Enabling /hottime 5 2 while a Miner job payout is happening applies the multiplier once (payout doubled), no double-count.</label>
+
+    <h3>Graceful shutdown</h3>
+    <label><input type="checkbox" id="p28_shutdown_line"> On /stop, console shows a "[SU] Disabled!" line at the end.</label>
+    <label><input type="checkbox" id="p28_shutdown_db_pool"> Also on /stop, console shows "[SU] Database connection pool closed." — no HikariCP leaked-connection warnings.</label>
+    <label><input type="checkbox" id="p28_shutdown_no_error"> No red exceptions during shutdown (job save, skill save, inventory save, team save, crate save, home save, order save, auction save, log flush all complete cleanly).</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

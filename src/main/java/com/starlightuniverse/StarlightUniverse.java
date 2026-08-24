@@ -12,6 +12,7 @@ import com.starlightuniverse.boss.*;
 import com.starlightuniverse.chat.*;
 import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
+import com.starlightuniverse.diag.*;
 import com.starlightuniverse.emoji.*;
 import com.starlightuniverse.enchant.*;
 import com.starlightuniverse.hottime.*;
@@ -87,6 +88,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private HotTimeManager hotTimeManager;
     private PackServer packServer;
     private ResourcePackManager resourcePackManager;
+    private DiagnosticsService diagnosticsService;
 
     @Override
     public void onEnable() {
@@ -333,7 +335,11 @@ public final class StarlightUniverse extends JavaPlugin {
                     new ResourcePackListener(resourcePackManager), this);
         }
 
+        diagnosticsService = new DiagnosticsService(this);
+        Bukkit.getCommandMap().register("starlightuniverse", new DiagCommand(adminManager, diagnosticsService));
+
         getLogger().info("[SU] Enabled!");
+        getLogger().info("[SU] Startup summary: " + diagnosticsService.buildStartupSummary());
     }
 
     @Override
@@ -597,5 +603,17 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public HotTimeManager getHotTimeManager() {
         return hotTimeManager;
+    }
+
+    public PackServer getPackServer() {
+        return packServer;
+    }
+
+    public ResourcePackManager getResourcePackManager() {
+        return resourcePackManager;
+    }
+
+    public DiagnosticsService getDiagnosticsService() {
+        return diagnosticsService;
     }
 }
