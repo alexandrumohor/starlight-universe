@@ -711,6 +711,89 @@
     <label><input type="checkbox" id="p13_34"> Restart the server — all crates reappear at their locations with holograms</label>
     <label><input type="checkbox" id="p13_35"> Remove a crate, restart — it stays removed</label>
 
+    <h2>Phase 14 — Jobs</h2>
+
+    <h3>Jobs GUI</h3>
+    <label><input type="checkbox" id="p14_1"> Type /jobs — a GUI opens with "Jobs" title in gold, 10 job icons arranged in two rows</label>
+    <label><input type="checkbox" id="p14_2"> Top row shows: Miner, Woodcutter, Farmer, Hunter, Fisherman with matching tool icons</label>
+    <label><input type="checkbox" id="p14_3"> Bottom row shows: Builder, Digger, Brewer, Enchanter, Smelter with matching block/tool icons</label>
+    <label><input type="checkbox" id="p14_4"> Each job icon shows: Level (1/100), XP (0/100), a progress bar, and the current multiplier (1.00x)</label>
+    <label><input type="checkbox" id="p14_5"> A Book item at the bottom says "All 10 jobs are always active"</label>
+    <label><input type="checkbox" id="p14_6"> Clicking items in the GUI does nothing — you can't take them out</label>
+
+    <h3>Miner Job</h3>
+    <label><input type="checkbox" id="p14_7"> Mine a coal ore in survival — you earn $2 (check /bal increases)</label>
+    <label><input type="checkbox" id="p14_8"> Mine an iron ore — you earn $5</label>
+    <label><input type="checkbox" id="p14_9"> Mine a diamond ore — you earn $25</label>
+    <label><input type="checkbox" id="p14_10"> Mine ancient debris — you earn $50</label>
+    <label><input type="checkbox" id="p14_11"> Mine regular stone — you earn $0.50</label>
+    <label><input type="checkbox" id="p14_12"> Open /jobs — Miner XP has increased from all the mining</label>
+
+    <h3>Woodcutter Job</h3>
+    <label><input type="checkbox" id="p14_13"> Chop an oak log — you earn $2</label>
+    <label><input type="checkbox" id="p14_14"> Chop a crimson stem — you earn $3</label>
+    <label><input type="checkbox" id="p14_15"> Open /jobs — Woodcutter XP has increased</label>
+
+    <h3>Farmer Job</h3>
+    <label><input type="checkbox" id="p14_16"> Break fully grown wheat — you earn $1</label>
+    <label><input type="checkbox" id="p14_17"> Break a non-mature crop (not fully grown) — NO money earned</label>
+    <label><input type="checkbox" id="p14_18"> Break a pumpkin — you earn $2</label>
+    <label><input type="checkbox" id="p14_19"> Break nether wart (fully grown) — you earn $3</label>
+
+    <h3>Hunter Job</h3>
+    <label><input type="checkbox" id="p14_20"> Kill a zombie — you earn $3</label>
+    <label><input type="checkbox" id="p14_21"> Kill an enderman — you earn $10</label>
+    <label><input type="checkbox" id="p14_22"> Kill a blaze — you earn $15</label>
+
+    <h3>Fisherman Job</h3>
+    <label><input type="checkbox" id="p14_23"> Catch a cod — you earn $3</label>
+    <label><input type="checkbox" id="p14_24"> Catch a salmon — you earn $5</label>
+    <label><input type="checkbox" id="p14_25"> Catch a treasure item (enchanted book, name tag, etc.) — you earn $15</label>
+
+    <h3>Builder Job</h3>
+    <label><input type="checkbox" id="p14_26"> Place any block — you earn $0.50</label>
+    <label><input type="checkbox" id="p14_27"> Place several blocks — Builder XP increases in /jobs</label>
+
+    <h3>Digger Job</h3>
+    <label><input type="checkbox" id="p14_28"> Dig dirt/grass — you earn $0.50</label>
+    <label><input type="checkbox" id="p14_29"> Dig clay — you earn $2</label>
+    <label><input type="checkbox" id="p14_30"> Dig sand — you earn $1</label>
+
+    <h3>Brewer Job</h3>
+    <label><input type="checkbox" id="p14_31"> Put ingredients in a brewing stand and let it finish — you earn money per potion brewed</label>
+    <label><input type="checkbox" id="p14_32"> Brew 3 potions at once — you earn $30 (3 x $10)</label>
+
+    <h3>Enchanter Job</h3>
+    <label><input type="checkbox" id="p14_33"> Enchant an item at an enchanting table — you earn $20</label>
+
+    <h3>Smelter Job</h3>
+    <label><input type="checkbox" id="p14_34"> Smelt items in a furnace and take them out — you earn $2 per item extracted</label>
+    <label><input type="checkbox" id="p14_35"> Smelt 16 items and take them all out at once — you earn $32</label>
+
+    <h3>Anti-Exploit</h3>
+    <label><input type="checkbox" id="p14_36"> Place a block then immediately break it — you do NOT earn Miner/Woodcutter/Digger money for breaking it</label>
+    <label><input type="checkbox" id="p14_37"> Player-placed ores do NOT give Miner rewards when broken</label>
+
+    <h3>Level Up</h3>
+    <label><input type="checkbox" id="p14_38"> Perform enough actions in one job to gain XP — eventually you see a level-up message in chat</label>
+    <label><input type="checkbox" id="p14_39"> The level-up message shows the job name, new level, and the new money multiplier</label>
+    <label><input type="checkbox" id="p14_40"> You hear a level-up sound when a job levels up</label>
+    <label><input type="checkbox" id="p14_41"> After leveling up, open /jobs — the level, XP, progress bar, and multiplier are updated</label>
+    <label><input type="checkbox" id="p14_42"> At higher levels, you earn more money per action (multiplier increases)</label>
+
+    <h3>Lobby / World Restrictions</h3>
+    <label><input type="checkbox" id="p14_43"> Actions in the lobby world do NOT give any job rewards</label>
+    <label><input type="checkbox" id="p14_44"> Actions in survival worlds (overworld, nether, end, resource) DO give job rewards</label>
+
+    <h3>Vanilla XP</h3>
+    <label><input type="checkbox" id="p14_45"> Mining ores still gives normal vanilla XP drops — jobs don't affect vanilla XP at all</label>
+    <label><input type="checkbox" id="p14_46"> Killing mobs still gives normal vanilla XP — jobs only add Money, nothing else</label>
+
+    <h3>Persistence</h3>
+    <label><input type="checkbox" id="p14_47"> Disconnect and reconnect — /jobs shows the same levels and XP as before</label>
+    <label><input type="checkbox" id="p14_48"> Check MySQL — table su_jobs exists with username, job_type, level, xp columns</label>
+    <label><input type="checkbox" id="p14_49"> Restart the server — all job progress is preserved in the database</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

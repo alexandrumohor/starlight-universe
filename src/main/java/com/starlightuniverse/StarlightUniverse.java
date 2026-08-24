@@ -6,6 +6,7 @@ import com.starlightuniverse.auth.*;
 import com.starlightuniverse.chat.*;
 import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
+import com.starlightuniverse.job.*;
 import com.starlightuniverse.economy.*;
 import com.starlightuniverse.home.*;
 import com.starlightuniverse.order.*;
@@ -38,6 +39,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private TeamManager teamManager;
     private ChatManager chatManager;
     private CrateManager crateManager;
+    private JobManager jobManager;
 
     @Override
     public void onEnable() {
@@ -91,6 +93,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
         crateManager = new CrateManager(this, databaseManager, economyManager, adminManager);
         crateManager.initialize();
+
+        jobManager = new JobManager(this, databaseManager, economyManager);
+        jobManager.initialize();
 
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(new AdminListener(this, adminManager), this);
@@ -156,6 +161,10 @@ public final class StarlightUniverse extends JavaPlugin {
         for (Command cmd : CrateCommands.create(crateManager))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
 
+        Bukkit.getPluginManager().registerEvents(new JobListener(this, jobManager, authManager), this);
+        Bukkit.getPluginManager().registerEvents(new JobDataListener(jobManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new JobCommand(jobManager));
+
         getLogger().info("[SU] Enabled!");
     }
 
@@ -170,6 +179,10 @@ public final class StarlightUniverse extends JavaPlugin {
                     }
                 }
             }
+        }
+
+        if (jobManager != null) {
+            jobManager.shutdown();
         }
 
         if (crateManager != null) {
@@ -276,5 +289,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public CrateManager getCrateManager() {
         return crateManager;
+    }
+
+    public JobManager getJobManager() {
+        return jobManager;
     }
 }
