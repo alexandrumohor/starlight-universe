@@ -1314,6 +1314,156 @@
     <label><input type="checkbox" id="p19_64"> Deaths caused by non-players (void, drowning, fall from wall) also correctly end the round with the other player as the winner</label>
     <label><input type="checkbox" id="p19_65"> Your pvp_kills counter (visible in staff tools) increments by 1 each ranked or unranked win</label>
 
+    <h2>Phase 20 — Boss Arena + Mob Invasion</h2>
+
+    <h3>20A — Boss Arena Commands</h3>
+    <label><input type="checkbox" id="p20_boss_1"> Typing /bosskill with no arguments shows the help menu (start, join, leave, info)</label>
+    <label><input type="checkbox" id="p20_boss_2"> A regular (non-Owner) player running /bosskill start warden gets a red "Only Owner can start a boss fight" error</label>
+    <label><input type="checkbox" id="p20_boss_3"> As Owner, /bosskill start with no boss type shows the usage message</label>
+    <label><input type="checkbox" id="p20_boss_4"> As Owner, /bosskill start banana shows "Unknown boss type" with the valid options listed</label>
+    <label><input type="checkbox" id="p20_boss_5"> Tab-completing /bosskill start shows warden, wither, dragon, infernalgolem</label>
+    <label><input type="checkbox" id="p20_boss_6"> /bosskill info before any boss shows "Ready to summon"</label>
+
+    <h3>20B — Warden Boss</h3>
+    <label><input type="checkbox" id="p20_warden_1"> As Owner, /bosskill start warden broadcasts to ALL online players: "A Warden has appeared in the Boss Arena! (2000 HP)"</label>
+    <label><input type="checkbox" id="p20_warden_2"> Every online player hears a horn sound when the announcement fires</label>
+    <label><input type="checkbox" id="p20_warden_3"> A blue segmented boss bar appears at the top of the screen for all online players showing "Warden — 2000 / 2000 HP"</label>
+    <label><input type="checkbox" id="p20_warden_4"> The Warden spawns at the center of world_boss with its custom name "Warden" visible in bold blue above its head</label>
+    <label><input type="checkbox" id="p20_warden_5"> The Warden has exactly 2000 HP (not the vanilla 500)</label>
+    <label><input type="checkbox" id="p20_warden_6"> Running /bosskill join teleports you to the Warden's arena in survival mode with a green "You joined the Warden fight!" message</label>
+    <label><input type="checkbox" id="p20_warden_7"> Damaging the Warden updates the boss bar HP number and progress in real time</label>
+    <label><input type="checkbox" id="p20_warden_8"> When the Warden dies, the boss bar disappears for everyone</label>
+
+    <h3>20C — Wither Boss</h3>
+    <label><input type="checkbox" id="p20_wither_1"> /bosskill start wither summons a Wither with exactly 1500 HP and a purple boss bar</label>
+    <label><input type="checkbox" id="p20_wither_2"> The Wither's name shows in bold dark gray above its head</label>
+    <label><input type="checkbox" id="p20_wither_3"> The Wither does NOT destroy any arena blocks even though it fires wither skulls (mob griefing is off)</label>
+
+    <h3>20D — Dragon Boss</h3>
+    <label><input type="checkbox" id="p20_dragon_1"> /bosskill start dragon summons an Ender Dragon with exactly 3000 HP and a pink boss bar</label>
+    <label><input type="checkbox" id="p20_dragon_2"> The dragon circles around the arena and does not despawn</label>
+
+    <h3>20E — Infernal Golem Boss</h3>
+    <label><input type="checkbox" id="p20_ig_1"> /bosskill start infernalgolem summons an Iron Golem renamed "Infernal Golem" with exactly 5000 HP</label>
+    <label><input type="checkbox" id="p20_ig_2"> The Infernal Golem is on fire (its fireticks are set very high so flames render)</label>
+    <label><input type="checkbox" id="p20_ig_3"> The Infernal Golem's boss bar is red</label>
+
+    <h3>20F — Concurrent Boss Rules</h3>
+    <label><input type="checkbox" id="p20_conc_1"> While a boss is active, /bosskill start wither shows a red "A boss fight is already active!" error</label>
+    <label><input type="checkbox" id="p20_conc_2"> After killing a boss, /bosskill start &lt;anything&gt; shows a "Boss cooldown active: 2h Xm remaining" error</label>
+    <label><input type="checkbox" id="p20_conc_3"> /bosskill info during the 2h cooldown shows the exact remaining cooldown</label>
+    <label><input type="checkbox" id="p20_conc_4"> An OP with 4 admin_level can bypass the type check but NOT the cooldown</label>
+
+    <h3>20G — Damage Tracking &amp; Rewards</h3>
+    <label><input type="checkbox" id="p20_dmg_1"> Two players attack the boss with different amounts of damage — both appear on the reward broadcast when the boss dies</label>
+    <label><input type="checkbox" id="p20_dmg_2"> The reward broadcast shows a gold header, then top-3 damagers with medals (🥇, 🥈, 🥉), then a gold footer</label>
+    <label><input type="checkbox" id="p20_dmg_3"> The #1 damager gets ★3, ◆50 and 1 Cosmic Crate Key in inventory</label>
+    <label><input type="checkbox" id="p20_dmg_4"> The #2 damager gets ★2, ◆50 and 1 Cosmic Crate Key</label>
+    <label><input type="checkbox" id="p20_dmg_5"> The #3 damager gets ★1, ◆50 and 1 Cosmic Crate Key</label>
+    <label><input type="checkbox" id="p20_dmg_6"> Damagers ranked 4th and lower get Money between $2,000 and $5,000 based on their damage share</label>
+    <label><input type="checkbox" id="p20_dmg_7"> Top-3 players hear the "toast challenge complete" fanfare on kill</label>
+    <label><input type="checkbox" id="p20_dmg_8"> Solo-killing the boss gives just the #1 rewards (no runner-up rewards)</label>
+
+    <h3>20H — Player Death During Boss Fight</h3>
+    <label><input type="checkbox" id="p20_death_1"> Dying during a boss fight does NOT drop items or XP — inventory and level are kept</label>
+    <label><input type="checkbox" id="p20_death_2"> After dying, you are teleported back to where you were when you ran /bosskill join</label>
+    <label><input type="checkbox" id="p20_death_3"> The dead player sees a yellow "Wait 30 seconds before /bosskill join again"</label>
+    <label><input type="checkbox" id="p20_death_4"> Trying /bosskill join within those 30 seconds shows "You died recently. Wait Xs before rejoining."</label>
+    <label><input type="checkbox" id="p20_death_5"> After the 30s cooldown, /bosskill join lets you rejoin the fight (if the boss is still alive)</label>
+
+    <h3>20I — Boss Fight Edge Cases</h3>
+    <label><input type="checkbox" id="p20_edge_1"> /bosskill leave teleports you back to your original position</label>
+    <label><input type="checkbox" id="p20_edge_2"> Disconnecting during the boss fight removes you from participation cleanly (no ghost data)</label>
+    <label><input type="checkbox" id="p20_edge_3"> The boss bar auto-hides for players who leave the fight, and shows up again on rejoin</label>
+    <label><input type="checkbox" id="p20_edge_4"> Players who join AFTER the boss spawn (via /bosskill join) also see the boss bar</label>
+
+    <h3>20J — Mob Invasion Commands</h3>
+    <label><input type="checkbox" id="p20_mob_1"> Typing /mobraid with no arguments shows the help menu (start, stop, join, leave, top, info)</label>
+    <label><input type="checkbox" id="p20_mob_2"> A regular player running /mobraid start gets a red "Only Owner can start a mob raid" error</label>
+    <label><input type="checkbox" id="p20_mob_3"> A regular player running /mobraid stop gets a red "Only Owner can stop a mob raid" error</label>
+    <label><input type="checkbox" id="p20_mob_4"> Tab-completing /mobraid shows the six subcommands</label>
+
+    <h3>20K — Raid Start &amp; Join</h3>
+    <label><input type="checkbox" id="p20_start_1"> As Owner, /mobraid start broadcasts "A Mob Invasion has begun in the Mob Arena!" to all online players</label>
+    <label><input type="checkbox" id="p20_start_2"> All online players see a yellow boss bar "Mob Raid — Waiting for players (/mobraid join)"</label>
+    <label><input type="checkbox" id="p20_start_3"> If nobody joins within 60 seconds, the raid ends with a gray "Mob raid ended — no players joined" message</label>
+    <label><input type="checkbox" id="p20_start_4"> /mobraid join teleports you to world_mobs center with the message "You joined the mob raid! Lives: 3"</label>
+    <label><input type="checkbox" id="p20_start_5"> After at least one player joins, the boss bar counts down "Wave 1 begins in Xs" (10s countdown)</label>
+    <label><input type="checkbox" id="p20_start_6"> When the countdown ends, everyone in the raid gets "Wave 1 — get ready!" with a dragon growl sound</label>
+
+    <h3>20L — Wave Combat</h3>
+    <label><input type="checkbox" id="p20_wave_1"> Wave 1 spawns 7 mobs (5 + 1*2), scattered around the arena at radius 40-140 from center</label>
+    <label><input type="checkbox" id="p20_wave_2"> Wave mobs are drawn from the 13-mob pool: Zombie, Skeleton, Spider, Creeper, Enderman, Witch, Blaze, Wither Skeleton, Pillager, Vindicator, Husk, Drowned, Stray</label>
+    <label><input type="checkbox" id="p20_wave_3"> The boss bar during a wave shows "Wave X — Y mobs remaining" and the progress bar decreases as mobs die</label>
+    <label><input type="checkbox" id="p20_wave_4"> A creeper explodes during the wave but does NOT destroy any arena blocks (walls stay pristine)</label>
+    <label><input type="checkbox" id="p20_wave_5"> Killing a raid mob does NOT drop any vanilla items or XP orbs (the drops are cleared)</label>
+    <label><input type="checkbox" id="p20_wave_6"> Killing a raid mob credits that kill to YOUR wave counter (visible in the wave rewards)</label>
+    <label><input type="checkbox" id="p20_wave_7"> Only players in the raid can score kills — a non-raid player killing a mob doesn't earn wave credit</label>
+    <label><input type="checkbox" id="p20_wave_8"> When the last mob dies, the wave completes automatically and moves to the pause</label>
+
+    <h3>20M — Wave Scaling</h3>
+    <label><input type="checkbox" id="p20_scale_1"> Wave 2 spawns 9 mobs, each with 10% more HP and 10% more damage than wave 1</label>
+    <label><input type="checkbox" id="p20_scale_2"> Wave 3 spawns 11 mobs with 20% HP/damage buff</label>
+    <label><input type="checkbox" id="p20_scale_3"> Waves scale linearly up to a cap of 30 mobs per non-boss wave</label>
+    <label><input type="checkbox" id="p20_scale_4"> Wave 5 (and every 5th wave) is a BOSS WAVE with 1 elite mob announced as "BOSS WAVE 5 — get ready!" in purple</label>
+    <label><input type="checkbox" id="p20_scale_5"> The elite boss mob is renamed "Elite &lt;MobName&gt;" in bold purple with a glow effect</label>
+    <label><input type="checkbox" id="p20_scale_6"> The elite has 5x the wave-scaled HP and 2x the wave-scaled damage</label>
+
+    <h3>20N — Wave Rewards</h3>
+    <label><input type="checkbox" id="p20_reward_1"> After completing wave 1, each player gets an in-chat message "Wave 1 reward: $X ◆Y (Z kills)"</label>
+    <label><input type="checkbox" id="p20_reward_2"> Wave 1 base money is $300 (100 + 1*200), gems is 5 (5 + 1/2)</label>
+    <label><input type="checkbox" id="p20_reward_3"> Money reward increases with wave number (up to a cap of $5,000)</label>
+    <label><input type="checkbox" id="p20_reward_4"> Gems reward increases with wave number (up to a cap of ◆50)</label>
+    <label><input type="checkbox" id="p20_reward_5"> Wave 20 gives ★2 and every wave from 20+ gives ★1 (with a bump every 20 waves)</label>
+    <label><input type="checkbox" id="p20_reward_6"> Rewards below wave 20 give NO stars (only money + gems)</label>
+    <label><input type="checkbox" id="p20_reward_7"> Players who dealt more kills get proportionally more reward money/gems</label>
+    <label><input type="checkbox" id="p20_reward_8"> After the reward chat, a UI_TOAST_CHALLENGE_COMPLETE sound plays for every player in the raid</label>
+
+    <h3>20O — Blacksmith &amp; Pause</h3>
+    <label><input type="checkbox" id="p20_smith_1"> Between waves, a Weaponsmith villager spawns at the center of the arena, tagged "Blacksmith — Right-click to Repair"</label>
+    <label><input type="checkbox" id="p20_smith_2"> The Blacksmith has no AI and does not move</label>
+    <label><input type="checkbox" id="p20_smith_3"> Mobs from the next wave do NOT target the Blacksmith</label>
+    <label><input type="checkbox" id="p20_smith_4"> Right-clicking the Blacksmith with $2000 in your balance repairs every damaged item in your inventory + armor + offhand and plays an anvil sound</label>
+    <label><input type="checkbox" id="p20_smith_5"> Right-clicking the Blacksmith without enough money shows a red "Repair costs $2,000 — insufficient funds" error</label>
+    <label><input type="checkbox" id="p20_smith_6"> Right-clicking the Blacksmith with only fully-repaired gear shows "Nothing needed repairing" and doesn't charge you</label>
+    <label><input type="checkbox" id="p20_smith_7"> The boss bar during the pause shows "Next wave (X) in Y seconds" (20 → 1)</label>
+    <label><input type="checkbox" id="p20_smith_8"> Every second, all raid players see an action-bar reminder "Wave X in Ys — Blacksmith is available!"</label>
+    <label><input type="checkbox" id="p20_smith_9"> When the pause ends, the Blacksmith villager disappears cleanly</label>
+
+    <h3>20P — Lives &amp; Elimination</h3>
+    <label><input type="checkbox" id="p20_lives_1"> First death during a raid subtracts 1 life — you respawn at the arena center with 2 lives left and full HP</label>
+    <label><input type="checkbox" id="p20_lives_2"> The dying player sees a yellow "You died! 2 lives remaining" message</label>
+    <label><input type="checkbox" id="p20_lives_3"> Death does NOT drop items or XP</label>
+    <label><input type="checkbox" id="p20_lives_4"> After using all 3 lives, you are teleported back to your original position with a red "You are out of lives" message</label>
+    <label><input type="checkbox" id="p20_lives_5"> After being out, /mobraid join in the SAME raid shows "You already used all your lives this raid"</label>
+    <label><input type="checkbox" id="p20_lives_6"> /mobraid leave voluntarily removes you from the raid and returns you home</label>
+
+    <h3>20Q — Raid End</h3>
+    <label><input type="checkbox" id="p20_end_1"> Once all players are out (or left), the raid ends with a red "Mob raid ended — all players are out" broadcast</label>
+    <label><input type="checkbox" id="p20_end_2"> Owner /mobraid stop ends the current raid immediately with a yellow "Mob raid stopped" message</label>
+    <label><input type="checkbox" id="p20_end_3"> On raid end, any remaining mob-raid mobs in world_mobs are removed cleanly</label>
+    <label><input type="checkbox" id="p20_end_4"> On raid end, the boss bar is removed for everyone</label>
+    <label><input type="checkbox" id="p20_end_5"> On raid end, any remaining players are teleported back to their original positions</label>
+    <label><input type="checkbox" id="p20_end_6"> Completing wave 100 wins the raid with a green "You beat wave 100!" broadcast</label>
+
+    <h3>20R — Leaderboard</h3>
+    <label><input type="checkbox" id="p20_top_1"> /mobraid top on a fresh install shows "Nobody has raided yet"</label>
+    <label><input type="checkbox" id="p20_top_2"> After a raid, /mobraid top shows the top 10 by total kills with rank, name, kills, and best wave</label>
+    <label><input type="checkbox" id="p20_top_3"> Kills accumulate across raids for the same player (persistent)</label>
+    <label><input type="checkbox" id="p20_top_4"> Your pvm_kills counter (in /check) increments by the mob kills you dealt this raid</label>
+    <label><input type="checkbox" id="p20_top_5"> Best wave is stored as the HIGHEST wave you were alive on (never goes down)</label>
+
+    <h3>20S — Duplicate Raid / Boss / Concurrency</h3>
+    <label><input type="checkbox" id="p20_conc_5"> Starting a mob raid while a raid is active shows "A mob raid is already active!" error</label>
+    <label><input type="checkbox" id="p20_conc_6"> Boss Arena and Mob Invasion can both be active simultaneously (different arena worlds)</label>
+    <label><input type="checkbox" id="p20_conc_7"> Players in the Boss Arena's world_boss do NOT see the mob raid boss bar (bars are separate systems)</label>
+
+    <h3>20T — Persistence</h3>
+    <label><input type="checkbox" id="p20_persist_1"> Restarting the server after a mob raid preserves everyone's total kills / best wave (the leaderboard survives restart)</label>
+    <label><input type="checkbox" id="p20_persist_2"> Restarting the server during an active boss fight cancels the fight cleanly and does not leave the boss floating around next boot</label>
+    <label><input type="checkbox" id="p20_persist_3"> Restarting the server during a mob raid cancels the raid cleanly and does not leave stray raid mobs behind</label>
+    <label><input type="checkbox" id="p20_persist_4"> The 2-hour boss cooldown resets on restart (fresh sessions get a fresh cooldown)</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

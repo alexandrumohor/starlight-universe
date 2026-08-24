@@ -4,11 +4,13 @@ import com.starlightuniverse.admin.*;
 import com.starlightuniverse.arena.*;
 import com.starlightuniverse.auction.*;
 import com.starlightuniverse.auth.*;
+import com.starlightuniverse.boss.*;
 import com.starlightuniverse.chat.*;
 import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.enchant.*;
 import com.starlightuniverse.job.*;
+import com.starlightuniverse.mob.*;
 import com.starlightuniverse.skill.*;
 import com.starlightuniverse.economy.*;
 import com.starlightuniverse.home.*;
@@ -53,6 +55,8 @@ public final class StarlightUniverse extends JavaPlugin {
     private StarShopManager starShopManager;
     private ArenaWorldManager arenaWorldManager;
     private PvPManager pvpManager;
+    private BossKillManager bossKillManager;
+    private MobRaidManager mobRaidManager;
 
     @Override
     public void onEnable() {
@@ -212,11 +216,29 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PvPListener(pvpManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new PvPCommand(pvpManager));
 
+        bossKillManager = new BossKillManager(this, economyManager, crateManager, arenaWorldManager);
+        bossKillManager.start();
+        Bukkit.getPluginManager().registerEvents(new BossKillListener(bossKillManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new BossKillCommand(bossKillManager, adminManager));
+
+        mobRaidManager = new MobRaidManager(this, databaseManager, economyManager, arenaWorldManager);
+        mobRaidManager.start();
+        Bukkit.getPluginManager().registerEvents(new MobRaidListener(mobRaidManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new MobRaidCommand(mobRaidManager, adminManager));
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (mobRaidManager != null) {
+            mobRaidManager.shutdown();
+        }
+
+        if (bossKillManager != null) {
+            bossKillManager.shutdown();
+        }
+
         if (pvpManager != null) {
             pvpManager.shutdown();
         }
@@ -376,5 +398,13 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public ArenaWorldManager getArenaWorldManager() {
         return arenaWorldManager;
+    }
+
+    public BossKillManager getBossKillManager() {
+        return bossKillManager;
+    }
+
+    public MobRaidManager getMobRaidManager() {
+        return mobRaidManager;
     }
 }
