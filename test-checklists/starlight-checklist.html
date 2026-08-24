@@ -1464,6 +1464,90 @@
     <label><input type="checkbox" id="p20_persist_3"> Restarting the server during a mob raid cancels the raid cleanly and does not leave stray raid mobs behind</label>
     <label><input type="checkbox" id="p20_persist_4"> The 2-hour boss cooldown resets on restart (fresh sessions get a fresh cooldown)</label>
 
+    <h2>Phase 21 — Chat Minigames</h2>
+
+    <h3>21A — Auto-Scheduling</h3>
+    <label><input type="checkbox" id="p21_auto_1"> After the server starts, the first minigame appears in chat within 3-5 minutes (once at least one player is logged in)</label>
+    <label><input type="checkbox" id="p21_auto_2"> After a minigame ends (someone wins OR nobody answers), the next one is scheduled 15-30 minutes later</label>
+    <label><input type="checkbox" id="p21_auto_3"> When the scheduled time hits with no logged-in players, no minigame starts and it re-schedules for another 15-30 min</label>
+    <label><input type="checkbox" id="p21_auto_4"> Only ONE minigame is active at a time — a second one never starts while one is running</label>
+    <label><input type="checkbox" id="p21_auto_5"> Over a few hours, each of the 10 minigame types shows up at least once (random selection covers all types)</label>
+
+    <h3>21B — Announcement Format</h3>
+    <label><input type="checkbox" id="p21_ann_1"> When a minigame starts, chat shows a gold "★ MINIGAME ★" header with the game type in cyan brackets like [Trivia]</label>
+    <label><input type="checkbox" id="p21_ann_2"> The prompt line shows the question/challenge in white, with key words highlighted in bold yellow</label>
+    <label><input type="checkbox" id="p21_ann_3"> A footer line says "Type the answer in chat within 30 seconds!" in gray + bold yellow</label>
+    <label><input type="checkbox" id="p21_ann_4"> A ding sound (note block pling) plays for every authenticated player when the minigame appears</label>
+    <label><input type="checkbox" id="p21_ann_5"> Players who are NOT logged in (auth pending) do NOT hear the sound and do NOT see the announcement</label>
+
+    <h3>21C — 10 Minigame Types</h3>
+    <label><input type="checkbox" id="p21_type_1"> Scrambled Word: a jumbled word appears — typing the unscrambled form wins</label>
+    <label><input type="checkbox" id="p21_type_2"> Math: shows expression like "45 + 32 = ?" (add/subtract/multiply/divide variants) — typing the numeric answer wins</label>
+    <label><input type="checkbox" id="p21_type_3"> Fill the Blank: shows a sentence with "___" — typing the missing word wins</label>
+    <label><input type="checkbox" id="p21_type_4"> Type Race: shows a full phrase — typing it exactly (case-insensitive) wins</label>
+    <label><input type="checkbox" id="p21_type_5"> Trivia: asks a factual question — typing the correct answer wins</label>
+    <label><input type="checkbox" id="p21_type_6"> Reverse Word: shows a backwards word (e.g. "dnomaid") — typing the forwards word ("diamond") wins</label>
+    <label><input type="checkbox" id="p21_type_7"> Color Code (hex ask): shows "What is the hex code for red?" — typing "#FF0000" or "FF0000" wins</label>
+    <label><input type="checkbox" id="p21_type_8"> Color Code (name ask): shows "What color is this hex? #00FF00" — typing "green" wins</label>
+    <label><input type="checkbox" id="p21_type_9"> Count: asks either the letter count of a word, or how many times a letter appears in it — typing the number wins</label>
+    <label><input type="checkbox" id="p21_type_10"> Capital: asks the capital of a country — typing the city name (case-insensitive) wins</label>
+    <label><input type="checkbox" id="p21_type_11"> Item Guess: gives a description of a Minecraft item — typing the item name wins</label>
+
+    <h3>21D — Answer Detection</h3>
+    <label><input type="checkbox" id="p21_ans_1"> Typing the correct answer in global chat within 30 seconds wins the game immediately</label>
+    <label><input type="checkbox" id="p21_ans_2"> Case doesn't matter — "DIAMOND" and "diamond" both work</label>
+    <label><input type="checkbox" id="p21_ans_3"> Leading/trailing spaces don't matter — "  diamond  " still wins</label>
+    <label><input type="checkbox" id="p21_ans_4"> Only the FIRST player to answer correctly wins — a second player typing the same answer 1s later does NOT get rewards</label>
+    <label><input type="checkbox" id="p21_ans_5"> Wrong answers do nothing — the game keeps running silently until timeout or a right answer</label>
+    <label><input type="checkbox" id="p21_ans_6"> Not-yet-authenticated players cannot win (their chat messages don't count as answers)</label>
+
+    <h3>21E — Winner Broadcast + Rewards</h3>
+    <label><input type="checkbox" id="p21_win_1"> On win, chat broadcasts "★ &lt;name&gt; won the &lt;type&gt; minigame in X.Xs!" (winner name green + bold)</label>
+    <label><input type="checkbox" id="p21_win_2"> A second line shows "Answer: &lt;the correct answer&gt;" in gray/white</label>
+    <label><input type="checkbox" id="p21_win_3"> A third line shows "Reward: +$&lt;amount&gt;" with money between $100-$500 (rounded down)</label>
+    <label><input type="checkbox" id="p21_win_4"> Occasionally (~25% chance) the reward line also has "+◆&lt;n&gt;" with gems between 5-20</label>
+    <label><input type="checkbox" id="p21_win_5"> Winner's balance actually increases by the shown money (verify with /bal)</label>
+    <label><input type="checkbox" id="p21_win_6"> When gems are awarded, /bal shows the gem increase too</label>
+    <label><input type="checkbox" id="p21_win_7"> The winner hears a UI_TOAST_CHALLENGE_COMPLETE sound, everyone else hears a soft note block hat sound</label>
+
+    <h3>21F — Streak System</h3>
+    <label><input type="checkbox" id="p21_streak_1"> After 1 win, /minigame streak shows "1"</label>
+    <label><input type="checkbox" id="p21_streak_2"> On your 2nd consecutive win, the winner broadcast includes a "Win streak: 2" line in yellow</label>
+    <label><input type="checkbox" id="p21_streak_3"> On your 3rd consecutive win, both money AND gems are DOUBLED, and the reward line adds "(x2 STREAK BONUS!)" in purple bold</label>
+    <label><input type="checkbox" id="p21_streak_4"> The streak counter line shows the number in purple bold once you reach 3+</label>
+    <label><input type="checkbox" id="p21_streak_5"> Every additional win at streak 3+ keeps the x2 bonus and the streak keeps growing (4, 5, 6…)</label>
+    <label><input type="checkbox" id="p21_streak_6"> When another player wins, the previous streak holder's streak drops back to 0 (/minigame streak shows 0)</label>
+    <label><input type="checkbox" id="p21_streak_7"> If nobody wins a game (timeout), the previous streak holder keeps their streak intact</label>
+
+    <h3>21G — Timeout</h3>
+    <label><input type="checkbox" id="p21_time_1"> If nobody answers within 30 seconds, the game ends with a "Nobody answered the &lt;type&gt; minigame!" message</label>
+    <label><input type="checkbox" id="p21_time_2"> The timeout message reveals the correct answer</label>
+    <label><input type="checkbox" id="p21_time_3"> Typing the correct answer AFTER the 30s window does nothing — no rewards, no message</label>
+    <label><input type="checkbox" id="p21_time_4"> After timeout, the next minigame schedule (15-30 min) restarts normally</label>
+
+    <h3>21H — /minigame Command</h3>
+    <label><input type="checkbox" id="p21_cmd_1"> /minigame with no args shows the help list (streak, list, plus admin-only ones if you're OP)</label>
+    <label><input type="checkbox" id="p21_cmd_2"> /minigame streak shows your current personal win streak</label>
+    <label><input type="checkbox" id="p21_cmd_3"> /minigame list shows all 10 minigame type keys + names + descriptions</label>
+    <label><input type="checkbox" id="p21_cmd_4"> Non-OP players trying /minigame start / skip / pause / resume / status get "No permission!" in red</label>
+    <label><input type="checkbox" id="p21_cmd_5"> OP: /minigame start &lt;type&gt; immediately launches that minigame type (if none is currently running)</label>
+    <label><input type="checkbox" id="p21_cmd_6"> OP: /minigame start while a game is active errors with "A minigame is already running"</label>
+    <label><input type="checkbox" id="p21_cmd_7"> OP: /minigame skip cancels the current game (chat shows "Minigame skipped by staff." in red) and schedules the next one</label>
+    <label><input type="checkbox" id="p21_cmd_8"> OP: /minigame skip when nothing is running errors with "No minigame is currently running"</label>
+    <label><input type="checkbox" id="p21_cmd_9"> OP: /minigame pause stops future auto-scheduling — new games do NOT appear</label>
+    <label><input type="checkbox" id="p21_cmd_10"> OP: /minigame pause while a game is running cancels it silently (no winner broadcast)</label>
+    <label><input type="checkbox" id="p21_cmd_11"> OP: /minigame resume re-enables auto-scheduling</label>
+    <label><input type="checkbox" id="p21_cmd_12"> OP: /minigame status shows the active game (type + answer + elapsed) or "no game active"</label>
+    <label><input type="checkbox" id="p21_cmd_13"> /mg works as an alias for /minigame</label>
+    <label><input type="checkbox" id="p21_cmd_14"> Tab-completing "/minigame " lists available subcommands, and "/minigame start " lists all 10 game type keys (OP only)</label>
+
+    <h3>21I — Edge Cases</h3>
+    <label><input type="checkbox" id="p21_edge_1"> Answering while in staff chat / team chat also counts as an answer (the message content is what matters)</label>
+    <label><input type="checkbox" id="p21_edge_2"> Restarting the server cancels the active minigame cleanly and schedules a fresh one 3-5 min after restart</label>
+    <label><input type="checkbox" id="p21_edge_3"> Restarting the server resets all in-memory streaks to 0 (streaks are session-only, not persisted)</label>
+    <label><input type="checkbox" id="p21_edge_4"> The winner announcement text and rewards are correct in every world (survival, resource, arena, lobby)</label>
+    <label><input type="checkbox" id="p21_edge_5"> Two players typing valid answers in the SAME chat batch — exactly one gets the reward (no double payouts)</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

@@ -10,6 +10,7 @@ import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.enchant.*;
 import com.starlightuniverse.job.*;
+import com.starlightuniverse.minigame.*;
 import com.starlightuniverse.mob.*;
 import com.starlightuniverse.skill.*;
 import com.starlightuniverse.economy.*;
@@ -57,6 +58,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private PvPManager pvpManager;
     private BossKillManager bossKillManager;
     private MobRaidManager mobRaidManager;
+    private MinigameManager minigameManager;
 
     @Override
     public void onEnable() {
@@ -226,11 +228,20 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new MobRaidListener(mobRaidManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new MobRaidCommand(mobRaidManager, adminManager));
 
+        minigameManager = new MinigameManager(this, economyManager, authManager);
+        Bukkit.getPluginManager().registerEvents(new MinigameListener(minigameManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new MinigameCommand(minigameManager));
+        minigameManager.start();
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (minigameManager != null) {
+            minigameManager.shutdown();
+        }
+
         if (mobRaidManager != null) {
             mobRaidManager.shutdown();
         }
@@ -406,5 +417,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public MobRaidManager getMobRaidManager() {
         return mobRaidManager;
+    }
+
+    public MinigameManager getMinigameManager() {
+        return minigameManager;
     }
 }
