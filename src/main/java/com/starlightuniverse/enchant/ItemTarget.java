@@ -25,7 +25,7 @@ public enum ItemTarget {
             case BOW -> mat == Material.BOW;
             case MACE -> mat == Material.MACE;
             case TRIDENT -> mat == Material.TRIDENT;
-            case SPEAR -> false;
+            case SPEAR -> mat.name().endsWith("_SPEAR");
         };
     }
 

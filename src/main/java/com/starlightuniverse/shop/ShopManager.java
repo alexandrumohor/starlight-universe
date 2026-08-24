@@ -80,7 +80,7 @@ public class ShopManager {
         add(Material.ITEM_FRAME, 15, DECORATION);
         add(Material.GLOW_ITEM_FRAME, 25, DECORATION);
         add(Material.ARMOR_STAND, 20, DECORATION);
-        add(Material.CHAIN, 10, DECORATION);
+        add(Material.IRON_CHAIN, 10, DECORATION);
         add(Material.BELL, 100, DECORATION);
         add(Material.CANDLE, 5, DECORATION);
         add(Material.FLOWER_POT, 5, DECORATION);

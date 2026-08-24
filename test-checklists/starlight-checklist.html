@@ -1117,6 +1117,46 @@
     <label><input type="checkbox" id="p17_42"> The combined book can be applied at an Anvil or used in the Alchemist again for further combining</label>
     <label><input type="checkbox" id="p17_43"> No "Too Expensive" message — the Alchemist always works if you have the XP</label>
 
+    <h2>Phase 18 — Star Shop + Spear</h2>
+
+    <h3>18A — Star Shop</h3>
+    <label><input type="checkbox" id="p18_1"> Type /starshop — a gold-titled GUI called "Star Shop" opens</label>
+    <label><input type="checkbox" id="p18_2"> The top row shows your current Stars balance icon (Nether Star)</label>
+    <label><input type="checkbox" id="p18_3"> Three category tiles are visible: "Legendary Enchant Books", "Crate Keys", "Premium Items"</label>
+    <label><input type="checkbox" id="p18_4"> Click "Legendary Enchant Books" — the sub-menu shows books like Star Heart V, Star Drain V, Homing Star II, etc.</label>
+    <label><input type="checkbox" id="p18_5"> Each book shows a green Star price if you can afford it, red if you can't</label>
+    <label><input type="checkbox" id="p18_6"> Star Heart V costs 200 Stars</label>
+    <label><input type="checkbox" id="p18_7"> Homing Star II costs 150 Stars</label>
+    <label><input type="checkbox" id="p18_8"> Solar Breaker III costs 175 Stars</label>
+    <label><input type="checkbox" id="p18_9"> Click a book you can afford — Stars are deducted, the book goes into your inventory, and a "Purchased" message appears</label>
+    <label><input type="checkbox" id="p18_10"> Click a book you can't afford — an error says "Not enough Stars!" and no Stars are deducted</label>
+    <label><input type="checkbox" id="p18_11"> Click "Back" (barrier icon) — you return to the main Star Shop menu</label>
+    <label><input type="checkbox" id="p18_12"> Click "Crate Keys" — the sub-menu shows Star, Cosmic, Galaxy, and Seasonal crate keys with fixed Star prices</label>
+    <label><input type="checkbox" id="p18_13"> Star Crate Key (1) costs 25 Stars</label>
+    <label><input type="checkbox" id="p18_14"> Cosmic Crate Key (1) costs 100 Stars</label>
+    <label><input type="checkbox" id="p18_15"> Galaxy Crate Key (1) costs 250 Stars</label>
+    <label><input type="checkbox" id="p18_16"> Bulk key options exist (Star x5, Cosmic x5, Galaxy x3) at discounted per-unit prices</label>
+    <label><input type="checkbox" id="p18_17"> Buying a key gives you the same clickable key that opens crates from Phase 13</label>
+    <label><input type="checkbox" id="p18_18"> Click "Premium Items" — items like Nether Star, Beacon, Elytra, Totem, Enchanted Golden Apple, Netherite Ingot, Shulker Shells, Dragon Egg, End Crystals, Mace, Trident, Heavy Core, Conduit, Wither Skeleton Skull, Dragon Head, Respawn Anchor, XP Bottles appear</label>
+    <label><input type="checkbox" id="p18_19"> Nether Star costs 10 Stars, Beacon 75, Elytra 200, Totem 30</label>
+    <label><input type="checkbox" id="p18_20"> Buying a premium item deducts Stars and places the item in your inventory (drops to ground if inventory is full)</label>
+    <label><input type="checkbox" id="p18_21"> Prices are always the same — they never change between visits</label>
+    <label><input type="checkbox" id="p18_22"> Closing the GUI (Esc) or logging out ends the shop session cleanly</label>
+
+    <h3>18B — Spear Enchant Wiring (vanilla Spear item)</h3>
+    <label><input type="checkbox" id="p18_23"> With OP or su.admin.spear permission, /spear gives you a Netherite Spear</label>
+    <label><input type="checkbox" id="p18_24"> /spear wooden|stone|iron|golden|copper|diamond|netherite gives that tier</label>
+    <label><input type="checkbox" id="p18_25"> /spear iron Bob gives an Iron Spear to player Bob</label>
+    <label><input type="checkbox" id="p18_26"> Tab-completion on /spear shows the tier list</label>
+    <label><input type="checkbox" id="p18_27"> Vanilla Spears work exactly as Minecraft designed — longer reach than sword, throwable with right-click, tier-based damage</label>
+    <label><input type="checkbox" id="p18_28"> Apply a Spear enchant book from Phase 16 (e.g., Long Orbit, Starlight Pierce, Void Skewer) via /alchemist or an Anvil — the enchant sticks on the spear</label>
+    <label><input type="checkbox" id="p18_29"> Sword enchant books (like Star Drain) cannot be applied to a spear</label>
+    <label><input type="checkbox" id="p18_30"> Trident enchant books (like Chain Lightning) cannot be applied to a spear</label>
+    <label><input type="checkbox" id="p18_31"> Regular Tridents still accept Trident enchant books and reject Spear enchant books</label>
+    <label><input type="checkbox" id="p18_32"> Regular Axes still accept Axe enchant books (Spear tier doesn't leak into Axe target)</label>
+    <label><input type="checkbox" id="p18_33"> A spear with Starlight Pierce V or Barbed Star V behaves as described (extra base damage, bleed damage after hit)</label>
+    <label><input type="checkbox" id="p18_34"> The Star Shop's Void Skewer II book applies successfully on a spear at an anvil or alchemist</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

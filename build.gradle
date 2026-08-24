@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:26.2.build.112-stable'
     compileOnly 'com.zaxxer:HikariCP:5.1.0'
     compileOnly 'com.mysql:mysql-connector-j:8.4.0'
     compileOnly 'org.mindrot:jbcrypt:0.4'

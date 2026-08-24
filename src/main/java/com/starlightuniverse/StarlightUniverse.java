@@ -14,6 +14,8 @@ import com.starlightuniverse.home.*;
 import com.starlightuniverse.order.*;
 import com.starlightuniverse.premium.*;
 import com.starlightuniverse.shop.*;
+import com.starlightuniverse.spear.*;
+import com.starlightuniverse.starshop.*;
 import com.starlightuniverse.team.*;
 import com.starlightuniverse.world.*;
 import org.bukkit.Bukkit;
@@ -46,6 +48,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private EnchantManager enchantManager;
     private EnchantListener enchantListener;
     private AlchemistListener alchemistListener;
+    private StarShopManager starShopManager;
 
     @Override
     public void onEnable() {
@@ -189,6 +192,12 @@ public final class StarlightUniverse extends JavaPlugin {
         for (Command cmd : EnchantCommand.create(enchantManager))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
         Bukkit.getCommandMap().register("starlightuniverse", new AlchemistCommand(alchemistListener));
+
+        Bukkit.getCommandMap().register("starlightuniverse", new SpearCommand());
+
+        starShopManager = new StarShopManager(economyManager, enchantManager, crateManager);
+        Bukkit.getPluginManager().registerEvents(new StarShopListener(this, starShopManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new StarShopCommand(starShopManager));
 
         getLogger().info("[SU] Enabled!");
     }
@@ -334,5 +343,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public EnchantManager getEnchantManager() {
         return enchantManager;
+    }
+
+    public StarShopManager getStarShopManager() {
+        return starShopManager;
     }
 }
