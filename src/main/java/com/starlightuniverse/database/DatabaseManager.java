@@ -483,6 +483,25 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_virtual_spawners (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        owner_username VARCHAR(16) NOT NULL,
+                        entity_type VARCHAR(32) NOT NULL,
+                        world VARCHAR(64) NOT NULL,
+                        x INT NOT NULL,
+                        y INT NOT NULL,
+                        z INT NOT NULL,
+                        tier INT DEFAULT 1,
+                        stack_count INT DEFAULT 1,
+                        storage_data TEXT DEFAULT NULL,
+                        stored_xp INT DEFAULT 0,
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE KEY uk_location (world, x, y, z),
+                        INDEX idx_owner (owner_username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

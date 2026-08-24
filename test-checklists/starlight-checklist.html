@@ -1625,6 +1625,64 @@
     <label><input type="checkbox" id="p22_kill_6"> /killeffect off disables the effect; killing a mob no longer triggers anything</label>
     <label><input type="checkbox" id="p22_kill_7"> Effect state persists across quit/rejoin</label>
 
+    <h2>Phase 23 — Virtual Spawners</h2>
+
+    <h3>23A — Virtual Spawner Shop</h3>
+    <label><input type="checkbox" id="p23_shop_1"> /spawnershop opens the "Virtual Spawner Shop" GUI with a tile for every mob type</label>
+    <label><input type="checkbox" id="p23_shop_2"> Aliases /vspawner and /vspawnershop open the same GUI</label>
+    <label><input type="checkbox" id="p23_shop_3"> The GUI contains 33 tiles covering farm animals, common hostile, rare, and nether mobs</label>
+    <label><input type="checkbox" id="p23_shop_4"> EVERY tile shows the same placeholder price "★1,000" in purple — no Money or Gems options for now</label>
+    <label><input type="checkbox" id="p23_shop_5"> Every tile lore lists all its drops with drop chance %</label>
+    <label><input type="checkbox" id="p23_shop_6"> Tile icons use the mob's typical drop material (Cow=LEATHER, Enderman=ENDER_PEARL, etc.), not a plain SPAWNER block</label>
+    <label><input type="checkbox" id="p23_shop_7"> Buying with less than 1000 Stars shows "Not enough Stars!" and does NOT charge</label>
+    <label><input type="checkbox" id="p23_shop_8"> Clicking any spawner with at least 1000 Stars deducts ★1,000 and gives a spawner item with tag "Tier 1/3, Stack x1"</label>
+    <label><input type="checkbox" id="p23_shop_9"> Purchased spawner item is a SPAWNER material with a level-up sound played on purchase</label>
+
+    <h3>23A — Placing / Breaking Virtual Spawners</h3>
+    <label><input type="checkbox" id="p23_place_1"> Right-clicking a block with a virtual spawner item places it and shows "Placed &lt;Type&gt; Virtual Spawner (Tier 1, Stack 1)!"</label>
+    <label><input type="checkbox" id="p23_place_2"> The placed block visually appears as a SPAWNER with faint soul-fire particles every so often</label>
+    <label><input type="checkbox" id="p23_place_3"> Breaking the spawner WITHOUT Silk Touch destroys it and shows "You need a Silk Touch pickaxe to keep the spawner!"</label>
+    <label><input type="checkbox" id="p23_place_4"> Breaking the spawner WITH Silk Touch drops the spawner item back with correct tier/stack tags preserved</label>
+    <label><input type="checkbox" id="p23_place_5"> Another player trying to break your virtual spawner is blocked with "This spawner belongs to &lt;owner&gt;!"</label>
+    <label><input type="checkbox" id="p23_place_6"> A TNT/creeper explosion near a virtual spawner does NOT destroy it (the block is filtered out of the blast)</label>
+    <label><input type="checkbox" id="p23_place_7"> Placing a virtual spawner item in the SAME location as an existing virtual spawner shows an error and cancels the place</label>
+
+    <h3>23A — Stacking</h3>
+    <label><input type="checkbox" id="p23_stack_1"> Right-clicking your own placed spawner while HOLDING a matching spawner item consumes one and increments the stack count</label>
+    <label><input type="checkbox" id="p23_stack_2"> Trying to stack a different mob type onto an existing spawner shows "That spawner is a different mob type!"</label>
+    <label><input type="checkbox" id="p23_stack_3"> Trying to stack onto someone else's spawner shows "That spawner belongs to &lt;owner&gt;!"</label>
+    <label><input type="checkbox" id="p23_stack_4"> Stack count is capped at 64 — 65th attempt shows "already at the maximum stack" error</label>
+    <label><input type="checkbox" id="p23_stack_5"> Silk-Touch breaking a stacked spawner returns ONE item whose lore shows the correct stack count</label>
+
+    <h3>23A — Manage GUI</h3>
+    <label><input type="checkbox" id="p23_gui_1"> Right-clicking your own virtual spawner (empty hand) opens the "&lt;Type&gt; Spawner" GUI (54 slots)</label>
+    <label><input type="checkbox" id="p23_gui_2"> Info slot (top center) shows Owner, Tier X/3, Stack xN, and spawn rate in seconds per unit</label>
+    <label><input type="checkbox" id="p23_gui_3"> The 21-slot storage grid displays each stored material as a stack (capped at 64 display, stored amount shown in lore)</label>
+    <label><input type="checkbox" id="p23_gui_4"> "Take All" (bottom left, hopper) moves stored items into player inventory; sound plays; grid empties</label>
+    <label><input type="checkbox" id="p23_gui_5"> If player inventory becomes full mid-transfer, partial items are moved and an error message is shown</label>
+    <label><input type="checkbox" id="p23_gui_6"> "Sell All" (gold ingot) sells all stored items at the hardcoded per-material prices and credits Money</label>
+    <label><input type="checkbox" id="p23_gui_7"> "Upgrade to Tier 2" (nether star) deducts $5,000 and upgrades tier 1→2; new spawn rate is 25s per unit</label>
+    <label><input type="checkbox" id="p23_gui_8"> "Upgrade to Tier 3" deducts $25,000 and upgrades tier 2→3; new spawn rate is 15s per unit</label>
+    <label><input type="checkbox" id="p23_gui_9"> Attempting to upgrade a Tier 3 spawner shows "already at maximum tier" and no charge</label>
+    <label><input type="checkbox" id="p23_gui_10"> Upgrade without enough Money shows "Not enough Money!" and does NOT upgrade</label>
+    <label><input type="checkbox" id="p23_gui_11"> "Collect XP" (exp bottle) grants the stored XP to the player and resets stored XP to 0</label>
+    <label><input type="checkbox" id="p23_gui_12"> Closing GUI (barrier) closes the inventory</label>
+
+    <h3>23A — Loot Generation</h3>
+    <label><input type="checkbox" id="p23_loot_1"> A placed Tier-1 Zombie spawner generates rotten flesh (and rarely iron/carrot/potato) every 40 seconds per stack unit</label>
+    <label><input type="checkbox" id="p23_loot_2"> Tier 2 spawner generates loot every 25 seconds per stack unit</label>
+    <label><input type="checkbox" id="p23_loot_3"> Tier 3 spawner generates loot every 15 seconds per stack unit</label>
+    <label><input type="checkbox" id="p23_loot_4"> Stack x5 spawner generates 5x more loot per interval (drop roll runs once per stack unit)</label>
+    <label><input type="checkbox" id="p23_loot_5"> Loot generation PAUSES when the chunk is unloaded and resumes when players return</label>
+    <label><input type="checkbox" id="p23_loot_6"> Stored count per material is capped at 4,096 — further generation of that material is silently dropped</label>
+    <label><input type="checkbox" id="p23_loot_7"> Stored XP is capped at 100,000 — further XP does not accumulate past that</label>
+    <label><input type="checkbox" id="p23_loot_8"> Server restart preserves storage + XP + tier + stack of every virtual spawner (saved async to DB)</label>
+
+    <h3>23A — Admin</h3>
+    <label><input type="checkbox" id="p23_admin_1"> OP: /spawnershop give ZOMBIE 3 5 gives a spawner item at Tier 3, Stack 5</label>
+    <label><input type="checkbox" id="p23_admin_2"> OP: /spawnershop give &lt;any type&gt; works for all mob type keys (COW, PIG, ENDERMAN, WITCH, GHAST, SHULKER, etc.)</label>
+    <label><input type="checkbox" id="p23_admin_3"> Non-op running /spawnershop give simply opens the shop GUI (subcommand ignored)</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

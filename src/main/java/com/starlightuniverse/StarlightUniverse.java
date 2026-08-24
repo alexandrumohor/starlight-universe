@@ -22,6 +22,7 @@ import com.starlightuniverse.order.*;
 import com.starlightuniverse.premium.*;
 import com.starlightuniverse.pvp.*;
 import com.starlightuniverse.shop.*;
+import com.starlightuniverse.spawner.*;
 import com.starlightuniverse.spear.*;
 import com.starlightuniverse.starshop.*;
 import com.starlightuniverse.team.*;
@@ -65,6 +66,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private EmojiManager emojiManager;
     private BenefitManager benefitManager;
     private NameplateManager nameplateManager;
+    private SpawnerManager spawnerManager;
 
     @Override
     public void onEnable() {
@@ -257,11 +259,20 @@ public final class StarlightUniverse extends JavaPlugin {
         nameplateManager.start();
         Bukkit.getPluginManager().registerEvents(new NameplateListener(this, nameplateManager, authManager), this);
 
+        spawnerManager = new SpawnerManager(this, databaseManager, economyManager);
+        spawnerManager.initialize();
+        Bukkit.getPluginManager().registerEvents(new SpawnerListener(spawnerManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new SpawnerCommand(spawnerManager));
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (spawnerManager != null) {
+            spawnerManager.shutdown();
+        }
+
         if (nameplateManager != null) {
             nameplateManager.shutdown();
         }
@@ -461,5 +472,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public NameplateManager getNameplateManager() {
         return nameplateManager;
+    }
+
+    public SpawnerManager getSpawnerManager() {
+        return spawnerManager;
     }
 }
