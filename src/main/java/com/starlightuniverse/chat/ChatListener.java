@@ -1,5 +1,6 @@
 package com.starlightuniverse.chat;
 
+import com.starlightuniverse.arena.ArenaWorlds;
 import com.starlightuniverse.util.Msg;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -13,6 +14,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 
@@ -104,7 +107,12 @@ public class ChatListener implements Listener {
         if (channel == ChatManager.ChatChannel.LOCAL) {
             sendLocalChat(player, formattedMessage);
         } else {
-            sendGlobalChat(player, formattedMessage);
+            Set<String> crossScopes = collectStaffCrossScopeMentions(rawMessage, player);
+            if (crossScopes != null && !crossScopes.isEmpty()) {
+                sendToScopes(player, formattedMessage, crossScopes);
+            } else {
+                sendGlobalChat(player, formattedMessage);
+            }
         }
 
         sendToSpies(player, formattedMessage, channel);
@@ -112,8 +120,49 @@ public class ChatListener implements Listener {
 
     private void sendGlobalChat(Player sender, Component message) {
         for (Player online : Bukkit.getOnlinePlayers()) {
+            if (!inSameChatScope(sender, online)) continue;
             online.sendMessage(message);
         }
+        Bukkit.getConsoleSender().sendMessage(message);
+    }
+
+    private boolean inSameChatScope(Player sender, Player receiver) {
+        return chatScopeKey(sender.getWorld().getName())
+                .equals(chatScopeKey(receiver.getWorld().getName()));
+    }
+
+    private String chatScopeKey(String worldName) {
+        if (ArenaWorlds.isArenaWorld(worldName)) return worldName;
+        return "MAIN";
+    }
+
+    private Set<String> collectStaffCrossScopeMentions(String message, Player sender) {
+        UUID senderId = sender.getUniqueId();
+        if (chatManager.getAdminManager().getAdminLevel(senderId) <= 0) return null;
+
+        Set<String> scopes = new HashSet<>();
+        String senderScope = chatScopeKey(sender.getWorld().getName());
+        Matcher matcher = ChatManager.MENTION_PATTERN.matcher(message);
+        while (matcher.find()) {
+            String name = matcher.group(1);
+            Player mentioned = Bukkit.getPlayerExact(name);
+            if (mentioned == null || !mentioned.isOnline() || mentioned.equals(sender)) continue;
+            String targetScope = chatScopeKey(mentioned.getWorld().getName());
+            if (!targetScope.equals(senderScope)) scopes.add(targetScope);
+        }
+        return scopes;
+    }
+
+    private void sendToScopes(Player sender, Component message, Set<String> targetScopes) {
+        boolean senderSeen = false;
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            String scope = chatScopeKey(online.getWorld().getName());
+            if (targetScopes.contains(scope)) {
+                online.sendMessage(message);
+                if (online.equals(sender)) senderSeen = true;
+            }
+        }
+        if (!senderSeen && sender.isOnline()) sender.sendMessage(message);
         Bukkit.getConsoleSender().sendMessage(message);
     }
 
@@ -175,6 +224,7 @@ public class ChatListener implements Listener {
             }
         } else {
             for (Player online : Bukkit.getOnlinePlayers()) {
+                if (!inSameChatScope(sender, online)) continue;
                 online.sendMessage(formattedMessage);
             }
         }
@@ -182,14 +232,25 @@ public class ChatListener implements Listener {
     }
 
     private void handleMentions(String message, Player sender) {
+        UUID senderId = sender.getUniqueId();
+        int adminLevel = chatManager.getAdminManager().getAdminLevel(senderId);
+        int premiumLevel = chatManager.getAdminManager().getPremiumLevel(senderId);
+        boolean staff = adminLevel > 0;
+        boolean premium = premiumLevel > 0;
+
+        if (!staff && !premium) return;
+
         Matcher matcher = ChatManager.MENTION_PATTERN.matcher(message);
         while (matcher.find()) {
             String name = matcher.group(1);
             Player mentioned = Bukkit.getPlayerExact(name);
-            if (mentioned != null && mentioned.isOnline() && !mentioned.equals(sender)) {
-                chatManager.playMentionSound(mentioned);
-                chatManager.setReplyTarget(mentioned.getUniqueId(), sender.getUniqueId());
-            }
+            if (mentioned == null || !mentioned.isOnline() || mentioned.equals(sender)) continue;
+
+            boolean sameScope = inSameChatScope(sender, mentioned);
+            if (!sameScope && !staff) continue;
+
+            chatManager.playMentionSound(mentioned);
+            chatManager.setReplyTarget(mentioned.getUniqueId(), senderId);
         }
     }
 

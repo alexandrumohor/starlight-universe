@@ -446,6 +446,21 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_pvp_stats (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        username VARCHAR(16) NOT NULL UNIQUE,
+                        elo INT DEFAULT 1000,
+                        wins INT DEFAULT 0,
+                        losses INT DEFAULT 0,
+                        arena_kills INT DEFAULT 0,
+                        arena_deaths INT DEFAULT 0,
+                        current_streak INT DEFAULT 0,
+                        best_streak INT DEFAULT 0,
+                        INDEX idx_elo (elo)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

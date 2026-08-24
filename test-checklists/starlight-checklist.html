@@ -1157,6 +1157,163 @@
     <label><input type="checkbox" id="p18_33"> A spear with Starlight Pierce V or Barbed Star V behaves as described (extra base damage, bleed damage after hit)</label>
     <label><input type="checkbox" id="p18_34"> The Star Shop's Void Skewer II book applies successfully on a spear at an anvil or alchemist</label>
 
+    <h2>Phase 19 — PvP Arena</h2>
+
+    <h3>19@ — Arena Worlds</h3>
+    <label><input type="checkbox" id="p19_arena_1"> On first server startup, the log shows "Arena world ready: world_pvp", "world_mobs", "world_boss"</label>
+    <label><input type="checkbox" id="p19_arena_2"> On first server startup, the log shows "Building arena in world_pvp..." then progress lines (X/Y blocks placed with a percentage)</label>
+    <label><input type="checkbox" id="p19_arena_3"> After world_pvp finishes, the same build starts automatically for world_mobs, then world_boss</label>
+    <label><input type="checkbox" id="p19_arena_4"> Each world's log line "Arena built in ..." appears once when it's finished</label>
+    <label><input type="checkbox" id="p19_arena_5"> A second server startup does NOT rebuild the arenas (no build lines in the log)</label>
+    <label><input type="checkbox" id="p19_arena_6"> Teleporting an OP into world_pvp with /world world_pvp shows a huge circular chamber, 500 blocks wide and 200 blocks tall</label>
+    <label><input type="checkbox" id="p19_arena_7"> The arena's floor, walls, and ceiling are made only of Diamond Blocks, Gold Blocks, Iron Blocks, Emerald Blocks, and Redstone Blocks — mixed randomly</label>
+    <label><input type="checkbox" id="p19_arena_8"> Ochre Froglights are scattered throughout — you can see the arena is well lit (no darkness inside)</label>
+    <label><input type="checkbox" id="p19_arena_9"> world_mobs and world_boss contain the EXACT same arena at the same coordinates (same block layout, same froglight positions)</label>
+    <label><input type="checkbox" id="p19_arena_10"> Outside the arena walls (beyond radius 250 blocks from center) is the void — no other blocks</label>
+    <label><input type="checkbox" id="p19_arena_11"> The overworld ("world") is unchanged — no arena there</label>
+    <label><input type="checkbox" id="p19_arena_12"> Mob spawning, weather, and day/night cycle are disabled in all three arena worlds</label>
+
+    <h3>19A — Queue</h3>
+    <label><input type="checkbox" id="p19_1"> Typing /pvp shows the help menu (join, leave, spectate, top, stats)</label>
+    <label><input type="checkbox" id="p19_2"> /pvp join adds you to the ranked queue by default with a green success message</label>
+    <label><input type="checkbox" id="p19_3"> /pvp join unranked adds you to the unranked queue instead</label>
+    <label><input type="checkbox" id="p19_4"> While in queue, the action bar shows your position "PvP queue (Ranked): X / Y"</label>
+    <label><input type="checkbox" id="p19_5"> /pvp join twice in a row shows "You are already in the PvP queue"</label>
+    <label><input type="checkbox" id="p19_6"> /pvp leave removes you from the queue with a yellow message</label>
+    <label><input type="checkbox" id="p19_7"> When two players are queued together they get matched — both get "PvP Match" messages with each other's names, mode, and "good luck!"</label>
+    <label><input type="checkbox" id="p19_8"> Ranked queue only matches players within 500 Elo of each other</label>
+    <label><input type="checkbox" id="p19_9"> Unranked queue matches any two players regardless of Elo</label>
+    <label><input type="checkbox" id="p19_10"> Disconnecting while in queue removes you from the queue automatically</label>
+
+    <h3>19B — Match Flow</h3>
+    <label><input type="checkbox" id="p19_11"> When the match starts, both players are teleported into world_pvp at opposite ends of the arena, facing each other</label>
+    <label><input type="checkbox" id="p19_12"> The players keep their own inventory and equipment — no clearing or override</label>
+    <label><input type="checkbox" id="p19_13"> Before the fight begins, a 5-second countdown appears in the action bar ("Round 1 starts in 5..." → "4..." → etc.)</label>
+    <label><input type="checkbox" id="p19_14"> Players are frozen during the countdown and cannot damage each other</label>
+    <label><input type="checkbox" id="p19_15"> When the countdown ends, a red "FIGHT!" appears in the action bar and combat is enabled</label>
+    <label><input type="checkbox" id="p19_16"> During the round, the action bar shows "Round X — 0 vs 0 | 5:00" and the timer counts down</label>
+    <label><input type="checkbox" id="p19_17"> When one player would die, damage is capped, their HP resets to full, and the round ends with a "Round X won by Name!" message</label>
+    <label><input type="checkbox" id="p19_18"> Between rounds there is a 5-second pause showing "Next round in X..." in the action bar</label>
+    <label><input type="checkbox" id="p19_19"> Between rounds, both players' HP is restored to full and any durability damage on their gear is reset to 0</label>
+    <label><input type="checkbox" id="p19_20"> Best of 3: first to 2 round wins ends the match immediately (no round 3 if 2-0)</label>
+    <label><input type="checkbox" id="p19_21"> If both players tie 1-1, a third round decides it</label>
+    <label><input type="checkbox" id="p19_22"> If a round runs the full 5 minutes with no death, the round is a no-winner tie and moves on</label>
+    <label><input type="checkbox" id="p19_23"> On match end, both players are teleported back to where they were when they joined the queue</label>
+    <label><input type="checkbox" id="p19_24"> The loser keeps ALL their inventory and equipment — no drops, no experience lost</label>
+
+    <h3>19C — Blocked Actions</h3>
+    <label><input type="checkbox" id="p19_25"> Right-clicking with a potion during the match does nothing (blocked, with an error message)</label>
+    <label><input type="checkbox" id="p19_26"> Throwing a splash or lingering potion during the match does not launch</label>
+    <label><input type="checkbox" id="p19_27"> Eating food during the match is blocked (an error message shows)</label>
+    <label><input type="checkbox" id="p19_28"> Ender pearls cannot be thrown during a match</label>
+    <label><input type="checkbox" id="p19_29"> Chorus fruit cannot be eaten during a match</label>
+    <label><input type="checkbox" id="p19_30"> /home, /tpa, /warp, /spawn, /back, /rtp all fail with a blocked message during a match</label>
+    <label><input type="checkbox" id="p19_31"> /pvp still works during a match (so you can use /pvp leave)</label>
+    <label><input type="checkbox" id="p19_32"> Hunger does not decrease during a match</label>
+    <label><input type="checkbox" id="p19_33"> You cannot drop items during a match</label>
+    <label><input type="checkbox" id="p19_34"> Damage from players NOT in your match (bystanders/spectators) is blocked</label>
+
+    <h3>19D — Ranked (Elo) System</h3>
+    <label><input type="checkbox" id="p19_35"> New players start at 1000 Elo</label>
+    <label><input type="checkbox" id="p19_36"> Winning a ranked match gives you Elo — losing costs you Elo (~32 point swing between equal players)</label>
+    <label><input type="checkbox" id="p19_37"> The Elo change is shown after a ranked match ("Elo: 1000 → 1032 (+32)")</label>
+    <label><input type="checkbox" id="p19_38"> Unranked matches do NOT change Elo but still give rewards</label>
+    <label><input type="checkbox" id="p19_39"> Elo tiers show correctly: Bronze (0-799), Silver (800-1199), Gold (1200-1499), Platinum (1500-1799), Diamond (1800-2099), Master (2100-2399), Champion (2400+)</label>
+    <label><input type="checkbox" id="p19_40"> Beating a much higher-Elo player gives more Elo than beating an equal one</label>
+    <label><input type="checkbox" id="p19_41"> Losing to a much lower-Elo player costs more Elo than losing to an equal one</label>
+
+    <h3>19E — Rewards</h3>
+    <label><input type="checkbox" id="p19_42"> Winning a match gives $200 and 5 gems (green "Victory!" message)</label>
+    <label><input type="checkbox" id="p19_43"> Winning 2 matches in a row gives an extra $100 bonus with a cyan "2x DOUBLE" message</label>
+    <label><input type="checkbox" id="p19_44"> Winning 3 in a row gives $250 + 10 gems bonus with "3x TRIPLE"</label>
+    <label><input type="checkbox" id="p19_45"> Winning 5 in a row gives $500 + 25 gems bonus with "5x RAMPAGE"</label>
+    <label><input type="checkbox" id="p19_46"> Winning 10 in a row gives $1500 + 50 gems bonus with "10x GODLIKE"</label>
+    <label><input type="checkbox" id="p19_47"> Losing a match resets your current streak to 0</label>
+    <label><input type="checkbox" id="p19_48"> Your best (highest ever) streak is tracked and never goes down</label>
+
+    <h3>19F — Anti-Camping</h3>
+    <label><input type="checkbox" id="p19_49"> Standing still for 15 seconds during a round shows a red "Stop camping!" warning</label>
+    <label><input type="checkbox" id="p19_50"> Continuing to stand still for another 15 seconds teleports you to the center of the arena</label>
+    <label><input type="checkbox" id="p19_51"> Moving 3 or more blocks resets the anti-camp timer</label>
+    <label><input type="checkbox" id="p19_52"> Leaving the arena bounds teleports you back to the center with a "Stay inside the arena!" message</label>
+
+    <h3>19G — Spectate</h3>
+    <label><input type="checkbox" id="p19_53"> /pvp spectate teleports you to the spectator perch above the arena in spectator gamemode</label>
+    <label><input type="checkbox" id="p19_54"> While spectating, ongoing match round results (e.g., "Round X won by ...") are visible to you</label>
+    <label><input type="checkbox" id="p19_55"> /pvp spectate a second time (or /pvp leave) returns you to where you were before and puts you back in survival</label>
+    <label><input type="checkbox" id="p19_56"> You cannot join the queue while spectating (must leave spectate first)</label>
+
+    <h3>19H — Top &amp; Stats</h3>
+    <label><input type="checkbox" id="p19_57"> /pvp top shows a leaderboard of the top players by Elo — each row has rank, tier tag, name, Elo, and W/L</label>
+    <label><input type="checkbox" id="p19_58"> Players with 0 matches do not appear on /pvp top</label>
+    <label><input type="checkbox" id="p19_59"> /pvp stats shows your own tier, Elo, wins, losses, win rate, kills, deaths, current streak, and best streak</label>
+    <label><input type="checkbox" id="p19_60"> /pvp stats OtherPlayer shows another player's stats (works for offline players too)</label>
+    <label><input type="checkbox" id="p19_61"> /pvp stats NonExistent shows a red "Player not found" error</label>
+
+    <h3>19J — Allowed Gear Only (PvP)</h3>
+    <label><input type="checkbox" id="p19_gear_1"> You can enter a PvP match wearing helmet, chestplate, leggings, boots (any tier: leather → netherite)</label>
+    <label><input type="checkbox" id="p19_gear_2"> Sword, pickaxe, axe, shovel, hoe (any tier) all work normally in the arena — melee hits deal damage</label>
+    <label><input type="checkbox" id="p19_gear_3"> Bow, crossbow, trident and arrows work normally (draw, shoot, land)</label>
+    <label><input type="checkbox" id="p19_gear_4"> Mace works normally</label>
+    <label><input type="checkbox" id="p19_gear_5"> Spear (any tier) works normally</label>
+    <label><input type="checkbox" id="p19_gear_6"> Trying to eat any food shows a red "You can't use this item while in PVP" and nothing happens</label>
+    <label><input type="checkbox" id="p19_gear_7"> Trying to drink a potion shows the same message and is blocked</label>
+    <label><input type="checkbox" id="p19_gear_8"> Trying to throw a splash/lingering potion shows the message and is blocked</label>
+    <label><input type="checkbox" id="p19_gear_9"> Trying to use an ender pearl, chorus fruit, snowball, egg, fishing rod shows the message and is blocked</label>
+    <label><input type="checkbox" id="p19_gear_10"> Trying to right-click any block item (torch, wool, TNT, etc.) shows the message and nothing places</label>
+    <label><input type="checkbox" id="p19_gear_11"> Shield right-click (blocking) shows the message and is blocked</label>
+    <label><input type="checkbox" id="p19_gear_12"> The "You can't use this item while in PVP" message doesn't spam — it only repeats after ~1.5 seconds if you keep trying</label>
+
+    <h3>19K — Chat Groups</h3>
+    <label><input type="checkbox" id="p19_chat_1"> Players in lobby, survivallobby, overworld, world_the_nether, resource_nether, world_the_end, resource_end, resource_overworld, and world_dragon all share one chat (MAIN group)</label>
+    <label><input type="checkbox" id="p19_chat_2"> Two players in world_pvp share a chat that is separate from MAIN</label>
+    <label><input type="checkbox" id="p19_chat_3"> Two players in world_mobs share a chat that is separate from MAIN and world_pvp</label>
+    <label><input type="checkbox" id="p19_chat_4"> Two players in world_boss share a chat that is separate from MAIN, world_pvp, and world_mobs</label>
+    <label><input type="checkbox" id="p19_chat_5"> A player in world_pvp does NOT see MAIN chat and vice versa</label>
+    <label><input type="checkbox" id="p19_chat_6"> A player in world_mobs does NOT see world_boss chat and vice versa</label>
+    <label><input type="checkbox" id="p19_chat_7"> Team chat still reaches team members regardless of what world they're in</label>
+    <label><input type="checkbox" id="p19_chat_8"> Staff chat still reaches all staff regardless of world</label>
+
+    <h3>19K2 — @Mentions by Rank</h3>
+    <label><input type="checkbox" id="p19_mention_1"> A player with no rank at all: their @mentions never trigger a ping (not even in the same chat group)</label>
+    <label><input type="checkbox" id="p19_mention_2"> A premium-rank player (Meteor+) mentioning someone in the SAME chat group: mention pings</label>
+    <label><input type="checkbox" id="p19_mention_3"> A premium-rank player mentioning someone in a DIFFERENT chat group (e.g., from overworld to world_pvp): no ping</label>
+    <label><input type="checkbox" id="p19_mention_4"> A staff member mentioning someone in the SAME chat group: message and ping stay in that group (normal behavior)</label>
+    <label><input type="checkbox" id="p19_mention_5"> A staff member in overworld mentioning @Bob who is in world_pvp: the message shows up in world_pvp (Bob and all world_pvp players see it), the mention ping fires on Bob, and the staff sender sees an echo of their own message</label>
+    <label><input type="checkbox" id="p19_mention_6"> When staff cross-scope-mentions, the sender's OWN chat group does NOT see that specific message (avoids "staff talking alone" confusion in overworld)</label>
+    <label><input type="checkbox" id="p19_mention_7"> If a staff message mentions two people in different scopes (e.g., @Bob in world_pvp AND @Alice in world_mobs), both world_pvp AND world_mobs see the message; overworld does not</label>
+    <label><input type="checkbox" id="p19_mention_8"> A staff message that mentions only players in the SAME scope as the sender routes normally to the sender's scope (no cross-scope redirect)</label>
+
+    <h3>19L — Mob &amp; Boss World Rules (setup for Phase 20)</h3>
+    <label><input type="checkbox" id="p19_mob_1"> In world_mobs and world_boss, a player attacking another player deals zero damage — no chat message shown</label>
+    <label><input type="checkbox" id="p19_mob_2"> Shooting arrows or throwing tridents at another player in world_mobs / world_boss deals zero damage</label>
+    <label><input type="checkbox" id="p19_mob_3"> In world_mobs / world_boss, standing on lava or fire deals NO damage to players (you can walk through unharmed)</label>
+    <label><input type="checkbox" id="p19_mob_4"> Drowning damage doesn't affect players in world_mobs / world_boss</label>
+    <label><input type="checkbox" id="p19_mob_5"> Placing a lava bucket in world_mobs / world_boss works — the lava block disappears automatically after 10 seconds</label>
+    <label><input type="checkbox" id="p19_mob_6"> Placing a water bucket in world_mobs / world_boss works — the water block also disappears after 10 seconds</label>
+    <label><input type="checkbox" id="p19_mob_6a"> While the fluid is placed, a subtitle appears every second on the placer's screen: "The lava you placed will disappear automatically in X seconds" (counts down 10 → 1)</label>
+    <label><input type="checkbox" id="p19_mob_6b"> Water bucket shows the same countdown but with "water" instead of "lava"</label>
+    <label><input type="checkbox" id="p19_mob_6c"> Scooping the fluid back with an empty bucket BEFORE it expires cancels the countdown and lets you keep the filled bucket normally</label>
+    <label><input type="checkbox" id="p19_mob_6d"> If the fluid expires without being scooped, the placer sees "Your lava has disappeared. Your bucket will be returned when you leave the arena."</label>
+    <label><input type="checkbox" id="p19_mob_6e"> When you leave world_mobs / world_boss (teleport to lobby or any other world), any empty buckets in your inventory left over from expired placements are converted back to the correct filled bucket (lava_bucket or water_bucket)</label>
+    <label><input type="checkbox" id="p19_mob_6f"> If you don't have empty buckets in your inventory when leaving, the returned filled buckets are added to your inventory (or drop at your feet if inventory is full)</label>
+    <label><input type="checkbox" id="p19_mob_6g"> A yellow chat message tells you exactly how many buckets were returned when you leave the arena (e.g., "Your buckets have been returned: 2 lava buckets, 1 water bucket")</label>
+    <label><input type="checkbox" id="p19_mob_6h"> If you disconnect while inside the arena with owed buckets, they are LOST (encourages proper exit)</label>
+    <label><input type="checkbox" id="p19_mob_7"> Lava does NOT spread/flow into neighboring blocks in mob/boss arenas</label>
+    <label><input type="checkbox" id="p19_mob_8"> Placing water/lava buckets in world_pvp is blocked (buckets aren't in the allowed items list)</label>
+    <label><input type="checkbox" id="p19_mob_9"> A Creeper explosion in mob/boss arenas damages players but does NOT break any arena blocks (walls, floor, ceiling stay intact)</label>
+    <label><input type="checkbox" id="p19_mob_10"> An Enderman in mob/boss arenas cannot pick up floor blocks</label>
+    <label><input type="checkbox" id="p19_mob_11"> An Enderman in mob/boss arenas is NOT damaged by walking through / standing in water</label>
+    <label><input type="checkbox" id="p19_mob_12"> In all 3 arena worlds, players cannot break blocks (arena walls, floor, ceiling stay pristine)</label>
+    <label><input type="checkbox" id="p19_mob_13"> In all 3 arena worlds, players cannot place blocks (except water/lava buckets in mobs/boss)</label>
+    <label><input type="checkbox" id="p19_mob_14"> Admin-level staff (level 3+) bypass the block break / block place restrictions in arenas for maintenance</label>
+
+    <h3>19I — Forfeit &amp; Edge Cases</h3>
+    <label><input type="checkbox" id="p19_62"> /pvp leave during a match forfeits — the opponent wins immediately with full rewards</label>
+    <label><input type="checkbox" id="p19_63"> Disconnecting during a match counts as a forfeit — the opponent gets a "won by forfeit" message and full rewards</label>
+    <label><input type="checkbox" id="p19_64"> Deaths caused by non-players (void, drowning, fall from wall) also correctly end the round with the other player as the winner</label>
+    <label><input type="checkbox" id="p19_65"> Your pvp_kills counter (visible in staff tools) increments by 1 each ranked or unranked win</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

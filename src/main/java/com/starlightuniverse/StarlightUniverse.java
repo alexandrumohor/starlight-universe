@@ -1,6 +1,7 @@
 package com.starlightuniverse;
 
 import com.starlightuniverse.admin.*;
+import com.starlightuniverse.arena.*;
 import com.starlightuniverse.auction.*;
 import com.starlightuniverse.auth.*;
 import com.starlightuniverse.chat.*;
@@ -13,6 +14,7 @@ import com.starlightuniverse.economy.*;
 import com.starlightuniverse.home.*;
 import com.starlightuniverse.order.*;
 import com.starlightuniverse.premium.*;
+import com.starlightuniverse.pvp.*;
 import com.starlightuniverse.shop.*;
 import com.starlightuniverse.spear.*;
 import com.starlightuniverse.starshop.*;
@@ -49,6 +51,8 @@ public final class StarlightUniverse extends JavaPlugin {
     private EnchantListener enchantListener;
     private AlchemistListener alchemistListener;
     private StarShopManager starShopManager;
+    private ArenaWorldManager arenaWorldManager;
+    private PvPManager pvpManager;
 
     @Override
     public void onEnable() {
@@ -199,11 +203,28 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new StarShopListener(this, starShopManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new StarShopCommand(starShopManager));
 
+        arenaWorldManager = new ArenaWorldManager(this, databaseManager);
+        arenaWorldManager.initialize();
+        Bukkit.getPluginManager().registerEvents(new ArenaWorldListener(this, adminManager), this);
+
+        pvpManager = new PvPManager(this, databaseManager, economyManager, arenaWorldManager);
+        pvpManager.start();
+        Bukkit.getPluginManager().registerEvents(new PvPListener(pvpManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new PvPCommand(pvpManager));
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (pvpManager != null) {
+            pvpManager.shutdown();
+        }
+
+        if (arenaWorldManager != null) {
+            arenaWorldManager.shutdown();
+        }
+
         if (enchantListener != null) {
             enchantListener.shutdown();
         }
@@ -347,5 +368,13 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public StarShopManager getStarShopManager() {
         return starShopManager;
+    }
+
+    public PvPManager getPvpManager() {
+        return pvpManager;
+    }
+
+    public ArenaWorldManager getArenaWorldManager() {
+        return arenaWorldManager;
     }
 }
