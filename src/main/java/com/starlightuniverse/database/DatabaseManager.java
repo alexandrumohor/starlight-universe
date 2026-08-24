@@ -502,6 +502,65 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_pwarps (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        owner_username VARCHAR(16) NOT NULL,
+                        name VARCHAR(24) NOT NULL,
+                        world VARCHAR(64) NOT NULL,
+                        x DOUBLE NOT NULL,
+                        y DOUBLE NOT NULL,
+                        z DOUBLE NOT NULL,
+                        yaw FLOAT NOT NULL,
+                        pitch FLOAT NOT NULL,
+                        category VARCHAR(24) DEFAULT 'Other',
+                        description VARCHAR(50) DEFAULT '',
+                        entry_cost DOUBLE DEFAULT 0,
+                        visitors INT DEFAULT 0,
+                        allow_pvp TINYINT(1) DEFAULT 0,
+                        allow_break TINYINT(1) DEFAULT 0,
+                        allow_place TINYINT(1) DEFAULT 0,
+                        allow_containers TINYINT(1) DEFAULT 0,
+                        allow_interact TINYINT(1) DEFAULT 1,
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE KEY uk_pwarp_owner_name (owner_username, name),
+                        INDEX idx_pwarp_owner (owner_username),
+                        INDEX idx_pwarp_name (name)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_pwarp_ratings (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        pwarp_id INT NOT NULL,
+                        username VARCHAR(16) NOT NULL,
+                        stars INT NOT NULL,
+                        UNIQUE KEY uk_rating (pwarp_id, username),
+                        FOREIGN KEY (pwarp_id) REFERENCES su_pwarps(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_pwarp_bans (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        owner_username VARCHAR(16) NOT NULL,
+                        banned_username VARCHAR(16) NOT NULL,
+                        pwarp_id INT NOT NULL DEFAULT 0,
+                        UNIQUE KEY uk_pwarp_ban_v2 (owner_username, banned_username, pwarp_id),
+                        INDEX idx_owner_ban (owner_username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_tp_blocks (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        blocker_username VARCHAR(16) NOT NULL,
+                        blocked_username VARCHAR(16) NOT NULL,
+                        UNIQUE KEY uk_block (blocker_username, blocked_username),
+                        INDEX idx_blocker (blocker_username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }
@@ -539,6 +598,14 @@ public class DatabaseManager {
             try {
                 stmt.execute("ALTER TABLE su_players ADD COLUMN active_kill_effect VARCHAR(32) DEFAULT NULL");
             } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN tpa_disabled TINYINT(1) DEFAULT 0");
+            } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_pwarps DROP INDEX uk_pwarp_name"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_pwarps ADD UNIQUE KEY uk_pwarp_owner_name (owner_username, name)"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_pwarp_bans ADD COLUMN pwarp_id INT NOT NULL DEFAULT 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_pwarp_bans DROP INDEX uk_pwarp_ban"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_pwarp_bans ADD UNIQUE KEY uk_pwarp_ban_v2 (owner_username, banned_username, pwarp_id)"); } catch (SQLException ignored) {}
             plugin.getLogger().info("[SU] Database migrations applied.");
         } catch (SQLException e) {
             plugin.getLogger().warning("[SU] Migration check failed: " + e.getMessage());

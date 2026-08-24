@@ -125,6 +125,22 @@ public class WorldManager implements Listener {
                 w.setPVP(true);
             }
         }
+
+        applyWorldBorder(OVERWORLD, 75_000);
+        applyWorldBorder(WORLD_NETHER, 50_000);
+        applyWorldBorder(WORLD_THE_END, 50_000);
+        applyWorldBorder(RESOURCE_OVERWORLD, 10_000);
+        applyWorldBorder(RESOURCE_NETHER, 10_000);
+        applyWorldBorder(RESOURCE_END, 10_000);
+    }
+
+    private void applyWorldBorder(String worldName, double size) {
+        World w = Bukkit.getWorld(worldName);
+        if (w == null) return;
+        w.getWorldBorder().setCenter(0, 0);
+        w.getWorldBorder().setSize(size);
+        w.getWorldBorder().setWarningDistance(16);
+        w.getWorldBorder().setDamageBuffer(5);
     }
 
     // ── Dragon World ──
@@ -298,6 +314,7 @@ public class WorldManager implements Listener {
             creator.environment(envs[i]);
             creator.generateStructures(true);
             Bukkit.createWorld(creator);
+            applyWorldBorder(names[i], 10_000);
         }
         plugin.getLogger().info("[SU] Resource worlds have been reset!");
     }

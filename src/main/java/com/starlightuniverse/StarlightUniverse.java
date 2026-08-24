@@ -21,11 +21,13 @@ import com.starlightuniverse.home.*;
 import com.starlightuniverse.order.*;
 import com.starlightuniverse.premium.*;
 import com.starlightuniverse.pvp.*;
+import com.starlightuniverse.pwarp.*;
 import com.starlightuniverse.shop.*;
 import com.starlightuniverse.spawner.*;
 import com.starlightuniverse.spear.*;
 import com.starlightuniverse.starshop.*;
 import com.starlightuniverse.team.*;
+import com.starlightuniverse.travel.*;
 import com.starlightuniverse.world.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -67,6 +69,9 @@ public final class StarlightUniverse extends JavaPlugin {
     private BenefitManager benefitManager;
     private NameplateManager nameplateManager;
     private SpawnerManager spawnerManager;
+    private RtpManager rtpManager;
+    private TpaManager tpaManager;
+    private PWarpManager pwarpManager;
 
     @Override
     public void onEnable() {
@@ -263,6 +268,20 @@ public final class StarlightUniverse extends JavaPlugin {
         spawnerManager.initialize();
         Bukkit.getPluginManager().registerEvents(new SpawnerListener(spawnerManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new SpawnerCommand(spawnerManager));
+
+        rtpManager = new RtpManager(this, worldManager);
+        tpaManager = new TpaManager(this, databaseManager, adminManager);
+        tpaManager.start();
+        Bukkit.getPluginManager().registerEvents(new TravelListener(rtpManager, tpaManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new RtpCommand(rtpManager, adminManager));
+        for (Command cmd : TpaCommands.create(tpaManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
+
+        pwarpManager = new PWarpManager(this, databaseManager, economyManager);
+        pwarpManager.initialize();
+        Bukkit.getPluginManager().registerEvents(new PWarpListener(this, pwarpManager, adminManager), this);
+        for (Command cmd : PWarpCommand.create(pwarpManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
 
         getLogger().info("[SU] Enabled!");
     }
@@ -476,5 +495,17 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public SpawnerManager getSpawnerManager() {
         return spawnerManager;
+    }
+
+    public RtpManager getRtpManager() {
+        return rtpManager;
+    }
+
+    public TpaManager getTpaManager() {
+        return tpaManager;
+    }
+
+    public PWarpManager getPwarpManager() {
+        return pwarpManager;
     }
 }

@@ -1683,6 +1683,149 @@
     <label><input type="checkbox" id="p23_admin_2"> OP: /spawnershop give &lt;any type&gt; works for all mob type keys (COW, PIG, ENDERMAN, WITCH, GHAST, SHULKER, etc.)</label>
     <label><input type="checkbox" id="p23_admin_3"> Non-op running /spawnershop give simply opens the shop GUI (subcommand ignored)</label>
 
+    <h2>Phase 24 — RTP + TPA + Warps</h2>
+
+    <h3>24A — Random Teleport (RTP)</h3>
+    <label><input type="checkbox" id="p24_rtp_1"> /rtp opens the "Random Teleport" GUI with 27 slots</label>
+    <label><input type="checkbox" id="p24_rtp_2"> The GUI shows six tiles: Overworld, Nether, End, Resource Overworld, Resource Nether, Resource End</label>
+    <label><input type="checkbox" id="p24_rtp_3"> Each tile shows a distinct icon (grass / netherrack / end stone / oak log / nether bricks / chorus fruit)</label>
+    <label><input type="checkbox" id="p24_rtp_4"> Each tile lore shows: World (world name), Status (OPEN/LOCKED), Players there, Border X, Border Z</label>
+    <label><input type="checkbox" id="p24_rtp_5"> Overworld tile shows Border X -10000 → 10000 and Border Z -10000 → 10000</label>
+    <label><input type="checkbox" id="p24_rtp_6"> Nether tile shows Border X -3000 → 3000 and Border Z -3000 → 3000</label>
+    <label><input type="checkbox" id="p24_rtp_7"> End tile shows Border X -5000 → 5000 and Border Z -5000 → 5000</label>
+    <label><input type="checkbox" id="p24_rtp_8"> Each resource tile shows Border X -5000 → 5000 and Border Z -5000 → 5000</label>
+    <label><input type="checkbox" id="p24_rtp_9"> Resource tiles also show the next reset date at 06:00 RO</label>
+    <label><input type="checkbox" id="p24_rtp_10"> Clicking an OPEN tile teleports you to a random safe location in that world</label>
+    <label><input type="checkbox" id="p24_rtp_11"> Teleport is FREE — no Money/Gems/Stars deducted</label>
+    <label><input type="checkbox" id="p24_rtp_12"> You land on a solid block, not in lava, not in a wall, not on cactus/magma/campfire</label>
+    <label><input type="checkbox" id="p24_rtp_13"> Nether RTP finds a safe air pocket between Y 32 and Y 100 (never on the roof)</label>
+    <label><input type="checkbox" id="p24_rtp_14"> A teleport plays the ender-teleport sound</label>
+    <label><input type="checkbox" id="p24_rtp_15"> Trying to RTP again within 3 seconds shows a cooldown error</label>
+    <label><input type="checkbox" id="p24_rtp_16"> /rtp overworld (or any world key) directly teleports without opening the GUI</label>
+    <label><input type="checkbox" id="p24_rtp_17"> There are NO aliases — /wild and /randomtp both show "Unknown command" (only /rtp works)</label>
+
+    <h3>24A — RTP Admin Lock</h3>
+    <label><input type="checkbox" id="p24_rtp_lock_1"> Owner (admin level ≥ 3): /rtp lock nether shows "Nether has been LOCKED."</label>
+    <label><input type="checkbox" id="p24_rtp_lock_2"> After locking, the Nether tile in the GUI turns into a BARRIER icon labeled LOCKED (red)</label>
+    <label><input type="checkbox" id="p24_rtp_lock_3"> Clicking the locked tile shows "Nether is locked!" — no teleport happens</label>
+    <label><input type="checkbox" id="p24_rtp_lock_4"> /rtp unlock nether restores the tile and clicking teleports again</label>
+    <label><input type="checkbox" id="p24_rtp_lock_5"> Lock state persists across server restart (stored in su_server_data)</label>
+    <label><input type="checkbox" id="p24_rtp_lock_6"> Non-op running /rtp lock/unlock shows "You don't have permission!"</label>
+
+    <h3>24B — Teleport Requests (TPA)</h3>
+    <label><input type="checkbox" id="p24_tpa_1"> /tpa &lt;player&gt; sends a request — target sees "&lt;you&gt; wants to teleport to you." with clickable [Accept] [Deny]</label>
+    <label><input type="checkbox" id="p24_tpa_2"> Sender sees "Request sent to &lt;target&gt;." with a clickable [Cancel]</label>
+    <label><input type="checkbox" id="p24_tpa_3"> A ping sound plays for the target when the request arrives</label>
+    <label><input type="checkbox" id="p24_tpa_4"> Clicking [Accept] shows "Accepted!" and starts a 3-second warmup for the teleporter</label>
+    <label><input type="checkbox" id="p24_tpa_5"> Moving during the 3-second warmup does NOT cancel it (per spec)</label>
+    <label><input type="checkbox" id="p24_tpa_6"> Taking damage during the 3-second warmup does NOT cancel it</label>
+    <label><input type="checkbox" id="p24_tpa_7"> After warmup, the teleporter lands at the anchor's location with the ender-teleport sound</label>
+    <label><input type="checkbox" id="p24_tpa_8"> Clicking [Deny] shows "Denied request..." and sender gets "&lt;target&gt; denied your teleport request."</label>
+    <label><input type="checkbox" id="p24_tpa_9"> /tpahere &lt;player&gt; reverses direction — after accept, TARGET teleports to sender</label>
+    <label><input type="checkbox" id="p24_tpa_10"> Sending a second /tpa while one is pending shows "You already have a pending request!"</label>
+    <label><input type="checkbox" id="p24_tpa_11"> Trying to /tpa yourself shows "You can't teleport to yourself!"</label>
+    <label><input type="checkbox" id="p24_tpa_12"> After sending a request, sending another within 10 seconds shows a cooldown error</label>
+    <label><input type="checkbox" id="p24_tpa_13"> A request left unanswered for 60 seconds expires — sender sees "Your teleport request expired."</label>
+    <label><input type="checkbox" id="p24_tpa_14"> Premium ranks (Meteor → Galaxy) get progressively longer request durations (90 → 300s)</label>
+
+    <h3>24B — TPA Toggles &amp; Block</h3>
+    <label><input type="checkbox" id="p24_tpa_toggle_1"> /tptoggle switches TPA off — "TPA requests DISABLED..."</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_2"> While disabled, other players' /tpa &lt;you&gt; shows "&lt;you&gt; has TPA disabled!"</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_3"> /tptoggle again switches TPA back on</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_4"> Toggle state persists across quit/rejoin</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_5"> /tpcancel with a pending outgoing request shows "Cancelled your teleport request." and target sees the cancel notice</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_6"> /tpcancel with no pending request shows "You have no pending outgoing request!"</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_7"> /tpblock &lt;player&gt; blocks that player — their /tpa attempt shows "You are blocked by &lt;you&gt;."</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_8"> /tpblock &lt;same-player&gt; again unblocks them</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_9"> Block list persists across quit/rejoin</label>
+    <label><input type="checkbox" id="p24_tpa_toggle_10"> There are NO aliases — /tpyes and /tpno both show "Unknown command" (only /tpaccept and /tpdeny work, tab-completion helps you type them)</label>
+
+    <h3>24C — Personal Warps (Create)</h3>
+    <label><input type="checkbox" id="p24_pw_create_1"> /pwarp with no args shows the help block listing every subcommand, including "/pwarp create &lt;name&gt; &lt;description&gt;"</label>
+    <label><input type="checkbox" id="p24_pw_create_2"> /pwarp create &lt;name&gt; &lt;description&gt; in a survival world deducts $2,500 and creates the warp</label>
+    <label><input type="checkbox" id="p24_pw_create_3"> Creation shows "Warp \"&lt;name&gt;\" created!" plus a gray note about the 15-block auto-protection</label>
+    <label><input type="checkbox" id="p24_pw_create_4"> Trying to create WITHOUT a description shows "Description is required (min 5 chars). Usage: /pwarp create &lt;name&gt; &lt;description&gt;"</label>
+    <label><input type="checkbox" id="p24_pw_create_5"> A description shorter than 5 characters is rejected with the same error</label>
+    <label><input type="checkbox" id="p24_pw_create_6"> A description longer than 50 characters is truncated to 50</label>
+    <label><input type="checkbox" id="p24_pw_create_7"> Trying to create a warp with fewer than 3 or more than 24 characters shows a name-length error</label>
+    <label><input type="checkbox" id="p24_pw_create_8"> Trying a name with symbols like @#$ shows "may only contain letters, digits, _ and -"</label>
+    <label><input type="checkbox" id="p24_pw_create_9"> Creating a SECOND warp with a name YOU already used shows "You already have a warp with that name!"</label>
+    <label><input type="checkbox" id="p24_pw_create_10"> Two DIFFERENT players CAN each create a warp named "Shop" — no conflict</label>
+    <label><input type="checkbox" id="p24_pw_create_11"> Creating a 4th warp shows "You already have 3 warps!"</label>
+    <label><input type="checkbox" id="p24_pw_create_12"> Creating a warp in the lobby world shows "You can only create warps in survival worlds!"</label>
+    <label><input type="checkbox" id="p24_pw_create_13"> Creating a warp within 30 blocks of another warp shows "This area is too close to &lt;owner&gt;'s warp!"</label>
+    <label><input type="checkbox" id="p24_pw_create_14"> Attempting to /sethome inside any personal warp shows "You cannot set a home inside a personal warp!" and no home is set</label>
+
+    <h3>24C — Personal Warps (Teleport &amp; Rate)</h3>
+    <label><input type="checkbox" id="p24_pw_tp_1"> /pwarp &lt;name&gt; teleports you to the warp and plays the ender-teleport sound</label>
+    <label><input type="checkbox" id="p24_pw_tp_2"> If YOU own a warp with that name, /pwarp &lt;name&gt; goes to YOUR warp first</label>
+    <label><input type="checkbox" id="p24_pw_tp_3"> If multiple players share the name, /pwarp &lt;name&gt; shows "Multiple warps named..." and lists them in "&lt;owner&gt;:&lt;name&gt;" form</label>
+    <label><input type="checkbox" id="p24_pw_tp_4"> /pwarp &lt;owner&gt;:&lt;name&gt; teleports to that specific owner's warp</label>
+    <label><input type="checkbox" id="p24_pw_tp_5"> Non-owners cause the visitors count to increment; owner teleporting does NOT</label>
+    <label><input type="checkbox" id="p24_pw_tp_6"> /pwarp &lt;unknown&gt; shows "Warp not found: &lt;name&gt;"</label>
+    <label><input type="checkbox" id="p24_pw_tp_7"> If the warp has an entry cost &gt; 0, a visitor is charged and the owner is credited that amount</label>
+    <label><input type="checkbox" id="p24_pw_tp_8"> Visitor without enough Money sees "This warp costs $X to enter — you don't have enough!"</label>
+    <label><input type="checkbox" id="p24_pw_tp_9"> Owner never pays their own entry cost</label>
+    <label><input type="checkbox" id="p24_pw_tp_10"> /pwarp rate &lt;name&gt; &lt;1-5&gt; records your rating and shows "You rated \"&lt;name&gt;\" X/5!"</label>
+    <label><input type="checkbox" id="p24_pw_tp_11"> Re-rating the same warp overwrites your previous vote — the average recalculates</label>
+    <label><input type="checkbox" id="p24_pw_tp_12"> /pwarp rate &lt;name&gt; 6 shows "Rating must be 1-5 stars!"</label>
+    <label><input type="checkbox" id="p24_pw_tp_13"> Trying to rate your OWN warp shows "You can't rate your own warp!"</label>
+
+    <h3>24C — Personal Warps (Ban)</h3>
+    <label><input type="checkbox" id="p24_pw_ban_1"> /pwarp ban &lt;player&gt; (no warp) shows "&lt;player&gt; is now banned from all your warps."</label>
+    <label><input type="checkbox" id="p24_pw_ban_2"> A globally-banned player attempting /pwarp &lt;any-of-your-warps&gt; sees "You are banned from this warp!"</label>
+    <label><input type="checkbox" id="p24_pw_ban_3"> /pwarp ban &lt;player&gt; &lt;warp&gt; shows "&lt;player&gt; is now banned from warp \"&lt;warp&gt;\"." — applies ONLY to that warp</label>
+    <label><input type="checkbox" id="p24_pw_ban_4"> A per-warp banned player can still teleport to your OTHER warps</label>
+    <label><input type="checkbox" id="p24_pw_ban_5"> /pwarp unban &lt;player&gt; (no warp) removes the global ban only</label>
+    <label><input type="checkbox" id="p24_pw_ban_6"> /pwarp unban &lt;player&gt; &lt;warp&gt; removes only the per-warp ban</label>
+    <label><input type="checkbox" id="p24_pw_ban_7"> /pwarp ban &lt;player&gt; &lt;warp-you-don't-own&gt; shows "You don't own a warp named \"&lt;warp&gt;\"!"</label>
+    <label><input type="checkbox" id="p24_pw_ban_8"> Ban list persists across server restart (both global and per-warp entries)</label>
+    <label><input type="checkbox" id="p24_pw_ban_9"> /pwarp ban &lt;yourself&gt; shows "You can't ban yourself!"</label>
+    <label><input type="checkbox" id="p24_pw_ban_10"> Deleting a warp automatically clears its per-warp ban entries from the database</label>
+
+    <h3>24C — Personal Warps (Browse GUI /pwarps)</h3>
+    <label><input type="checkbox" id="p24_pw_browse_1"> /pwarps opens the "Personal Warps" GUI (54 slots)</label>
+    <label><input type="checkbox" id="p24_pw_browse_2"> Every warp tile icon is a PLAYER HEAD with the OWNER'S SKIN (not the same generic icon)</label>
+    <label><input type="checkbox" id="p24_pw_browse_3"> Two warps by different owners with the same name show TWO DIFFERENT heads (the two owners' skins)</label>
+    <label><input type="checkbox" id="p24_pw_browse_4"> Each warp tile lore shows: Owner / Category / "&lt;description&gt;" (quoted, yellow) / Rating: ★★★☆☆ 3.4/5 / Reviews Number: N / Visitors: N / Entry cost</label>
+    <label><input type="checkbox" id="p24_pw_browse_5"> A warp with entry_cost 0 shows "Entry cost: FREE" in green (not $0)</label>
+    <label><input type="checkbox" id="p24_pw_browse_6"> A warp with entry_cost &gt; 0 shows "Entry cost: $X" in yellow</label>
+    <label><input type="checkbox" id="p24_pw_browse_7"> The tile lore also shows action hints: "Left-click: teleport" (green) and "Right-click: rate 1-5" (yellow)</label>
+    <label><input type="checkbox" id="p24_pw_browse_8"> Star display uses ★/☆ characters to visualize 0-5 stars, plus a numeric X.X/5 next to it</label>
+    <label><input type="checkbox" id="p24_pw_browse_9"> Sort button (hopper) at slot 36 shows the current sort with a ▶ marker and lists all four sort modes</label>
+    <label><input type="checkbox" id="p24_pw_browse_10"> Clicking the sort button cycles: Best Rating → Lowest Rating → Newest → Oldest → Best Rating</label>
+    <label><input type="checkbox" id="p24_pw_browse_11"> Under "Newest" sort, the most recently created warp appears first; under "Oldest", the earliest appears first</label>
+    <label><input type="checkbox" id="p24_pw_browse_12"> Bottom row shows category filter buttons: All / Shop / Farm / PvP / Build / Event / Other, each with a "Left-click: filter by ..." lore</label>
+    <label><input type="checkbox" id="p24_pw_browse_13"> Clicking a category button reopens the GUI filtered to only that category, with a green highlight on the active filter and current sort preserved</label>
+    <label><input type="checkbox" id="p24_pw_browse_14"> With more than 28 warps, slot 53 shows a "Next Page" arrow with lore "Left-click: go forward"; slot 52 shows "Previous Page" on page &gt; 0</label>
+    <label><input type="checkbox" id="p24_pw_browse_15"> Left-click on a warp tile teleports; right-click opens the Rate GUI</label>
+    <label><input type="checkbox" id="p24_pw_browse_16"> Rate GUI shows 5 nether-star icons for 1-5 stars, each with lore "Left-click: submit this rating" — clicking one records and closes</label>
+
+    <h3>24C — Personal Warps (My Warps &amp; Settings)</h3>
+    <label><input type="checkbox" id="p24_pw_settings_1"> /pwarp mine (or /pwarp list) opens the "My Personal Warps" GUI showing your warps + empty slots up to 3</label>
+    <label><input type="checkbox" id="p24_pw_settings_2"> Left-click your own warp tile teleports</label>
+    <label><input type="checkbox" id="p24_pw_settings_3"> Right-click opens the Settings GUI for that warp</label>
+    <label><input type="checkbox" id="p24_pw_settings_4"> Shift-right-click deletes the warp</label>
+    <label><input type="checkbox" id="p24_pw_settings_5"> Settings GUI shows 5 toggle buttons: PvP / Block Break / Block Place / Containers / Interact</label>
+    <label><input type="checkbox" id="p24_pw_settings_6"> Each toggle is GREEN "ON" or RED "OFF" — clicking flips the state and reopens</label>
+    <label><input type="checkbox" id="p24_pw_settings_7"> When PvP is OFF, hitting a visitor at the warp cancels damage with "PvP is disabled at this warp!"</label>
+    <label><input type="checkbox" id="p24_pw_settings_8"> When Block Break is OFF, visitor breaking a block shows "Block breaking is disabled at this warp!"</label>
+    <label><input type="checkbox" id="p24_pw_settings_9"> When Block Place is OFF, visitor placing a block shows "Block placing is disabled at this warp!"</label>
+    <label><input type="checkbox" id="p24_pw_settings_10"> When Containers is OFF, visitor right-clicking a chest/furnace/anvil shows "Containers are locked at this warp!"</label>
+    <label><input type="checkbox" id="p24_pw_settings_11"> When Interact is OFF, visitor right-clicking a door/lever shows "Interaction is disabled at this warp!"</label>
+    <label><input type="checkbox" id="p24_pw_settings_12"> Owner and admins level ≥ 3 are unaffected by all toggles</label>
+    <label><input type="checkbox" id="p24_pw_settings_13"> Category button opens the Category Picker; picking one updates the category and returns to Settings</label>
+    <label><input type="checkbox" id="p24_pw_settings_14"> Description button prompts "Type the new description in chat (max 50 chars)"; typing sets it (truncated to 50)</label>
+    <label><input type="checkbox" id="p24_pw_settings_15"> Typing 'cancel' during description mode aborts and reopens Settings without changes</label>
+    <label><input type="checkbox" id="p24_pw_settings_16"> Entry cost button: left-click +$100, shift-left-click +$1,000, right-click sets to FREE ($0) (capped at $100,000)</label>
+    <label><input type="checkbox" id="p24_pw_settings_17"> Entry cost of 0 shows the button title as "Entry cost: FREE" in green</label>
+    <label><input type="checkbox" id="p24_pw_settings_18"> Description button rejects an update shorter than 5 chars with "Description must be at least 5 characters!"</label>
+    <label><input type="checkbox" id="p24_pw_settings_19"> Teleport button (ender pearl) teleports the owner to the warp</label>
+    <label><input type="checkbox" id="p24_pw_settings_20"> Delete button (barrier) requires a shift-left-click to confirm deletion — plain click just prompts</label>
+    <label><input type="checkbox" id="p24_pw_settings_21"> Back arrow returns to My Warps</label>
+    <label><input type="checkbox" id="p24_pw_settings_22"> Every button in Settings shows an action hint like "Left-click: ..." in its lore</label>
+    <label><input type="checkbox" id="p24_pw_settings_23"> All settings changes persist across server restart</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');
