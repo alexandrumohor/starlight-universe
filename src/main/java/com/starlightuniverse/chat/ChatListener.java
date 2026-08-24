@@ -93,7 +93,8 @@ public class ChatListener implements Listener {
             return;
         }
 
-        String filteredMessage = chatManager.filterSwears(rawMessage);
+        String emojiMessage = chatManager.applyEmoji(player, rawMessage);
+        String filteredMessage = chatManager.filterSwears(emojiMessage);
 
         chatManager.recordChatCooldown(uuid);
         if (!chatManager.isStaffExempt(uuid)) {
@@ -101,6 +102,12 @@ public class ChatListener implements Listener {
         }
 
         Component formattedMessage = chatManager.buildChatMessage(player, filteredMessage, null);
+
+        if (chatManager.getNameplateManager() != null && channel != ChatManager.ChatChannel.STAFF) {
+            final String bubbleMsg = filteredMessage;
+            Bukkit.getScheduler().runTask(chatManager.getPlugin(), () ->
+                    chatManager.getNameplateManager().showBubble(player, bubbleMsg));
+        }
 
         handleMentions(rawMessage, player);
 
@@ -183,8 +190,14 @@ public class ChatListener implements Listener {
     }
 
     private void sendTeamChat(Player sender, String message) {
-        String filtered = chatManager.filterSwears(message);
+        String emojiMsg = chatManager.applyEmoji(sender, message);
+        String filtered = chatManager.filterSwears(emojiMsg);
         chatManager.getTeamManager().sendTeamChat(sender, filtered);
+
+        if (chatManager.getNameplateManager() != null) {
+            Bukkit.getScheduler().runTask(chatManager.getPlugin(), () ->
+                    chatManager.getNameplateManager().showBubble(sender, filtered));
+        }
 
         sendTeamSpies(sender, filtered);
     }
@@ -204,8 +217,14 @@ public class ChatListener implements Listener {
     }
 
     public void sendReplyMessage(Player sender, String targetName, String message) {
-        String filtered = chatManager.filterSwears(message);
+        String emojiMsg = chatManager.applyEmoji(sender, message);
+        String filtered = chatManager.filterSwears(emojiMsg);
         Component formattedMessage = chatManager.buildChatMessage(sender, filtered, targetName);
+
+        if (chatManager.getNameplateManager() != null) {
+            Bukkit.getScheduler().runTask(chatManager.getPlugin(), () ->
+                    chatManager.getNameplateManager().showBubble(sender, filtered));
+        }
 
         handleMentions(message, sender);
 

@@ -1548,6 +1548,83 @@
     <label><input type="checkbox" id="p21_edge_4"> The winner announcement text and rewards are correct in every world (survival, resource, arena, lobby)</label>
     <label><input type="checkbox" id="p21_edge_5"> Two players typing valid answers in the SAME chat batch — exactly one gets the reward (no double payouts)</label>
 
+    <h2>Phase 22 — Emoji + Name Display + Benefits</h2>
+
+    <h3>22A — Emoji Chat System</h3>
+    <label><input type="checkbox" id="p22_emoji_1"> /emoji opens a GUI showing all emoji tiles with names + chat tokens</label>
+    <label><input type="checkbox" id="p22_emoji_2"> Before purchase, the bottom-right slot shows "Unlock Emoji Pack" with cost ◆200</label>
+    <label><input type="checkbox" id="p22_emoji_3"> Clicking Unlock deducts 200 gems, marks the pack as owned, and refreshes the GUI</label>
+    <label><input type="checkbox" id="p22_emoji_4"> With no gems the unlock button shows "Not enough Gems!" error and does NOT charge</label>
+    <label><input type="checkbox" id="p22_emoji_5"> After unlock, typing ":smile:" in global chat renders the emoji glyph in place of the text</label>
+    <label><input type="checkbox" id="p22_emoji_6"> Typing an unknown token like ":foobar:" leaves the text untouched</label>
+    <label><input type="checkbox" id="p22_emoji_7"> A player who never bought the pack sends ":smile:" and it stays as literal text in chat (not converted)</label>
+    <label><input type="checkbox" id="p22_emoji_8"> Team chat (/tc), local chat (/l), and /reply all convert :name: tokens for unlocked players</label>
+    <label><input type="checkbox" id="p22_emoji_9"> The GUI lists at least 45 emojis across categories Faces / Symbols / Hands / Game / Misc</label>
+    <label><input type="checkbox" id="p22_emoji_10"> Backspace in the chat text-box deletes the whole emoji at once (client-side glyph, single character)</label>
+
+    <h3>22B — Name Display / Nameplate</h3>
+    <label><input type="checkbox" id="p22_np_1"> After logging in, TextDisplay entities appear above and below every player's head</label>
+    <label><input type="checkbox" id="p22_np_2"> If the player is in a team, "[TeamName]" appears at the top (above the vanilla name)</label>
+    <label><input type="checkbox" id="p22_np_3"> Vanilla nameplate shows "[Admin] [Prefix/Tag] PlayerName" (admin rank + prefix/tag prepended via scoreboard team)</label>
+    <label><input type="checkbox" id="p22_np_4"> Below the name, a currency line shows $money | ◆gems | ★stars | ⚔0 | ☠0</label>
+    <label><input type="checkbox" id="p22_np_5"> When the player chats in global/team/local, a chat bubble "&lt; message &gt;" appears above their head for ~8s</label>
+    <label><input type="checkbox" id="p22_np_6"> Chatting in staff chat (/sc) does NOT show a public bubble above the head</label>
+    <label><input type="checkbox" id="p22_np_7"> The bubble disappears automatically after 8 seconds even if no new chat is sent</label>
+    <label><input type="checkbox" id="p22_np_8"> Nameplate follows the player when they move / sprint / jump / teleport / respawn</label>
+    <label><input type="checkbox" id="p22_np_9"> Nameplate is invisible past ~32 blocks (small view range, other players out of view don't see it)</label>
+    <label><input type="checkbox" id="p22_np_10"> With 30+ players nearby, team-line and currency-line become empty (simplified mode — only vanilla name shown)</label>
+    <label><input type="checkbox" id="p22_np_11"> Currency line updates when balance changes (spend money, gain gems, etc.)</label>
+    <label><input type="checkbox" id="p22_np_12"> On player quit, all TextDisplay entities are removed (no ghosts left behind)</label>
+    <label><input type="checkbox" id="p22_np_13"> On server restart / world change, nameplate re-spawns cleanly (no duplicates)</label>
+
+    <h3>22C — Custom Prefix (◆200 unlock)</h3>
+    <label><input type="checkbox" id="p22_pfx_1"> /setprefix with no args shows the usage help</label>
+    <label><input type="checkbox" id="p22_pfx_2"> /setprefix &lt;text&gt; on a player without unlock deducts 200 gems on first use and sets the prefix</label>
+    <label><input type="checkbox" id="p22_pfx_3"> Player without enough gems gets "Not enough Gems!" and the prefix is NOT changed</label>
+    <label><input type="checkbox" id="p22_pfx_4"> Once unlocked, /setprefix &lt;text&gt; changes the prefix without charging again</label>
+    <label><input type="checkbox" id="p22_pfx_5"> The prefix appears as [text] in the chat format between [Admin] and PlayerName</label>
+    <label><input type="checkbox" id="p22_pfx_6"> The prefix also appears in the vanilla nameplate above the head</label>
+    <label><input type="checkbox" id="p22_pfx_7"> /setprefix clear removes the prefix; premium tag or premium rank appears instead</label>
+    <label><input type="checkbox" id="p22_pfx_8"> Prefix over 12 chars or with symbols is rejected with an error</label>
+
+    <h3>22C — Name / Chat Color (◆100 unlock)</h3>
+    <label><input type="checkbox" id="p22_col_1"> /namecolor #FF00FF on a player without unlock deducts 100 gems and applies</label>
+    <label><input type="checkbox" id="p22_col_2"> Player without enough gems gets "Not enough Gems!" and the color is NOT changed</label>
+    <label><input type="checkbox" id="p22_col_3"> Once unlocked, /namecolor with a different hex changes the color without charging again</label>
+    <label><input type="checkbox" id="p22_col_4"> Player name in chat renders in the chosen color</label>
+    <label><input type="checkbox" id="p22_col_5"> /namecolor clear resets name color back to white</label>
+    <label><input type="checkbox" id="p22_col_6"> Invalid hex like "hello" or "GG0000" is rejected with an error</label>
+    <label><input type="checkbox" id="p22_col_7"> /chatcolor #55FF55 first use deducts 100 gems; subsequent changes are free</label>
+    <label><input type="checkbox" id="p22_col_8"> Chat message body renders in the chosen chat color (requires premium rank Nebula+ for it to actually apply)</label>
+
+    <h3>22C — Join / Quit Messages (★15 unlock)</h3>
+    <label><input type="checkbox" id="p22_msg_1"> /joinmsg &lt;text&gt; deducts 15 stars on first use and saves</label>
+    <label><input type="checkbox" id="p22_msg_2"> /quitmsg &lt;text&gt; deducts 15 stars on first use and saves</label>
+    <label><input type="checkbox" id="p22_msg_3"> {name} inside the message is replaced with the player's actual name</label>
+    <label><input type="checkbox" id="p22_msg_4"> On next login, the custom join message replaces the default "+ name joined!"</label>
+    <label><input type="checkbox" id="p22_msg_5"> On quit, the custom quit message replaces the default "- name left."</label>
+    <label><input type="checkbox" id="p22_msg_6"> /joinmsg clear reverts to the default join message</label>
+    <label><input type="checkbox" id="p22_msg_7"> Msg over 80 chars is rejected with an error</label>
+
+    <h3>22C — Body Glow (◆100 per color)</h3>
+    <label><input type="checkbox" id="p22_glow_1"> /glow with no args opens the Body Glow Shop GUI listing 8 colors (white, red, orange, yellow, green, cyan, blue, purple)</label>
+    <label><input type="checkbox" id="p22_glow_2"> Clicking a color you don't own deducts 100 gems and unlocks it; second click activates it</label>
+    <label><input type="checkbox" id="p22_glow_3"> Activated glow makes the player's silhouette glow through walls with the chosen color</label>
+    <label><input type="checkbox" id="p22_glow_4"> Clicking an already-active color deactivates it (player stops glowing)</label>
+    <label><input type="checkbox" id="p22_glow_5"> /glow &lt;color&gt; activates a previously-unlocked color via chat</label>
+    <label><input type="checkbox" id="p22_glow_6"> /glow off disables the current glow</label>
+    <label><input type="checkbox" id="p22_glow_7"> Glow persists after quitting and re-joining (state saved to DB)</label>
+    <label><input type="checkbox" id="p22_glow_8"> Barrier item in center of GUI turns glow OFF</label>
+
+    <h3>22C — Kill Effect (◆300–500 per effect)</h3>
+    <label><input type="checkbox" id="p22_kill_1"> /killeffect with no args opens the Kill Effect Shop GUI listing 6 effects (lightning, firework, explosion, flames, soul, magic)</label>
+    <label><input type="checkbox" id="p22_kill_2"> Clicking an effect you don't own deducts its gem cost (300–500) and unlocks it</label>
+    <label><input type="checkbox" id="p22_kill_3"> Once activated, killing a mob (zombie, cow, etc.) triggers the effect at the mob's location</label>
+    <label><input type="checkbox" id="p22_kill_4"> Killing a player in PvP also triggers the killer's active kill effect</label>
+    <label><input type="checkbox" id="p22_kill_5"> Each effect has distinct visuals: lightning strike / firework burst / explosion smoke / fire ring / soul rise / magic swirl</label>
+    <label><input type="checkbox" id="p22_kill_6"> /killeffect off disables the effect; killing a mob no longer triggers anything</label>
+    <label><input type="checkbox" id="p22_kill_7"> Effect state persists across quit/rejoin</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

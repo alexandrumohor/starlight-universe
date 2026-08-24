@@ -471,6 +471,18 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_player_unlocks (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        username VARCHAR(16) NOT NULL,
+                        category VARCHAR(32) NOT NULL,
+                        unlock_key VARCHAR(64) NOT NULL,
+                        unlock_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE KEY uk_unlock (username, category, unlock_key),
+                        INDEX idx_user (username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }
@@ -498,6 +510,15 @@ public class DatabaseManager {
             } catch (SQLException ignored) {}
             try {
                 stmt.execute("ALTER TABLE su_players ADD COLUMN referred_by VARCHAR(16) DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN custom_prefix VARCHAR(16) DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN active_glow VARCHAR(32) DEFAULT NULL");
+            } catch (SQLException ignored) {}
+            try {
+                stmt.execute("ALTER TABLE su_players ADD COLUMN active_kill_effect VARCHAR(32) DEFAULT NULL");
             } catch (SQLException ignored) {}
             plugin.getLogger().info("[SU] Database migrations applied.");
         } catch (SQLException e) {

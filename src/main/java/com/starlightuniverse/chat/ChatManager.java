@@ -2,7 +2,10 @@ package com.starlightuniverse.chat;
 
 import com.starlightuniverse.admin.AdminManager;
 import com.starlightuniverse.admin.AdminRank;
+import com.starlightuniverse.benefit.BenefitManager;
 import com.starlightuniverse.database.DatabaseManager;
+import com.starlightuniverse.emoji.EmojiManager;
+import com.starlightuniverse.nameplate.NameplateManager;
 import com.starlightuniverse.premium.PremiumManager;
 import com.starlightuniverse.premium.PremiumRank;
 import com.starlightuniverse.team.Team;
@@ -56,6 +59,9 @@ public class ChatManager {
     private final AdminManager adminManager;
     private final PremiumManager premiumManager;
     private final TeamManager teamManager;
+    private EmojiManager emojiManager;
+    private BenefitManager benefitManager;
+    private NameplateManager nameplateManager;
 
     private final Map<UUID, ChatChannel> channels = new ConcurrentHashMap<>();
     private final Map<UUID, Long> chatCooldowns = new ConcurrentHashMap<>();
@@ -71,6 +77,18 @@ public class ChatManager {
         this.adminManager = adminManager;
         this.premiumManager = premiumManager;
         this.teamManager = teamManager;
+    }
+
+    public void setEmojiManager(EmojiManager emojiManager) { this.emojiManager = emojiManager; }
+    public void setBenefitManager(BenefitManager benefitManager) { this.benefitManager = benefitManager; }
+    public void setNameplateManager(NameplateManager nameplateManager) { this.nameplateManager = nameplateManager; }
+    public EmojiManager getEmojiManager() { return emojiManager; }
+    public BenefitManager getBenefitManager() { return benefitManager; }
+    public NameplateManager getNameplateManager() { return nameplateManager; }
+
+    public String applyEmoji(Player player, String message) {
+        if (emojiManager == null) return message;
+        return emojiManager.replaceTokens(message, emojiManager.isUnlocked(player.getUniqueId()));
     }
 
     public void loadPlayer(Player player) {
@@ -260,15 +278,19 @@ public class ChatManager {
             ).append(Component.text(" "));
         }
 
+        String customPrefix = benefitManager != null ? benefitManager.getCustomPrefix(uuid) : null;
         String tag = nameTagCache.get(uuid);
-        if (tag != null && !tag.isEmpty()) {
-            PremiumRank premRank = premiumManager.getPlayerRank(uuid);
+        PremiumRank premRank = premiumManager.getPlayerRank(uuid);
+        if (customPrefix != null && !customPrefix.isEmpty()) {
+            TextColor c = premRank != PremiumRank.NONE ? premRank.getColor() : GOLD;
+            result = result.append(Component.text("[" + customPrefix + "]", c))
+                    .append(Component.text(" "));
+        } else if (tag != null && !tag.isEmpty()) {
             TextColor tagColor = premRank != PremiumRank.NONE ? premRank.getColor() : GRAY;
             result = result.append(
                     Component.text("[" + tag + "]", tagColor)
             ).append(Component.text(" "));
         } else {
-            PremiumRank premRank = premiumManager.getPlayerRank(uuid);
             if (premRank != PremiumRank.NONE) {
                 result = result.append(premRank.getColoredPrefix())
                         .append(Component.text(" "));
@@ -292,7 +314,6 @@ public class ChatManager {
                     .append(Component.text(" >> ", GRAY));
         }
 
-        PremiumRank premRank = premiumManager.getPlayerRank(uuid);
         String chatColorHex = chatColorCache.get(uuid);
         TextColor msgColor = WHITE;
         if (premRank.hasColoredChat() && chatColorHex != null) {

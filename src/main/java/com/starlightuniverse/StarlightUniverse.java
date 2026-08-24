@@ -4,14 +4,17 @@ import com.starlightuniverse.admin.*;
 import com.starlightuniverse.arena.*;
 import com.starlightuniverse.auction.*;
 import com.starlightuniverse.auth.*;
+import com.starlightuniverse.benefit.*;
 import com.starlightuniverse.boss.*;
 import com.starlightuniverse.chat.*;
 import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
+import com.starlightuniverse.emoji.*;
 import com.starlightuniverse.enchant.*;
 import com.starlightuniverse.job.*;
 import com.starlightuniverse.minigame.*;
 import com.starlightuniverse.mob.*;
+import com.starlightuniverse.nameplate.*;
 import com.starlightuniverse.skill.*;
 import com.starlightuniverse.economy.*;
 import com.starlightuniverse.home.*;
@@ -59,6 +62,9 @@ public final class StarlightUniverse extends JavaPlugin {
     private BossKillManager bossKillManager;
     private MobRaidManager mobRaidManager;
     private MinigameManager minigameManager;
+    private EmojiManager emojiManager;
+    private BenefitManager benefitManager;
+    private NameplateManager nameplateManager;
 
     @Override
     public void onEnable() {
@@ -233,11 +239,33 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getCommandMap().register("starlightuniverse", new MinigameCommand(minigameManager));
         minigameManager.start();
 
+        emojiManager = new EmojiManager(this, databaseManager, economyManager);
+        chatManager.setEmojiManager(emojiManager);
+        Bukkit.getPluginManager().registerEvents(new EmojiListener(emojiManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new EmojiCommand(emojiManager));
+
+        benefitManager = new BenefitManager(this, databaseManager, economyManager, premiumManager, chatManager);
+        chatManager.setBenefitManager(benefitManager);
+        Bukkit.getPluginManager().registerEvents(new BenefitListener(this, benefitManager), this);
+        for (Command cmd : BenefitCommands.create(benefitManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
+
+        nameplateManager = new NameplateManager(this, chatManager, adminManager,
+                premiumManager, teamManager, economyManager);
+        nameplateManager.setBenefitManager(benefitManager);
+        chatManager.setNameplateManager(nameplateManager);
+        nameplateManager.start();
+        Bukkit.getPluginManager().registerEvents(new NameplateListener(this, nameplateManager, authManager), this);
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (nameplateManager != null) {
+            nameplateManager.shutdown();
+        }
+
         if (minigameManager != null) {
             minigameManager.shutdown();
         }
@@ -421,5 +449,17 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public MinigameManager getMinigameManager() {
         return minigameManager;
+    }
+
+    public EmojiManager getEmojiManager() {
+        return emojiManager;
+    }
+
+    public BenefitManager getBenefitManager() {
+        return benefitManager;
+    }
+
+    public NameplateManager getNameplateManager() {
+        return nameplateManager;
     }
 }
