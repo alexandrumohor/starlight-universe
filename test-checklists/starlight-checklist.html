@@ -84,6 +84,27 @@
             text-decoration: line-through;
             color: #666;
         }
+        label {
+            display: block;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            line-height: 1.5;
+            transition: background 0.15s;
+        }
+        label:hover { background: #1a1a2e; }
+        label input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: 16px;
+            height: 16px;
+            accent-color: #55FF55;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+        label:has(input:checked) {
+            text-decoration: line-through;
+            color: #666;
+        }
     </style>
 </head>
 <body>
