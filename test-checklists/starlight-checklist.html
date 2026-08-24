@@ -662,6 +662,55 @@
     <label><input type="checkbox" id="p12_31"> Staff with /spy enabled see [SPY] prefixed local chat messages even when out of range</label>
     <label><input type="checkbox" id="p12_32"> Staff with /spy enabled see [SPY-TC] team chat messages from other teams</label>
 
+    <h2>Phase 13 — Crates</h2>
+
+    <h3>Crate Spawning</h3>
+    <label><input type="checkbox" id="p13_1"> /spawncrate star — as Owner, look at a block and run the command. A green shulker box appears with a floating "Star Crate" name above it</label>
+    <label><input type="checkbox" id="p13_2"> /spawncrate cosmic — spawns a light blue shulker box with "Cosmic Crate" hologram</label>
+    <label><input type="checkbox" id="p13_3"> /spawncrate galaxy — spawns a purple shulker box with "Galaxy Crate" hologram</label>
+    <label><input type="checkbox" id="p13_4"> /spawncrate seasonal — spawns a yellow shulker box with "Seasonal Crate" hologram</label>
+    <label><input type="checkbox" id="p13_5"> Smoke and colored particles float around each crate</label>
+    <label><input type="checkbox" id="p13_6"> /removecrate — look at a crate and remove it, block and hologram disappear</label>
+    <label><input type="checkbox" id="p13_7"> Non-admin players cannot use /spawncrate or /removecrate</label>
+    <label><input type="checkbox" id="p13_8"> Crate block cannot be broken by mining, explosions, or pistons</label>
+
+    <h3>Crate Keys</h3>
+    <label><input type="checkbox" id="p13_9"> /givekey YourName star — gives you a glowing Star Crate Key (looks like a tripwire hook)</label>
+    <label><input type="checkbox" id="p13_10"> /givekey YourName cosmic 5 — gives 5 Cosmic Crate Keys</label>
+    <label><input type="checkbox" id="p13_11"> /givekey YourName galaxy — gives a Galaxy Crate Key</label>
+    <label><input type="checkbox" id="p13_12"> /givekey YourName seasonal — gives a Seasonal Crate Key</label>
+    <label><input type="checkbox" id="p13_13"> /buykey cosmic — costs 100 Gems, gives you a Cosmic Crate Key</label>
+    <label><input type="checkbox" id="p13_14"> /buykey galaxy — costs 25 Stars, gives you a Galaxy Crate Key</label>
+    <label><input type="checkbox" id="p13_15"> /buykey cosmic without enough Gems — error message</label>
+    <label><input type="checkbox" id="p13_16"> /buykey star — error, Star keys come from voting only</label>
+
+    <h3>Opening Crates</h3>
+    <label><input type="checkbox" id="p13_17"> Right-click a Star Crate with a Star Key — instantly get a random reward, key consumed</label>
+    <label><input type="checkbox" id="p13_18"> Right-click a crate without a key — message says you need a key</label>
+    <label><input type="checkbox" id="p13_19"> Right-click with the wrong key type — error message</label>
+    <label><input type="checkbox" id="p13_20"> Reward message shows what you got, with the rarity in color</label>
+    <label><input type="checkbox" id="p13_21"> Level-up sound plays and green particles appear when you get a reward</label>
+    <label><input type="checkbox" id="p13_22"> Getting a Legendary reward broadcasts to ALL players on the server</label>
+    <label><input type="checkbox" id="p13_23"> If inventory is full, reward items drop at your feet</label>
+
+    <h3>Preview GUI</h3>
+    <label><input type="checkbox" id="p13_24"> Left-click a crate — opens a chest GUI showing all possible rewards</label>
+    <label><input type="checkbox" id="p13_25"> Each reward shows its name, rarity, and drop chance percentage</label>
+    <label><input type="checkbox" id="p13_26"> You cannot take items from the preview GUI</label>
+    <label><input type="checkbox" id="p13_27"> All chances are between 0.2% and 5.5%</label>
+
+    <h3>Reward Types</h3>
+    <label><input type="checkbox" id="p13_28"> Currency rewards: Money, Gems, Stars are added to your balance</label>
+    <label><input type="checkbox" id="p13_29"> Item rewards: Diamonds, Netherite, Golden Apples etc. go to inventory</label>
+    <label><input type="checkbox" id="p13_30"> Enchant Book rewards: Books with enchantments matching the tier (Stardust through Celestial)</label>
+    <label><input type="checkbox" id="p13_31"> Spawner rewards: Get a mob spawner item you can place</label>
+    <label><input type="checkbox" id="p13_32"> Potion/Buff rewards: Splash potions with effects</label>
+    <label><input type="checkbox" id="p13_33"> Galaxy Crate has the best rewards including Netherite gear and spawners</label>
+
+    <h3>Persistence</h3>
+    <label><input type="checkbox" id="p13_34"> Restart the server — all crates reappear at their locations with holograms</label>
+    <label><input type="checkbox" id="p13_35"> Remove a crate, restart — it stays removed</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

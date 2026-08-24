@@ -4,6 +4,7 @@ import com.starlightuniverse.admin.*;
 import com.starlightuniverse.auction.*;
 import com.starlightuniverse.auth.*;
 import com.starlightuniverse.chat.*;
+import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.*;
 import com.starlightuniverse.home.*;
@@ -36,6 +37,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private PremiumManager premiumManager;
     private TeamManager teamManager;
     private ChatManager chatManager;
+    private CrateManager crateManager;
 
     @Override
     public void onEnable() {
@@ -86,6 +88,9 @@ public final class StarlightUniverse extends JavaPlugin {
         teamManager.initialize();
 
         chatManager = new ChatManager(this, databaseManager, adminManager, premiumManager, teamManager);
+
+        crateManager = new CrateManager(this, databaseManager, economyManager, adminManager);
+        crateManager.initialize();
 
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(new AdminListener(this, adminManager), this);
@@ -147,6 +152,10 @@ public final class StarlightUniverse extends JavaPlugin {
         for (Command cmd : ChatCommands.create(chatManager, chatListener))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
 
+        Bukkit.getPluginManager().registerEvents(new CrateListener(crateManager), this);
+        for (Command cmd : CrateCommands.create(crateManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
+
         getLogger().info("[SU] Enabled!");
     }
 
@@ -161,6 +170,10 @@ public final class StarlightUniverse extends JavaPlugin {
                     }
                 }
             }
+        }
+
+        if (crateManager != null) {
+            crateManager.shutdown();
         }
 
         if (teamManager != null) {
@@ -259,5 +272,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public ChatManager getChatManager() {
         return chatManager;
+    }
+
+    public CrateManager getCrateManager() {
+        return crateManager;
     }
 }

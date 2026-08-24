@@ -410,6 +410,18 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_crates (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        crate_type VARCHAR(32) NOT NULL,
+                        world VARCHAR(64) NOT NULL,
+                        x INT NOT NULL,
+                        y INT NOT NULL,
+                        z INT NOT NULL,
+                        UNIQUE KEY uk_location (world, x, y, z)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }
