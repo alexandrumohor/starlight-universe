@@ -6,6 +6,7 @@ import com.starlightuniverse.auth.*;
 import com.starlightuniverse.chat.*;
 import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
+import com.starlightuniverse.enchant.*;
 import com.starlightuniverse.job.*;
 import com.starlightuniverse.skill.*;
 import com.starlightuniverse.economy.*;
@@ -42,6 +43,8 @@ public final class StarlightUniverse extends JavaPlugin {
     private CrateManager crateManager;
     private JobManager jobManager;
     private SkillManager skillManager;
+    private EnchantManager enchantManager;
+    private EnchantListener enchantListener;
 
     @Override
     public void onEnable() {
@@ -101,6 +104,8 @@ public final class StarlightUniverse extends JavaPlugin {
 
         skillManager = new SkillManager(this, databaseManager, economyManager);
         skillManager.initialize();
+
+        enchantManager = new EnchantManager(this);
 
         Bukkit.getPluginManager().registerEvents(new AuthListener(this, authManager, skinManager), this);
         Bukkit.getPluginManager().registerEvents(new AdminListener(this, adminManager), this);
@@ -174,11 +179,21 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new SkillDataListener(skillManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new SkillCommand(skillManager));
 
+        enchantListener = new EnchantListener(this, enchantManager, authManager, economyManager);
+        Bukkit.getPluginManager().registerEvents(enchantListener, this);
+        Bukkit.getPluginManager().registerEvents(new EnchantGuiListener(), this);
+        for (Command cmd : EnchantCommand.create(enchantManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (enchantListener != null) {
+            enchantListener.shutdown();
+        }
+
         if (inventoryManager != null) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (authManager != null && authManager.isAuthenticated(player.getUniqueId())) {
@@ -310,5 +325,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public SkillManager getSkillManager() {
         return skillManager;
+    }
+
+    public EnchantManager getEnchantManager() {
+        return enchantManager;
     }
 }

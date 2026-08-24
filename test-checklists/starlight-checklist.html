@@ -891,6 +891,162 @@
     <label><input type="checkbox" id="p15_52"> Check MySQL — table su_skills exists with username, skill_type, level, xp columns</label>
     <label><input type="checkbox" id="p15_53"> Restart the server — all skill progress is preserved in the database</label>
 
+    <h2>Phase 16 — Custom Enchantments (130+)</h2>
+
+    <h3>Enchant Book Basics</h3>
+    <label><input type="checkbox" id="p16_01"> Run /enchantbook — a GUI opens showing all 130 enchantments with their names, rarity colors, targets, and max levels</label>
+    <label><input type="checkbox" id="p16_02"> Run /enchantbook STARGAZER 1 — you receive a "Stargazer I" enchanted book with gray (Common) color, showing rarity, target (Helmet), and description in the lore</label>
+    <label><input type="checkbox" id="p16_03"> Run /enchantbook STAR_HEART 10 — you get a "Star Heart X" book with orange (Legendary) color</label>
+    <label><input type="checkbox" id="p16_04"> Run /enchantlist HELMET — shows only the 10 helmet enchantments</label>
+    <label><input type="checkbox" id="p16_05"> Click any enchant in the /enchantlist GUI — you receive a max-level book of that enchant</label>
+
+    <h3>Applying Enchants (Anvil)</h3>
+    <label><input type="checkbox" id="p16_06"> Place a diamond helmet + Stargazer I book in an anvil — the result shows the helmet with "Stargazer I" in gray in its lore</label>
+    <label><input type="checkbox" id="p16_07"> Take the result — the custom enchant persists on the item</label>
+    <label><input type="checkbox" id="p16_08"> Try placing a Star Drain (Sword) book on a helmet — no result appears (wrong target)</label>
+    <label><input type="checkbox" id="p16_09"> Place a sword with Frost Nova III + a Frost Nova III book — result shows Frost Nova IV (same level combines to next)</label>
+    <label><input type="checkbox" id="p16_10"> Place a sword with Frost Nova III + a Frost Nova V book — result shows Frost Nova V (higher level overrides)</label>
+
+    <h3>Helmet Enchants</h3>
+    <label><input type="checkbox" id="p16_11"> Wear a helmet with Stargazer I — you get permanent night vision (no particles)</label>
+    <label><input type="checkbox" id="p16_12"> Wear a helmet with Nebula Sight — nearby mobs glow through walls</label>
+    <label><input type="checkbox" id="p16_13"> Wear a helmet with Solar Clarity — Blindness, Nausea, and Darkness effects are removed instantly</label>
+    <label><input type="checkbox" id="p16_14"> Wear a helmet with Constellation I — your action bar shows current time of day and weather</label>
+    <label><input type="checkbox" id="p16_15"> Wear a helmet with Stellar Nourish — your hunger bar slowly refills over time</label>
+    <label><input type="checkbox" id="p16_16"> Wear a helmet with Orbital Scan — nearby mobs show their HP above their heads</label>
+    <label><input type="checkbox" id="p16_17"> Kill a mob with Cosmic Wisdom on helmet — you get more XP than normal</label>
+    <label><input type="checkbox" id="p16_18"> Kill a mob with Celestial Mind on helmet — occasional double XP on kills</label>
+
+    <h3>Chestplate Enchants</h3>
+    <label><input type="checkbox" id="p16_19"> Wear a chestplate with Star Heart X — your max health increases (extra hearts visible)</label>
+    <label><input type="checkbox" id="p16_20"> Get hit while wearing Solar Flare — the attacker catches fire</label>
+    <label><input type="checkbox" id="p16_21"> Get hit while wearing Void Dodge — occasionally you completely dodge the hit (poof particles)</label>
+    <label><input type="checkbox" id="p16_22"> Get hit while wearing Gravity Well — you get knocked back much less</label>
+    <label><input type="checkbox" id="p16_23"> Wear a chestplate with Comet Fall — you have slow falling effect</label>
+    <label><input type="checkbox" id="p16_24"> Drop below 3 hearts with Supernova Burst — you gain Strength</label>
+    <label><input type="checkbox" id="p16_25"> Take damage with Dark Matter — damage is reduced by a flat amount</label>
+    <label><input type="checkbox" id="p16_26"> Wear Pulsar Regen — your health slowly regenerates</label>
+    <label><input type="checkbox" id="p16_27"> Take fire/lava damage with Nova Shield — damage is reduced</label>
+
+    <h3>Leggings Enchants</h3>
+    <label><input type="checkbox" id="p16_28"> Wear leggings with Light Speed — you move noticeably faster</label>
+    <label><input type="checkbox" id="p16_29"> Wear leggings with Lunar Leap — you jump higher</label>
+    <label><input type="checkbox" id="p16_30"> Fall from a short height with Zero Gravity — no fall damage within the safe distance</label>
+    <label><input type="checkbox" id="p16_31"> Get Slowness applied with Cosmic Stride on — it's immediately removed</label>
+    <label><input type="checkbox" id="p16_32"> Take explosion damage with Plasma Shield — damage is reduced</label>
+    <label><input type="checkbox" id="p16_33"> Sprint with Star Fuel — hunger drains slower</label>
+    <label><input type="checkbox" id="p16_34"> Get Levitation with Anchor Point — it's immediately removed</label>
+    <label><input type="checkbox" id="p16_35"> Drop below 2 hearts with Last Light — you gain Resistance</label>
+
+    <h3>Boots Enchants</h3>
+    <label><input type="checkbox" id="p16_36"> Wear boots with Warp Drive — you move faster</label>
+    <label><input type="checkbox" id="p16_37"> Walk over lava with Magma Orbit — lava temporarily turns to obsidian, then reverts</label>
+    <label><input type="checkbox" id="p16_38"> Fall from height with Soft Landing — fall damage is reduced</label>
+    <label><input type="checkbox" id="p16_39"> Walk on dirt paths with Star Path — you get a speed boost</label>
+    <label><input type="checkbox" id="p16_40"> Fall from height onto mobs with Meteor Impact — nearby mobs take AOE damage</label>
+    <label><input type="checkbox" id="p16_41"> Swim with Deep Space — you swim faster</label>
+    <label><input type="checkbox" id="p16_42"> Jump on farmland with Solar Step — farmland is NOT trampled</label>
+
+    <h3>Sword Enchants</h3>
+    <label><input type="checkbox" id="p16_43"> Hit a mob with Star Drain — you heal a portion of the damage dealt</label>
+    <label><input type="checkbox" id="p16_44"> Hit a mob with Cosmic Bleed — the mob takes damage over time after the hit</label>
+    <label><input type="checkbox" id="p16_45"> Hit a mob below 30% HP with Eclipse Strike — you deal bonus damage</label>
+    <label><input type="checkbox" id="p16_46"> Hit a mob with Frost Nova — mob gets Slowness</label>
+    <label><input type="checkbox" id="p16_47"> Hit a mob with Venom Star — mob gets Poison</label>
+    <label><input type="checkbox" id="p16_48"> Hit mobs with Thunderstorm — occasionally lightning strikes</label>
+    <label><input type="checkbox" id="p16_49"> Kill mobs with Constellation Cut — occasional mob head drops</label>
+    <label><input type="checkbox" id="p16_50"> Kill mobs with Soul Harvest — you get bonus XP</label>
+    <label><input type="checkbox" id="p16_51"> Hit a player with Gravity Disarm — occasional chance they drop their weapon</label>
+    <label><input type="checkbox" id="p16_52"> Hit a mob with Wither Star — mob gets Wither effect</label>
+
+    <h3>Pickaxe Enchants</h3>
+    <label><input type="checkbox" id="p16_53"> Mine iron ore with Solar Smelt — you get iron ingots directly (auto-smelted)</label>
+    <label><input type="checkbox" id="p16_54"> Mine an ore vein with Star Vein — connected same ore blocks break together</label>
+    <label><input type="checkbox" id="p16_55"> Mine ores with Cosmic Fortune — you get bonus XP</label>
+    <label><input type="checkbox" id="p16_56"> Mine blocks with Black Hole — drops go directly to your inventory</label>
+    <label><input type="checkbox" id="p16_57"> Mine with Asteroid Haste — you get a Haste effect</label>
+    <label><input type="checkbox" id="p16_58"> Mine a block with Supernova Mine — blocks break in a 3x3 or 5x5 area</label>
+    <label><input type="checkbox" id="p16_59"> Mine with Magnetar — nearby dropped items fly toward you</label>
+    <label><input type="checkbox" id="p16_60"> Mine with Photon Beam — blocks break in a line in the direction you're looking</label>
+    <label><input type="checkbox" id="p16_61"> Mine ores with Stardust Finder — occasional bonus gems added to your balance</label>
+    <label><input type="checkbox" id="p16_62"> Mine with Energy Core — your XP is consumed instead of pickaxe durability</label>
+
+    <h3>Axe Enchants</h3>
+    <label><input type="checkbox" id="p16_63"> Chop a tree with Meteor Timber — multiple logs break at once (upward)</label>
+    <label><input type="checkbox" id="p16_64"> Chop wood with Solar Chop — you get a Haste speed buff</label>
+    <label><input type="checkbox" id="p16_65"> Chop a tree with Star Seed — a sapling is auto-planted where the tree was</label>
+    <label><input type="checkbox" id="p16_66"> Hit mobs repeatedly with Cosmic Rage — consecutive hits deal increasing damage</label>
+    <label><input type="checkbox" id="p16_67"> Hit a nearby group of mobs with Nova Cleave — nearby mobs also take damage</label>
+    <label><input type="checkbox" id="p16_68"> Hit mobs in combat with Plasma Drain — you heal a percentage of damage dealt</label>
+    <label><input type="checkbox" id="p16_69"> Break leaves with Galaxy Harvest — you get bonus drops from leaves</label>
+
+    <h3>Shovel Enchants</h3>
+    <label><input type="checkbox" id="p16_70"> Dig with Crater Dig — blocks break in an area around where you dig</label>
+    <label><input type="checkbox" id="p16_71"> Dig sand with Solar Touch — you get glass instead (auto-transform)</label>
+    <label><input type="checkbox" id="p16_72"> Dig with Photon Tunnel — blocks break in a line</label>
+    <label><input type="checkbox" id="p16_73"> Dig dirt/sand with Star Hunter — occasional rare loot (diamond, emerald, etc.)</label>
+    <label><input type="checkbox" id="p16_74"> Dig with Void Pocket — drops go directly to your inventory</label>
+    <label><input type="checkbox" id="p16_75"> Right-click grass with Orbit Path — creates dirt paths in a radius</label>
+    <label><input type="checkbox" id="p16_76"> Dig with Warp Dig — you get a speed boost</label>
+
+    <h3>Hoe Enchants</h3>
+    <label><input type="checkbox" id="p16_77"> Hold a hoe with Star Harvest near mature crops — nearby crops auto-harvest and replant</label>
+    <label><input type="checkbox" id="p16_78"> Walk near crops with Solar Growth held — crops occasionally grow a stage</label>
+    <label><input type="checkbox" id="p16_79"> Break crops with Cosmic Seeds — you sometimes get extra seeds</label>
+    <label><input type="checkbox" id="p16_80"> Walk on farmland with Nebula Rain held — farmland stays hydrated without water</label>
+    <label><input type="checkbox" id="p16_81"> Break mature crops with Stellar Yield — you sometimes get double drops</label>
+    <label><input type="checkbox" id="p16_82"> Right-click a crop with Sunlight Touch — the crop grows (like bonemeal), limited uses per minute</label>
+    <label><input type="checkbox" id="p16_83"> Hold hoe with Constellation Guard — mobs that just spawned nearby are removed</label>
+    <label><input type="checkbox" id="p16_84"> Break flowers with Galaxy Bloom — you get bonus flower drops</label>
+
+    <h3>Bow Enchants</h3>
+    <label><input type="checkbox" id="p16_85"> Shoot with Homing Star — arrows slightly track the nearest mob</label>
+    <label><input type="checkbox" id="p16_86"> Hit a mob with Meteor Arrow — a small explosion happens at impact</label>
+    <label><input type="checkbox" id="p16_87"> Hit a mob with Venom Comet — the mob gets Poison</label>
+    <label><input type="checkbox" id="p16_88"> Shoot with Solar Draw — arrows fly faster (quicker draw)</label>
+    <label><input type="checkbox" id="p16_89"> Shoot a mob from far away (30+ blocks) with Sniper Nova — bonus damage</label>
+    <label><input type="checkbox" id="p16_90"> Shoot with Star Burst — multiple arrows fire at once</label>
+    <label><input type="checkbox" id="p16_91"> Shoot with Piercing Light — arrows pierce through multiple entities</label>
+    <label><input type="checkbox" id="p16_92"> Hit mobs with Thunder Bolt — occasional lightning strike</label>
+    <label><input type="checkbox" id="p16_93"> Shoot with Orbit Return — sometimes you get the arrow back in your inventory</label>
+    <label><input type="checkbox" id="p16_94"> Hit a mob with Gravity Trap — mob gets Slowness and Mining Fatigue</label>
+
+    <h3>Mace Enchants</h3>
+    <label><input type="checkbox" id="p16_95"> Hit a mob with Earthquake Star — nearby mobs get knocked back in an AOE</label>
+    <label><input type="checkbox" id="p16_96"> Hit an armored player with Neutron Crush — bonus damage based on their armor pieces</label>
+    <label><input type="checkbox" id="p16_97"> Hit with Pulsar Stun — occasional Slowness + Blindness on the target</label>
+    <label><input type="checkbox" id="p16_98"> Hit with Graviton Pull — nearby mobs are pulled toward you</label>
+    <label><input type="checkbox" id="p16_99"> Hit a blocking player with Solar Breaker — chance to disable their shield</label>
+    <label><input type="checkbox" id="p16_100"> Hit repeatedly with Cosmic Momentum — consecutive hits deal more damage</label>
+    <label><input type="checkbox" id="p16_101"> Hit with Meteor Force — target gets extra knockback</label>
+    <label><input type="checkbox" id="p16_102"> Kill a mob with Supernova Cry — you gain Strength buff temporarily</label>
+
+    <h3>Trident Enchants</h3>
+    <label><input type="checkbox" id="p16_103"> Hit a mob underwater with Poseidon Star — bonus damage</label>
+    <label><input type="checkbox" id="p16_104"> Hit with Tidal Nova — nearby mobs get wave knockback</label>
+    <label><input type="checkbox" id="p16_105"> Hit with Chain Lightning — lightning bounces to additional nearby mobs</label>
+    <label><input type="checkbox" id="p16_106"> Hit with Whirlpool Star — nearby mobs are pulled toward the hit location</label>
+    <label><input type="checkbox" id="p16_107"> Hold trident underwater with Deep Star — you get Dolphin's Grace</label>
+    <label><input type="checkbox" id="p16_108"> Hit with Frozen Comet — target gets Slowness and freezing effect</label>
+    <label><input type="checkbox" id="p16_109"> Hit in water with Stellar Tide — you heal on hit</label>
+    <label><input type="checkbox" id="p16_110"> Hit any mob with Universal Impale — bonus damage vs all mob types</label>
+
+    <h3>Rarity Tiers & Visual</h3>
+    <label><input type="checkbox" id="p16_111"> Common enchants show in gray (#AAAAAA) and are labeled "Stardust Enchant"</label>
+    <label><input type="checkbox" id="p16_112"> Uncommon enchants show in green (#55FF55) and are labeled "Starlight Enchant"</label>
+    <label><input type="checkbox" id="p16_113"> Rare enchants show in blue (#5555FF) and are labeled "Starborn Enchant"</label>
+    <label><input type="checkbox" id="p16_114"> Epic enchants show in purple (#AA00AA) and are labeled "Stellar Enchant"</label>
+    <label><input type="checkbox" id="p16_115"> Legendary enchants show in gold (#FFAA00) and are labeled "Celestial Enchant"</label>
+    <label><input type="checkbox" id="p16_116"> Enchant levels show in Roman numerals (I, II, III... X)</label>
+    <label><input type="checkbox" id="p16_117"> Applied enchants appear in the item's lore at the top, colored by rarity</label>
+
+    <h3>Edge Cases</h3>
+    <label><input type="checkbox" id="p16_118"> You cannot apply enchants above max level — /enchantbook STARGAZER 2 gives an error (max is 1)</label>
+    <label><input type="checkbox" id="p16_119"> Custom enchants persist through server restarts (stored in item NBT/PDC)</label>
+    <label><input type="checkbox" id="p16_120"> Star Heart extra hearts disappear when you take off the chestplate</label>
+    <label><input type="checkbox" id="p16_121"> Passive effects (night vision, speed, etc.) stop when you remove the enchanted armor</label>
+    <label><input type="checkbox" id="p16_122"> Tab-completion works on /enchantbook — shows all enchant names</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');
