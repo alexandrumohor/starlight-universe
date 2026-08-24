@@ -53,6 +53,7 @@ public class AuthListener implements Listener {
                             authManager.setAuthenticated(player.getUniqueId());
                             Msg.success(player, "Session restored! Welcome back.");
                             StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
+                            com.starlightuniverse.announce.WelcomeMessage.send(player);
                         }
                     });
                     return;
@@ -70,6 +71,7 @@ public class AuthListener implements Listener {
                                 Msg.success(player, "Premium account verified! Auto-login successful.");
                                 if (skin != null) skinManager.applySkin(player, skin);
                                 StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
+                            com.starlightuniverse.announce.WelcomeMessage.send(player);
                             }
                         });
                         return;
@@ -97,6 +99,7 @@ public class AuthListener implements Listener {
                             Msg.success(player, "Premium account detected! Auto-registered and logged in.");
                             if (skin != null) skinManager.applySkin(player, skin);
                             StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
+                            com.starlightuniverse.announce.WelcomeMessage.send(player);
                         }
                     });
                     return;

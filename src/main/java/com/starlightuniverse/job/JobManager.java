@@ -149,6 +149,7 @@ public class JobManager {
     private final JavaPlugin plugin;
     private final DatabaseManager db;
     private final EconomyManager economy;
+    private com.starlightuniverse.hottime.HotTimeManager hotTimeManager;
 
     private final Map<UUID, Map<JobType, long[]>> cache = new ConcurrentHashMap<>();
     private final Set<Long> placedBlocks = ConcurrentHashMap.newKeySet();
@@ -158,6 +159,10 @@ public class JobManager {
         this.plugin = plugin;
         this.db = db;
         this.economy = economy;
+    }
+
+    public void setHotTimeManager(com.starlightuniverse.hottime.HotTimeManager mgr) {
+        this.hotTimeManager = mgr;
     }
 
     public void initialize() {
@@ -247,15 +252,17 @@ public class JobManager {
         Map<JobType, long[]> jobs = cache.computeIfAbsent(uuid, k -> new EnumMap<>(JobType.class));
         long[] data = jobs.computeIfAbsent(job, k -> new long[]{1, 0});
 
+        double hotMoneyMult = hotTimeManager != null ? hotTimeManager.getMoneyMultiplier() : 1.0;
+
         int level = (int) data[0];
         if (level >= MAX_LEVEL) {
-            double money = baseMoney * getMultiplier(level);
+            double money = baseMoney * getMultiplier(level) * hotMoneyMult;
             if (money > 0) economy.addMoney(uuid, money);
             return;
         }
 
         double multiplier = getMultiplier(level);
-        double money = baseMoney * multiplier;
+        double money = baseMoney * multiplier * hotMoneyMult;
         if (money > 0) economy.addMoney(uuid, money);
 
         data[1] += baseXp;

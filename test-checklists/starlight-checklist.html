@@ -1892,6 +1892,121 @@
     <label><input type="checkbox" id="p25_log_send_5"> On server /stop, any queued log entries are flushed one last time before the plugin disables</label>
     <label><input type="checkbox" id="p25_log_send_6"> Log flush runs off the main thread — TPS is not affected even with many players moving/chatting</label>
 
+    <h2>Phase 26 — Announcements + Maintenance + Hot Time</h2>
+
+    <h3>26A — Announcements (permissions &amp; opening the GUI)</h3>
+    <label><input type="checkbox" id="p26_ann_perm_1"> A non-staff player running /announce sees "[SU] Moderator+ required." and no GUI opens</label>
+    <label><input type="checkbox" id="p26_ann_perm_2"> A Moderator+ running /announce opens a 6-row GUI titled "Announcements"</label>
+    <label><input type="checkbox" id="p26_ann_perm_3"> On first open the list is empty, slot 49 is a green writable book "+ Create New Announcement", slot 53 is a red barrier "Close"</label>
+    <label><input type="checkbox" id="p26_ann_perm_4"> Clicking the barrier (slot 53) closes the GUI</label>
+
+    <h3>26A — Announcements (create wizard)</h3>
+    <label><input type="checkbox" id="p26_ann_create_1"> Clicking "+ Create New Announcement" closes the GUI and posts a chat prompt asking for the message (3-200 chars, or type 'cancel')</label>
+    <label><input type="checkbox" id="p26_ann_create_2"> Typing 'cancel' at any step aborts the wizard, sends "[SU] Cancelled.", and reopens the announcement list</label>
+    <label><input type="checkbox" id="p26_ann_create_3"> Typing a message shorter than 3 chars shows "Message too short (min 3 chars). Try again or 'cancel'." and waits again</label>
+    <label><input type="checkbox" id="p26_ann_create_4"> After a valid message the next chat prompt asks for the broadcast frequency in minutes (1-1440)</label>
+    <label><input type="checkbox" id="p26_ann_create_5"> Typing a non-number or a value outside 1-1440 for the frequency shows an error and waits again</label>
+    <label><input type="checkbox" id="p26_ann_create_6"> After a valid frequency the next chat prompt asks for the actionbar duration in seconds (1-30)</label>
+    <label><input type="checkbox" id="p26_ann_create_7"> Typing a non-number or a value outside 1-30 for the duration shows an error and waits again</label>
+    <label><input type="checkbox" id="p26_ann_create_8"> After a valid duration a 3-row "Pick Type" GUI opens with 5 items: Alert, Info, Event, Update, Tip (colored blocks)</label>
+    <label><input type="checkbox" id="p26_ann_create_9"> Clicking any type finishes creation — the list GUI reopens with the new announcement visible and "[SU] Announcement created (id N)." is shown</label>
+    <label><input type="checkbox" id="p26_ann_create_10"> A new announcement starts ENABLED (green status in its lore)</label>
+
+    <h3>26A — Announcements (list item interactions)</h3>
+    <label><input type="checkbox" id="p26_ann_list_1"> Each announcement tile shows its id, colored type tag, truncated message, frequency, duration, and status</label>
+    <label><input type="checkbox" id="p26_ann_list_2"> Left-clicking an announcement toggles ENABLED/DISABLED and reopens the list; you get a chat line stating the new status</label>
+    <label><input type="checkbox" id="p26_ann_list_3"> Right-clicking an announcement opens the "Edit Announcement #N" 5-row GUI</label>
+    <label><input type="checkbox" id="p26_ann_list_4"> Shift + Right-click on an announcement in the list deletes it (chat: "[SU] Deleted announcement #N.") and reopens the list</label>
+
+    <h3>26A — Announcements (edit GUI)</h3>
+    <label><input type="checkbox" id="p26_ann_edit_1"> The edit GUI shows a preview of the announcement in slot 4</label>
+    <label><input type="checkbox" id="p26_ann_edit_2"> Clicking "Change Message" (writable book) closes the GUI and reopens the message chat wizard for that announcement</label>
+    <label><input type="checkbox" id="p26_ann_edit_3"> Clicking "Change Type" opens the type picker GUI; picking a type updates the announcement and returns to the edit GUI</label>
+    <label><input type="checkbox" id="p26_ann_edit_4"> "Change Frequency" clock: left-click -1, right-click +1, shift-left -10, shift-right +10; values clamp to 1-1440</label>
+    <label><input type="checkbox" id="p26_ann_edit_5"> "Change Duration" repeater: left-click -1s, right-click +1s; values clamp to 1-30</label>
+    <label><input type="checkbox" id="p26_ann_edit_6"> "Enable/Disable" dye toggles the state (LIME_DYE when on, GRAY_DYE when off) and refreshes</label>
+    <label><input type="checkbox" id="p26_ann_edit_7"> "Broadcast Now" (bell) immediately sends the announcement to everyone online (chat + actionbar + sound) and you get "[SU] Broadcasted announcement #N now."</label>
+    <label><input type="checkbox" id="p26_ann_edit_8"> "DELETE" (barrier) needs Shift + Left-click to confirm; a plain click just posts "[SU] Shift + Left-click to confirm delete."</label>
+    <label><input type="checkbox" id="p26_ann_edit_9"> "Back" (arrow) returns to the announcement list</label>
+
+    <h3>26A — Announcements (broadcasting behavior)</h3>
+    <label><input type="checkbox" id="p26_ann_bcast_1"> A DISABLED announcement never broadcasts, no matter how long you wait</label>
+    <label><input type="checkbox" id="p26_ann_bcast_2"> An ENABLED announcement with frequency 1 broadcasts within one minute of being created</label>
+    <label><input type="checkbox" id="p26_ann_bcast_3"> The chat line begins with the type name in brackets in the type's color (e.g. red "[Alert]", gold "[Event]") followed by the message</label>
+    <label><input type="checkbox" id="p26_ann_bcast_4"> The message also appears in the actionbar and stays there for the configured duration in seconds</label>
+    <label><input type="checkbox" id="p26_ann_bcast_5"> Every online player hears a sound when the announcement is broadcast (different per type)</label>
+    <label><input type="checkbox" id="p26_ann_bcast_6"> Announcements persist across a full server restart (the list still contains them with the same fields)</label>
+
+    <h3>26A — Announcements (welcome message on join)</h3>
+    <label><input type="checkbox" id="p26_welcome_1"> Right after a successful /login, /register, session-restore, or premium auto-login, you see a MOTD banner: ─── line, ★ Welcome to Starlight Universe ★, then a subtitle line, then another ─── line</label>
+    <label><input type="checkbox" id="p26_welcome_2"> Below the MOTD is a "Players online: N / MAX" line matching the actual counts</label>
+    <label><input type="checkbox" id="p26_welcome_3"> If Hot Time is currently active, an "Active event: HOT TIME xN.NN — M:SS left" line appears</label>
+    <label><input type="checkbox" id="p26_welcome_4"> If no Hot Time but at least one ENABLED Event-type announcement exists, its message is shown as the active event</label>
+    <label><input type="checkbox" id="p26_welcome_5"> If nothing is active, you see "No active events. Have fun!" instead</label>
+
+    <h3>26B — Maintenance (permissions &amp; command basics)</h3>
+    <label><input type="checkbox" id="p26_mtn_perm_1"> A non-Owner running /maintenance sees "[SU] Owner-only command." and nothing happens</label>
+    <label><input type="checkbox" id="p26_mtn_perm_2"> /maintenance with no arguments (Owner) prints the help block showing start &lt;seconds&gt;, stop, status</label>
+    <label><input type="checkbox" id="p26_mtn_perm_3"> /maintenance status shows "inactive" (green), "restart countdown Xm Ys remaining" (yellow), or "BARRIER ACTIVE" (red) depending on state</label>
+    <label><input type="checkbox" id="p26_mtn_perm_4"> /maintenance start without a number shows "Usage: /maintenance start &lt;seconds&gt;"</label>
+    <label><input type="checkbox" id="p26_mtn_perm_5"> /maintenance start with a value below 1 or above 3600 is refused with a range error</label>
+
+    <h3>26B — Countdown behavior</h3>
+    <label><input type="checkbox" id="p26_mtn_cd_1"> /maintenance start 30 (Owner) broadcasts "Server maintenance in 30s." to everyone online</label>
+    <label><input type="checkbox" id="p26_mtn_cd_2"> Warning broadcasts + title popups + pling sound fire at 10m, 5m, 3m, 1m, 30s, 10s, 5s, 4s, 3s, 2s, 1s remaining (whichever fit inside your countdown)</label>
+    <label><input type="checkbox" id="p26_mtn_cd_3"> Starting a countdown while one is already running is refused with "A maintenance countdown is already running (Xs left)."</label>
+    <label><input type="checkbox" id="p26_mtn_cd_4"> Starting a countdown while the barrier is already ACTIVE is refused with "Maintenance is already active."</label>
+
+    <h3>26B — Countdown zero → kick → barrier</h3>
+    <label><input type="checkbox" id="p26_mtn_kick_1"> When the countdown reaches 0, an in-game broadcast "Server entering maintenance. Check Discord for info." appears</label>
+    <label><input type="checkbox" id="p26_mtn_kick_2"> World and player data are saved to disk right before the kick</label>
+    <label><input type="checkbox" id="p26_mtn_kick_3"> Non-staff players (regular + premium Meteor→Galaxy) are disconnected with "Server under maintenance. Check Discord for info."</label>
+    <label><input type="checkbox" id="p26_mtn_kick_4"> Exactly 1 second after the kick, the server log prints "Maintenance barrier raised — no new joins allowed. Use /maintenance stop to lift it (survives server restart)."</label>
+    <label><input type="checkbox" id="p26_mtn_kick_5"> The server does NOT shut down by itself — it keeps running with the barrier up (Owner decides when to actually restart)</label>
+    <label><input type="checkbox" id="p26_mtn_kick_6"> While the barrier is up, a non-staff player trying to connect is disconnected with "Server under maintenance. Check Discord for info."</label>
+    <label><input type="checkbox" id="p26_mtn_kick_7"> While the barrier is up, a staff account CAN join normally to check things</label>
+
+    <h3>26B — Barrier survives a real restart</h3>
+    <label><input type="checkbox" id="p26_mtn_restart_1"> With the barrier up, running /stop and then starting the server again (or restarting the JVM in any way) brings the barrier back up automatically</label>
+    <label><input type="checkbox" id="p26_mtn_restart_2"> On next boot with the flag set, the console logs "Server booted with maintenance flag set — barrier stays up until /maintenance stop is used."</label>
+    <label><input type="checkbox" id="p26_mtn_restart_3"> After the restart, non-staff players trying to join still see "Server under maintenance" until Owner runs /maintenance stop</label>
+    <label><input type="checkbox" id="p26_mtn_restart_4"> After the restart, staff can still join normally to verify the world before opening</label>
+
+    <h3>26B — Manual stop lifts the barrier</h3>
+    <label><input type="checkbox" id="p26_mtn_stop_1"> /maintenance stop while a countdown is running cancels it (no more warnings fire, no kick) and broadcasts "Maintenance ended. Welcome back!"</label>
+    <label><input type="checkbox" id="p26_mtn_stop_2"> /maintenance stop while the barrier is up (before or after a restart) lifts the barrier immediately and clears the DB flag</label>
+    <label><input type="checkbox" id="p26_mtn_stop_3"> After /maintenance stop, non-staff players can join the server normally again</label>
+    <label><input type="checkbox" id="p26_mtn_stop_4"> After /maintenance stop, /maintenance status returns "inactive" (green)</label>
+    <label><input type="checkbox" id="p26_mtn_stop_5"> After /maintenance stop, restarting the server does NOT bring the barrier back up (DB flag = '0')</label>
+    <label><input type="checkbox" id="p26_mtn_stop_6"> /maintenance stop while nothing is going on says "Maintenance is not active."</label>
+    <label><input type="checkbox" id="p26_mtn_stop_7"> When players reconnect after the barrier lifts, they do NOT need to type /login — auto-login works via session (IP) or premium (Mojang) as usual</label>
+
+    <h3>26C — Hot Time (permissions &amp; command)</h3>
+    <label><input type="checkbox" id="p26_ht_perm_1"> A non-staff player running /hottime sees "[SU] Moderator+ required." and nothing happens</label>
+    <label><input type="checkbox" id="p26_ht_perm_2"> /hottime with no arguments (Moderator+) prints the help block</label>
+    <label><input type="checkbox" id="p26_ht_perm_3"> /hottime status shows "Hot Time is inactive." when nothing is running, or "Hot Time is ACTIVE (xN.NN, Ns left)." while active</label>
+    <label><input type="checkbox" id="p26_ht_perm_4"> Non-numeric minutes/multiplier prints a friendly error and does not start Hot Time</label>
+    <label><input type="checkbox" id="p26_ht_perm_5"> Minutes outside 1-240 or multiplier outside 1.1-10.0 is refused with a specific error</label>
+
+    <h3>26C — Hot Time (start &amp; boss bar)</h3>
+    <label><input type="checkbox" id="p26_ht_start_1"> /hottime 2 2 (Moderator+) broadcasts "HOT TIME! x2.00 for 2 min on Money, XP and drops!" and plays the challenge-complete sound to everyone</label>
+    <label><input type="checkbox" id="p26_ht_start_2"> A red boss bar appears at the top of every online player's screen showing "HOT TIME x2.00 — M:SS left" with a notched-20 style</label>
+    <label><input type="checkbox" id="p26_ht_start_3"> The boss bar's time counts down every second and the fill decreases correspondingly</label>
+    <label><input type="checkbox" id="p26_ht_start_4"> A player who joins while Hot Time is active sees the boss bar as soon as they log in</label>
+    <label><input type="checkbox" id="p26_ht_start_5"> Starting Hot Time while it's already active is refused with "Hot Time is already active. Stop it first with /hottime stop."</label>
+
+    <h3>26C — Hot Time (multiplier effects)</h3>
+    <label><input type="checkbox" id="p26_ht_effect_1"> During Hot Time x2, killing a zombie drops roughly double the usual item stack amounts (rotten flesh count is roughly ×2, capped at each item's max stack size)</label>
+    <label><input type="checkbox" id="p26_ht_effect_2"> During Hot Time x2, killing a mob yields roughly double vanilla XP orbs</label>
+    <label><input type="checkbox" id="p26_ht_effect_3"> During Hot Time x2, breaking coal/iron/diamond ore yields roughly double vanilla XP orbs</label>
+    <label><input type="checkbox" id="p26_ht_effect_4"> During Hot Time x2, a Miner job reward that would normally pay $5 pays about $10 (before job level multiplier is applied)</label>
+    <label><input type="checkbox" id="p26_ht_effect_5"> Existing job level multiplier still stacks on top of the Hot Time multiplier</label>
+
+    <h3>26C — Hot Time (end)</h3>
+    <label><input type="checkbox" id="p26_ht_end_1"> When the timer reaches 0, the boss bar disappears from every player, and everyone sees "Hot Time has ended."</label>
+    <label><input type="checkbox" id="p26_ht_end_2"> After Hot Time ends, mob drops, XP orbs and job money return to normal values</label>
+    <label><input type="checkbox" id="p26_ht_end_3"> /hottime stop while active ends Hot Time immediately (bar disappears, broadcast fires) — /hottime stop when inactive says "Hot Time is not active."</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');

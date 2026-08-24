@@ -561,6 +561,18 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_announcements (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        message VARCHAR(255) NOT NULL,
+                        ann_type VARCHAR(16) NOT NULL,
+                        frequency_minutes INT NOT NULL DEFAULT 15,
+                        duration_seconds INT NOT NULL DEFAULT 5,
+                        enabled TINYINT(1) NOT NULL DEFAULT 1,
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

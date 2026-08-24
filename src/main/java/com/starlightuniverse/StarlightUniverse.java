@@ -1,6 +1,7 @@
 package com.starlightuniverse;
 
 import com.starlightuniverse.admin.*;
+import com.starlightuniverse.announce.*;
 import com.starlightuniverse.anticheat.*;
 import com.starlightuniverse.antigrief.*;
 import com.starlightuniverse.arena.*;
@@ -13,8 +14,10 @@ import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.emoji.*;
 import com.starlightuniverse.enchant.*;
+import com.starlightuniverse.hottime.*;
 import com.starlightuniverse.logging.*;
 import com.starlightuniverse.job.*;
+import com.starlightuniverse.maintenance.*;
 import com.starlightuniverse.minigame.*;
 import com.starlightuniverse.mob.*;
 import com.starlightuniverse.nameplate.*;
@@ -78,6 +81,9 @@ public final class StarlightUniverse extends JavaPlugin {
     private AntiCheatManager antiCheatManager;
     private LogManager logManager;
     private LogListener logListener;
+    private AnnouncementManager announcementManager;
+    private MaintenanceManager maintenanceManager;
+    private HotTimeManager hotTimeManager;
 
     @Override
     public void onEnable() {
@@ -301,11 +307,35 @@ public final class StarlightUniverse extends JavaPlugin {
         logListener.start();
         Bukkit.getPluginManager().registerEvents(logListener, this);
 
+        announcementManager = new AnnouncementManager(this, databaseManager);
+        announcementManager.initialize();
+        announcementManager.start();
+        Bukkit.getPluginManager().registerEvents(new AnnouncementListener(this, announcementManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new AnnounceCommand(announcementManager, adminManager));
+
+        maintenanceManager = new MaintenanceManager(this, adminManager, databaseManager);
+        maintenanceManager.loadPersistentState();
+        Bukkit.getPluginManager().registerEvents(new MaintenanceListener(maintenanceManager, databaseManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new MaintenanceCommand(maintenanceManager, adminManager));
+
+        hotTimeManager = new HotTimeManager(this);
+        Bukkit.getPluginManager().registerEvents(new HotTimeListener(hotTimeManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new HotTimeCommand(hotTimeManager, adminManager));
+        jobManager.setHotTimeManager(hotTimeManager);
+
         getLogger().info("[SU] Enabled!");
     }
 
     @Override
     public void onDisable() {
+        if (hotTimeManager != null) {
+            hotTimeManager.stop();
+        }
+
+        if (announcementManager != null) {
+            announcementManager.shutdown();
+        }
+
         if (logListener != null) {
             logListener.shutdown();
         }
@@ -541,5 +571,17 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public LogManager getLogManager() {
         return logManager;
+    }
+
+    public AnnouncementManager getAnnouncementManager() {
+        return announcementManager;
+    }
+
+    public MaintenanceManager getMaintenanceManager() {
+        return maintenanceManager;
+    }
+
+    public HotTimeManager getHotTimeManager() {
+        return hotTimeManager;
     }
 }

@@ -57,6 +57,7 @@ public class RegisterCommand extends Command {
                             StarlightUniverse.getInstance().getPremiumManager().grantTrial(username);
                             Msg.info(player, "You received a 3-day Meteor trial! Check /premium for perks.");
                         }
+                        com.starlightuniverse.announce.WelcomeMessage.send(player);
                     }
                     case PASSWORD_TOO_SHORT -> Msg.error(player, "Password must be at least 3 characters!");
                     case PASSWORD_MISMATCH -> Msg.error(player, "Passwords do not match!");

@@ -56,6 +56,7 @@ public class LoginCommand extends Command {
                         authManager.setAuthenticated(player.getUniqueId());
                         Msg.success(player, "Successfully logged in! Welcome back.");
                         StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
+                        com.starlightuniverse.announce.WelcomeMessage.send(player);
                     }
                     case WRONG_PASSWORD -> Msg.error(player, "Wrong password!");
                     case NOT_REGISTERED -> Msg.error(player, "Account not found! Use /register <password> <confirm>");
