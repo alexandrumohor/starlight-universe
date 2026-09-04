@@ -1,14 +1,18 @@
 package com.starlightuniverse.buff;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Tag;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerFishEvent;
@@ -17,11 +21,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class BuffListener implements Listener {
+
+    private static final int TREE_FELLER_MAX_BLOCKS = 256;
 
     private static final Set<Material> ORES = Set.of(
             Material.COAL_ORE, Material.DEEPSLATE_COAL_ORE,
@@ -44,8 +48,28 @@ public class BuffListener implements Listener {
             Material.CACTUS, Material.BAMBOO
     );
 
+    private static final Set<Material> REPLANTABLE_CROPS = Set.of(
+            Material.WHEAT, Material.CARROTS, Material.POTATOES,
+            Material.BEETROOTS, Material.NETHER_WART
+    );
+
+    private static final Map<Material, Material> SMELT_MAP = Map.ofEntries(
+            Map.entry(Material.RAW_IRON, Material.IRON_INGOT),
+            Map.entry(Material.RAW_GOLD, Material.GOLD_INGOT),
+            Map.entry(Material.RAW_COPPER, Material.COPPER_INGOT),
+            Map.entry(Material.COBBLESTONE, Material.STONE),
+            Map.entry(Material.ANCIENT_DEBRIS, Material.NETHERITE_SCRAP),
+            Map.entry(Material.SAND, Material.GLASS),
+            Map.entry(Material.RED_SAND, Material.GLASS),
+            Map.entry(Material.CLAY_BALL, Material.BRICK),
+            Map.entry(Material.CACTUS, Material.GREEN_DYE),
+            Map.entry(Material.KELP, Material.DRIED_KELP),
+            Map.entry(Material.WET_SPONGE, Material.SPONGE)
+    );
+
     private final JavaPlugin plugin;
     private final BuffManager manager;
+    private final Set<UUID> treeFellerActive = new HashSet<>();
 
     public BuffListener(JavaPlugin plugin, BuffManager manager) {
         this.plugin = plugin;
@@ -60,11 +84,44 @@ public class BuffListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBlockBreakTreeFeller(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+        if (treeFellerActive.contains(uuid)) return;
+        if (!manager.hasTreeFeller(uuid)) return;
+        if (!Tag.LOGS.isTagged(event.getBlock().getType())) return;
+
+        treeFellerActive.add(uuid);
+        try {
+            fellTree(event.getBlock(), player);
+        } finally {
+            treeFellerActive.remove(uuid);
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Material mat = block.getType();
+
+        if (manager.hasReCropper(player.getUniqueId()) && REPLANTABLE_CROPS.contains(mat)) {
+            if (block.getBlockData() instanceof Ageable ageable && ageable.getAge() == ageable.getMaximumAge()) {
+                Material cropType = mat;
+                Location loc = block.getLocation();
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    Block b = loc.getBlock();
+                    if (b.getType() == Material.AIR) {
+                        b.setType(cropType);
+                        if (b.getBlockData() instanceof Ageable newAgeable) {
+                            newAgeable.setAge(0);
+                            b.setBlockData(newAgeable);
+                        }
+                    }
+                });
+            }
+        }
 
         BuffType buffType = null;
         if (ORES.contains(mat)) {
@@ -86,6 +143,21 @@ public class BuffListener implements Listener {
             ItemStack bonus = drop.clone();
             bonus.setAmount(drop.getAmount() * extra);
             block.getWorld().dropItemNaturally(block.getLocation().add(0.5, 0.5, 0.5), bonus);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockDropItem(BlockDropItemEvent event) {
+        Player player = event.getPlayer();
+        if (!manager.hasSmelter(player.getUniqueId())) return;
+
+        for (Item item : event.getItems()) {
+            ItemStack stack = item.getItemStack();
+            Material smelted = SMELT_MAP.get(stack.getType());
+            if (smelted != null) {
+                stack.setType(smelted);
+                item.setItemStack(stack);
+            }
         }
     }
 
@@ -156,5 +228,39 @@ public class BuffListener implements Listener {
             player.setViewDistance(player.getViewDistance() - 10);
         }
         manager.onPlayerQuit(player.getUniqueId());
+    }
+
+    private void fellTree(Block origin, Player player) {
+        Set<Block> visited = new HashSet<>();
+        Deque<Block> queue = new ArrayDeque<>();
+        queue.add(origin);
+        visited.add(origin);
+
+        while (!queue.isEmpty() && visited.size() < TREE_FELLER_MAX_BLOCKS) {
+            Block current = queue.poll();
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        if (dx == 0 && dy == 0 && dz == 0) continue;
+                        Block neighbor = current.getRelative(dx, dy, dz);
+                        if (visited.contains(neighbor)) continue;
+                        if (Tag.LOGS.isTagged(neighbor.getType())) {
+                            visited.add(neighbor);
+                            queue.add(neighbor);
+                        }
+                    }
+                }
+            }
+        }
+
+        visited.remove(origin);
+        ItemStack tool = player.getInventory().getItemInMainHand();
+        Location dropLoc = origin.getLocation().add(0.5, 0.5, 0.5);
+        for (Block block : visited) {
+            for (ItemStack drop : block.getDrops(tool, player)) {
+                origin.getWorld().dropItemNaturally(dropLoc, drop);
+            }
+            block.setType(Material.AIR);
+        }
     }
 }

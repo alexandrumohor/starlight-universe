@@ -16,7 +16,14 @@ public enum BuffType {
     FISH_LOOT_5X("Fish Loot 5x", Material.COD, "#5555FF", "5x fishing drops"),
     CROP_LOOT_5X("Crop Loot 5x", Material.WHEAT, "#FFAA00", "5x crop drops"),
     EXTRA_CHUNKS("Extra Chunks +10", Material.ENDER_EYE, "#AA00FF", "+10 view distance chunks"),
-    VILLAGER_REFILL("Villager Refill 3x", Material.EMERALD, "#55FF55", "Villager trades refill 3x faster");
+    VILLAGER_REFILL("Villager Refill 3x", Material.EMERALD, "#55FF55", "Villager trades refill 3x faster"),
+    TREE_FELLER("Tree Feller", Material.DIAMOND_AXE, "#55FF55", "One punch fells the entire tree"),
+    SMELTER("Auto Smelter", Material.FURNACE, "#FF8C00", "Ore drops are automatically smelted"),
+    RE_CROPPER("Auto Replant", Material.WHEAT_SEEDS, "#FFAA00", "Crops are auto-replanted on harvest"),
+    HASTE("Haste", Material.GOLDEN_PICKAXE, "#FFFF55", "Mine blocks faster"),
+    SATURATION("Saturation", Material.COOKED_BEEF, "#FF5555", "Stay fully fed"),
+    WATER_BREATHING("Water Breathing", Material.PUFFERFISH, "#5555FF", "Breathe underwater"),
+    FIRE_RESISTANCE("Fire Resistance", Material.MAGMA_CREAM, "#FF5500", "Immune to fire and lava");
 
     private final String displayName;
     private final Material icon;

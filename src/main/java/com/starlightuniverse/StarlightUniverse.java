@@ -38,6 +38,7 @@ import com.starlightuniverse.spawner.*;
 import com.starlightuniverse.spear.*;
 import com.starlightuniverse.starshop.*;
 import com.starlightuniverse.buff.*;
+import com.starlightuniverse.tool.*;
 import com.starlightuniverse.team.*;
 import com.starlightuniverse.travel.*;
 import com.starlightuniverse.vote.*;
@@ -100,6 +101,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private VoucherManager voucherManager;
     private VoteManager voteManager;
     private BuffManager buffManager;
+    private UniverseToolManager universeToolManager;
     private BoosterManager boosterManager;
     private DiagnosticsService diagnosticsService;
     private ScoreboardManager scoreboardManager;
@@ -290,6 +292,12 @@ public final class StarlightUniverse extends JavaPlugin {
         buffManager = new BuffManager(this, databaseManager);
         buffManager.start();
         Bukkit.getPluginManager().registerEvents(new BuffListener(this, buffManager), this);
+
+        universeToolManager = new UniverseToolManager(this);
+        Bukkit.getPluginManager().registerEvents(universeToolManager, this);
+
+        crateManager.setBuffManager(buffManager);
+        crateManager.setUniverseToolManager(universeToolManager);
 
         starShopManager = new StarShopManager(this, economyManager, crateManager,
                 premiumManager, voucherManager, buffManager);
@@ -713,6 +721,10 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public PlayerHeadPackManager getPlayerHeadPackManager() {
         return playerHeadPackManager;
+    }
+
+    public UniverseToolManager getUniverseToolManager() {
+        return universeToolManager;
     }
 
     public BoosterManager getBoosterManager() {

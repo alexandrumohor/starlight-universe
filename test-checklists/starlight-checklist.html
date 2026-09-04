@@ -2489,6 +2489,63 @@
 
     </div>
 
+    <div class="phase" id="phase-co5">
+    <h2>Crate Overhaul — Paso 5: Buff System + Universe Tools</h2>
+
+    <h3>New Buff Types (Potion-Based)</h3>
+    <label><input type="checkbox" id="co5_haste"> Buy or activate the Haste buff. Confirm you mine blocks noticeably faster.</label>
+    <label><input type="checkbox" id="co5_saturation"> Activate Saturation buff. Confirm your hunger bar stays full and doesn't drain.</label>
+    <label><input type="checkbox" id="co5_water_breathing"> Activate Water Breathing buff. Swim underwater and confirm you don't lose air bubbles.</label>
+    <label><input type="checkbox" id="co5_fire_resistance"> Activate Fire Resistance buff. Stand in lava or fire and confirm you take no fire/lava damage.</label>
+
+    <h3>Tree Feller Buff</h3>
+    <label><input type="checkbox" id="co5_tree_feller_activate"> Activate the Tree Feller buff (from Star Shop or crate). Confirm you get a success message with the duration.</label>
+    <label><input type="checkbox" id="co5_tree_feller_works"> Break a single log on a tree. Confirm the ENTIRE tree (all connected logs) breaks at once and all log items drop at the base.</label>
+    <label><input type="checkbox" id="co5_tree_feller_big_tree"> Try on a big oak/jungle tree. Confirm it works and doesn't freeze the server. Leaves should start decaying naturally.</label>
+    <label><input type="checkbox" id="co5_tree_feller_non_log"> Break a stone block while Tree Feller is active — confirm it only breaks the one block (Tree Feller only applies to logs).</label>
+
+    <h3>Auto Smelter Buff</h3>
+    <label><input type="checkbox" id="co5_smelter_activate"> Activate the Smelter buff. Confirm you get the success message.</label>
+    <label><input type="checkbox" id="co5_smelter_iron"> Mine Iron Ore without Silk Touch. Confirm you get Iron Ingots instead of Raw Iron.</label>
+    <label><input type="checkbox" id="co5_smelter_gold"> Mine Gold Ore. Confirm you get Gold Ingots instead of Raw Gold.</label>
+    <label><input type="checkbox" id="co5_smelter_copper"> Mine Copper Ore. Confirm you get Copper Ingots instead of Raw Copper.</label>
+    <label><input type="checkbox" id="co5_smelter_sand"> Break Sand. Confirm you get Glass instead of Sand.</label>
+    <label><input type="checkbox" id="co5_smelter_diamond"> Mine Diamond Ore (without silk touch). Confirm you still get Diamonds (diamonds don't smelt into anything different).</label>
+
+    <h3>Auto Replant Buff</h3>
+    <label><input type="checkbox" id="co5_recropper_activate"> Activate the Re-Cropper buff. Confirm you get the success message.</label>
+    <label><input type="checkbox" id="co5_recropper_wheat"> Break fully grown wheat. Confirm the wheat is harvested AND a new wheat crop is planted at age 0 automatically.</label>
+    <label><input type="checkbox" id="co5_recropper_carrots"> Break fully grown carrots. Confirm auto-replant works.</label>
+    <label><input type="checkbox" id="co5_recropper_potatoes"> Break fully grown potatoes. Confirm auto-replant works.</label>
+    <label><input type="checkbox" id="co5_recropper_nether_wart"> Break fully grown nether wart. Confirm auto-replant works.</label>
+    <label><input type="checkbox" id="co5_recropper_not_grown"> Break a half-grown wheat crop. Confirm it does NOT auto-replant (only fully grown crops are replanted).</label>
+
+    <h3>Buff Duration</h3>
+    <label><input type="checkbox" id="co5_duration_starshop"> Buy a buff from Star Shop. Confirm the message says "activated for 12 hours".</label>
+    <label><input type="checkbox" id="co5_duration_variable"> If you get a buff from a crate (Celestial = 30 min, Universe = 1 hour), confirm the message shows the correct shorter duration.</label>
+
+    <h3>Universe Tools</h3>
+    <label><input type="checkbox" id="co5_tool_receive"> Open a Universe Crate (or use /give) to get a Universe Tool. Confirm it has a gold name, "Universe Tool" subtitle, "Breaks blocks in a 3x3x3 area" lore, and Legendary tag.</label>
+    <label><input type="checkbox" id="co5_tool_enchants"> Check the tool's enchantments. Confirm it has Efficiency V, Unbreaking III, Mending, and is Unbreakable.</label>
+    <label><input type="checkbox" id="co5_tool_pickaxe"> Use a Universe Pickaxe to mine a stone block. Confirm it breaks a 3x3x3 cube (27 blocks total including the one you hit) and all drops land at the center.</label>
+    <label><input type="checkbox" id="co5_tool_axe"> Use a Universe Axe on a log. Confirm 3x3x3 area breaks.</label>
+    <label><input type="checkbox" id="co5_tool_shovel"> Use a Universe Shovel on dirt. Confirm 3x3x3 area breaks.</label>
+    <label><input type="checkbox" id="co5_tool_hoe"> Use a Universe Hoe on a crop area. Confirm 3x3x3 area breaks.</label>
+    <label><input type="checkbox" id="co5_tool_bedrock"> Try using a Universe Tool near bedrock. Confirm bedrock is NOT broken (only normal blocks break).</label>
+    <label><input type="checkbox" id="co5_tool_sneak"> Sneak (hold shift) and break a block with a Universe Tool. Confirm it only breaks the single block you hit (sneaking disables 3x3x3).</label>
+    <label><input type="checkbox" id="co5_tool_protection"> Use a Universe Tool near someone's protected home area. Confirm the protected blocks inside the 3x3x3 area are NOT broken.</label>
+
+    <h3>Crate Rewards (Celestial)</h3>
+    <label><input type="checkbox" id="co5_crate_celestial_preview"> Left-click a Celestial Crate. Confirm the preview shows "Random Buff (30 min)" as a reward option.</label>
+    <label><input type="checkbox" id="co5_crate_celestial_buff"> Open Celestial Crates until you win a Random Buff. Confirm a random buff activates immediately with a 30-minute duration message.</label>
+
+    <h3>Crate Rewards (Universe)</h3>
+    <label><input type="checkbox" id="co5_crate_universe_preview"> Left-click a Universe Crate. Confirm the preview shows "Random Buff (1h)" and "Random Universe Tool" as reward options.</label>
+    <label><input type="checkbox" id="co5_crate_universe_buff"> Open Universe Crates until you win a Random Buff. Confirm it activates with a 1-hour duration message.</label>
+    <label><input type="checkbox" id="co5_crate_universe_tool"> Open Universe Crates until you win a Random Universe Tool. Confirm you receive one of the 4 tools (Pickaxe, Axe, Shovel, or Hoe) in your inventory.</label>
+
+    </div>
+
     <script>
         (function() {
             document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {

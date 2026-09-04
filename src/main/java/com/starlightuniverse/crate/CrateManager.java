@@ -2,10 +2,13 @@ package com.starlightuniverse.crate;
 
 import com.starlightuniverse.admin.AdminManager;
 import com.starlightuniverse.booster.BoosterType;
+import com.starlightuniverse.buff.BuffManager;
+import com.starlightuniverse.buff.BuffType;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.EconomyManager;
 import com.starlightuniverse.spawner.SpawnerManager;
 import com.starlightuniverse.spawner.VirtualSpawnerType;
+import com.starlightuniverse.tool.UniverseToolManager;
 import com.starlightuniverse.util.Msg;
 import com.starlightuniverse.voucher.VoucherManager;
 import net.kyori.adventure.text.Component;
@@ -72,6 +75,8 @@ public class CrateManager {
     private BukkitTask particleTask;
     private VoucherManager voucherManager;
     private SpawnerManager spawnerManager;
+    private BuffManager buffManager;
+    private UniverseToolManager universeToolManager;
 
     public CrateManager(JavaPlugin plugin, DatabaseManager db, EconomyManager economy, AdminManager adminManager) {
         this.plugin = plugin;
@@ -86,6 +91,14 @@ public class CrateManager {
 
     public void setSpawnerManager(SpawnerManager spawnerManager) {
         this.spawnerManager = spawnerManager;
+    }
+
+    public void setBuffManager(BuffManager buffManager) {
+        this.buffManager = buffManager;
+    }
+
+    public void setUniverseToolManager(UniverseToolManager universeToolManager) {
+        this.universeToolManager = universeToolManager;
     }
 
     public void initialize() {
@@ -450,6 +463,7 @@ public class CrateManager {
         r.add(enchantBook("Stellar Enchant Book", enchants_stellar(), "Epic", EPIC_COLOR, 5));
         r.add(gearTicket("Celestial Gear Ticket", CrateType.CELESTIAL, "Epic", EPIC_COLOR, 5));
         r.add(enchantProtectionScroll("Enchant Protection Scroll", "Epic", EPIC_COLOR, 3));
+        r.add(randomBuff("Random Buff (30 min)", 30 * 60 * 1000L, "Epic", EPIC_COLOR, 3));
         r.add(bonusKeys("2 Celestial Keys", CrateType.CELESTIAL, 2, "Epic", EPIC_COLOR, 2));
         return r;
     }
@@ -467,6 +481,8 @@ public class CrateManager {
         r.add(enchantBook("Celestial Enchant Book", enchants_celestial(), "Legendary", LEGENDARY_COLOR, 3));
         r.add(gearTicket("Universe Gear Ticket", CrateType.UNIVERSE, "Legendary", LEGENDARY_COLOR, 3));
         r.add(enchantProtectionScroll("Enchant Protection Scroll", "Legendary", LEGENDARY_COLOR, 2));
+        r.add(randomBuff("Random Buff (1h)", 60 * 60 * 1000L, "Legendary", LEGENDARY_COLOR, 2));
+        r.add(randomUniverseTool("Random Universe Tool", "Legendary", LEGENDARY_COLOR, 1));
         r.add(bonusKeys("2 Universe Keys", CrateType.UNIVERSE, 2, "Legendary", LEGENDARY_COLOR, 1));
         return r;
     }
@@ -568,6 +584,21 @@ public class CrateManager {
             VirtualSpawnerType type = types[ThreadLocalRandom.current().nextInt(types.length)];
             giveItem(p, spawnerManager.createSpawnerItem(type, 1, 1));
         }, model);
+    }
+
+    private CrateReward randomBuff(String name, long durationMs, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_buff");
+        BuffType[] types = BuffType.values();
+        return new CrateReward(name, Material.BEACON, 1, rarity, color, weight, p -> {
+            BuffType type = types[ThreadLocalRandom.current().nextInt(types.length)];
+            buffManager.activateBuff(p, type, durationMs);
+        }, model);
+    }
+
+    private CrateReward randomUniverseTool(String name, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:universe_pickaxe");
+        return new CrateReward(name, Material.NETHERITE_PICKAXE, 1, rarity, color, weight,
+                p -> giveItem(p, universeToolManager.createRandomTool()), model);
     }
 
     private CrateReward randomPhysicalSpawner(String name, String rarity, TextColor color, double weight) {

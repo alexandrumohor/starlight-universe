@@ -65,13 +65,17 @@ public class BuffManager {
     }
 
     public boolean activateBuff(Player player, BuffType type) {
+        return activateBuff(player, type, BUFF_DURATION_MS);
+    }
+
+    public boolean activateBuff(Player player, BuffType type, long durationMs) {
         UUID uuid = player.getUniqueId();
-        long expireTime = System.currentTimeMillis() + BUFF_DURATION_MS;
+        long expireTime = System.currentTimeMillis() + durationMs;
 
         Map<BuffType, Long> playerBuffs = activeBuffs.computeIfAbsent(uuid, k -> new ConcurrentHashMap<>());
         playerBuffs.put(type, expireTime);
 
-        applyPotionBuff(player, type);
+        applyPotionBuff(player, type, durationMs);
 
         if (type == BuffType.FLY_MODE) {
             player.setAllowFlight(true);
@@ -90,9 +94,19 @@ public class BuffManager {
             }
         });
 
-        Msg.success(player, type.getDisplayName() + " activated for 12 hours!");
+        String durationLabel = formatDuration(durationMs);
+        Msg.success(player, type.getDisplayName() + " activated for " + durationLabel + "!");
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.5f);
         return true;
+    }
+
+    private String formatDuration(long ms) {
+        long totalMinutes = ms / 60_000;
+        if (totalMinutes < 60) return totalMinutes + " minutes";
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
+        if (minutes == 0) return hours + (hours == 1 ? " hour" : " hours");
+        return hours + "h " + minutes + "m";
     }
 
     public boolean hasBuff(UUID uuid, BuffType type) {
@@ -114,6 +128,9 @@ public class BuffManager {
     public boolean hasGodMode(UUID uuid) { return hasBuff(uuid, BuffType.GOD_MODE); }
     public boolean hasFlyBuff(UUID uuid) { return hasBuff(uuid, BuffType.FLY_MODE); }
     public boolean hasExtraChunks(UUID uuid) { return hasBuff(uuid, BuffType.EXTRA_CHUNKS); }
+    public boolean hasTreeFeller(UUID uuid) { return hasBuff(uuid, BuffType.TREE_FELLER); }
+    public boolean hasSmelter(UUID uuid) { return hasBuff(uuid, BuffType.SMELTER); }
+    public boolean hasReCropper(UUID uuid) { return hasBuff(uuid, BuffType.RE_CROPPER); }
 
     public Map<BuffType, Long> getActiveBuffs(UUID uuid) {
         return activeBuffs.getOrDefault(uuid, Map.of());
@@ -139,7 +156,11 @@ public class BuffManager {
     }
 
     private void applyPotionBuff(Player player, BuffType type) {
-        int ticks = (int) ((BUFF_DURATION_MS / 1000) * 20);
+        applyPotionBuff(player, type, BUFF_DURATION_MS);
+    }
+
+    private void applyPotionBuff(Player player, BuffType type, long durationMs) {
+        int ticks = (int) ((durationMs / 1000) * 20);
         switch (type) {
             case NIGHT_VISION -> player.addPotionEffect(
                     new PotionEffect(PotionEffectType.NIGHT_VISION, ticks, 0, false, false, true));
@@ -147,6 +168,14 @@ public class BuffManager {
                     new PotionEffect(PotionEffectType.JUMP_BOOST, ticks, 1, false, false, true));
             case SPEED_WALK -> player.addPotionEffect(
                     new PotionEffect(PotionEffectType.SPEED, ticks, 1, false, false, true));
+            case HASTE -> player.addPotionEffect(
+                    new PotionEffect(PotionEffectType.HASTE, ticks, 1, false, false, true));
+            case SATURATION -> player.addPotionEffect(
+                    new PotionEffect(PotionEffectType.SATURATION, ticks, 0, false, false, true));
+            case WATER_BREATHING -> player.addPotionEffect(
+                    new PotionEffect(PotionEffectType.WATER_BREATHING, ticks, 0, false, false, true));
+            case FIRE_RESISTANCE -> player.addPotionEffect(
+                    new PotionEffect(PotionEffectType.FIRE_RESISTANCE, ticks, 0, false, false, true));
             default -> {}
         }
     }
