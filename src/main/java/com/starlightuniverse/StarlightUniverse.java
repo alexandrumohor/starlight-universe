@@ -274,6 +274,11 @@ public final class StarlightUniverse extends JavaPlugin {
         voucherManager.setBoosterManager(boosterManager);
         voucherManager.start();
         crateManager.setVoucherManager(voucherManager);
+
+        EnchantRemoverListener enchantRemoverListener = new EnchantRemoverListener(this, voucherManager, enchantManager);
+        voucherManager.setEnchantRemoverListener(enchantRemoverListener);
+        Bukkit.getPluginManager().registerEvents(enchantRemoverListener, this);
+
         Bukkit.getPluginManager().registerEvents(new VoucherListener(voucherManager, boosterManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new VoteFlyCommand(voucherManager));
 

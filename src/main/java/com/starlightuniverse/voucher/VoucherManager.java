@@ -46,6 +46,7 @@ public class VoucherManager {
     private final Set<UUID> flyActive = ConcurrentHashMap.newKeySet();
 
     private BoosterManager boosterManager;
+    private EnchantRemoverListener enchantRemoverListener;
 
     public VoucherManager(JavaPlugin plugin, EconomyManager economy, HomeManager homeManager, CrateManager crateManager) {
         this.plugin = plugin;
@@ -56,6 +57,10 @@ public class VoucherManager {
 
     public void setBoosterManager(BoosterManager boosterManager) {
         this.boosterManager = boosterManager;
+    }
+
+    public void setEnchantRemoverListener(EnchantRemoverListener listener) {
+        this.enchantRemoverListener = listener;
     }
 
     public void start() {
@@ -605,6 +610,28 @@ public class VoucherManager {
         player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.5f);
     }
 
+    // ── Enchant Remover Scroll ──
+
+    public ItemStack createEnchantRemoverScroll() {
+        ItemStack item = new ItemStack(Material.PAPER);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("Enchant Remover Scroll", PURPLE)
+                .decoration(TextDecoration.ITALIC, false)
+                .decoration(TextDecoration.BOLD, true));
+        meta.lore(List.of(
+                Component.text("Right-click to use", GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.empty(),
+                Component.text("Removes one enchantment of your", YELLOW).decoration(TextDecoration.ITALIC, false),
+                Component.text("choice from any item. (One-time use)", YELLOW).decoration(TextDecoration.ITALIC, false)
+        ));
+        meta.setEnchantmentGlintOverride(true);
+        meta.setItemModel(NamespacedKey.fromString("starlight:enchant_remover_scroll"));
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        pdc.set(TAG_VOUCHER_TYPE, PersistentDataType.STRING, "ENCHANT_REMOVER_SCROLL");
+        item.setItemMeta(meta);
+        return item;
+    }
+
     // ── Voucher detection ──
 
     public String getVoucherType(ItemStack item) {
@@ -622,6 +649,9 @@ public class VoucherManager {
             case "PROTECTION" -> redeemProtectionToken(player, item);
             case "GEAR_TICKET" -> redeemGearTicket(player, item);
             case "ENCHANT_PROTECTION_SCROLL" -> redeemEnchantProtectionScroll(player, item);
+            case "ENCHANT_REMOVER_SCROLL" -> {
+                if (enchantRemoverListener != null) enchantRemoverListener.startSelection(player);
+            }
         }
     }
 

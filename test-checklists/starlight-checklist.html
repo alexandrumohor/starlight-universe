@@ -2441,6 +2441,54 @@
 
     </div>
 
+    <div class="phase" id="phase-co4">
+    <h2>Crate Overhaul — Step 4: Enchant Remover Scroll</h2>
+
+    <h3>Getting the Scroll</h3>
+    <label><input type="checkbox" id="co4_scroll_exists"> Give yourself an Enchant Remover Scroll (admin command or creative). Confirm it's a paper item with purple name "Enchant Remover Scroll", enchant glint, and lore explaining it removes one enchant.</label>
+
+    <h3>Starting the Removal — Right-Click</h3>
+    <label><input type="checkbox" id="co4_start_msg"> Hold the scroll in your main hand and right-click. Confirm you see the yellow message: "Open your inventory and click on the item you want to remove an enchant from."</label>
+    <label><input type="checkbox" id="co4_scroll_not_consumed"> Check your hand — the scroll should NOT be consumed yet at this stage.</label>
+
+    <h3>Selecting an Item</h3>
+    <label><input type="checkbox" id="co4_open_inv"> Open your inventory (E key) and click on an item that has enchantments. Confirm the "Select Enchant to Remove" GUI opens.</label>
+    <label><input type="checkbox" id="co4_no_enchant"> Try clicking on an unenchanted item (like dirt) — confirm you see the error: "That item has no enchantments to remove!"</label>
+    <label><input type="checkbox" id="co4_vanilla_shown"> Enchant a sword with vanilla Sharpness V — click it and confirm the GUI shows "Sharpness V" as a clickable enchant book.</label>
+    <label><input type="checkbox" id="co4_custom_shown"> Apply a custom enchant book (e.g. Star Drain) to a sword, then start removal and click the sword. Confirm both the vanilla enchants AND the custom enchant appear in the GUI.</label>
+
+    <h3>Enchant Selection GUI</h3>
+    <label><input type="checkbox" id="co4_gui_books"> Confirm each enchantment is shown as an enchanted book icon with the enchant name and level.</label>
+    <label><input type="checkbox" id="co4_gui_vanilla_label"> Vanilla enchants should have "Vanilla Enchantment" in gray lore and "Click to remove" in yellow.</label>
+    <label><input type="checkbox" id="co4_gui_custom_label"> Custom enchants should have "Custom Enchantment" in gray, the enchant description in italics, and "Click to remove" in yellow.</label>
+    <label><input type="checkbox" id="co4_gui_glass"> Empty slots in the GUI are filled with black glass panes (not empty air).</label>
+
+    <h3>Confirmation GUI</h3>
+    <label><input type="checkbox" id="co4_confirm_opens"> Click on an enchant in the selection GUI — confirm the "Are you sure?" confirmation GUI opens.</label>
+    <label><input type="checkbox" id="co4_confirm_layout"> Confirm the GUI has: green wool "Yes, remove it" on the left, the enchant book icon in the center, red wool "No, cancel" on the right.</label>
+
+    <h3>Confirming Removal (Yes)</h3>
+    <label><input type="checkbox" id="co4_yes_vanilla"> Click "Yes" on a vanilla enchant removal. Confirm the enchant is gone from the item (check with hovering over it).</label>
+    <label><input type="checkbox" id="co4_yes_custom"> Click "Yes" on a custom enchant removal. Confirm the custom enchant is gone from the item (no PDC tag, no lore line).</label>
+    <label><input type="checkbox" id="co4_yes_msg"> Confirm you see the green message: "Enchantment successfully removed!"</label>
+    <label><input type="checkbox" id="co4_yes_sound"> Confirm you hear an anvil sound and see enchant particles.</label>
+    <label><input type="checkbox" id="co4_yes_scroll_gone"> Confirm the Enchant Remover Scroll is consumed (1 removed from your inventory).</label>
+    <label><input type="checkbox" id="co4_yes_gui_closes"> Confirm the GUI closes automatically after removal.</label>
+
+    <h3>Cancelling Removal (No)</h3>
+    <label><input type="checkbox" id="co4_no_cancel"> Click "No, cancel" on the confirmation GUI. Confirm the GUI closes.</label>
+    <label><input type="checkbox" id="co4_no_msg"> Confirm you see the yellow message: "Enchant removal cancelled."</label>
+    <label><input type="checkbox" id="co4_no_scroll_kept"> Confirm the scroll is NOT consumed when you cancel.</label>
+    <label><input type="checkbox" id="co4_no_enchant_kept"> Confirm the enchantment is still on the item after cancelling.</label>
+
+    <h3>Edge Cases</h3>
+    <label><input type="checkbox" id="co4_stack_consume"> If you have a stack of 3 scrolls, use one — confirm only 1 is consumed (2 remain).</label>
+    <label><input type="checkbox" id="co4_escape_select"> Right-click scroll, open inventory, then press Escape without clicking an item — confirm nothing happens and no scroll is consumed.</label>
+    <label><input type="checkbox" id="co4_close_gui"> Open the enchant selection GUI, then press Escape — confirm the GUI closes cleanly and no scroll is consumed.</label>
+    <label><input type="checkbox" id="co4_item_moved"> Start a removal, confirm, but move the target item to a different slot before clicking Yes — confirm you see an error message and scroll is not consumed.</label>
+
+    </div>
+
     <script>
         (function() {
             document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
