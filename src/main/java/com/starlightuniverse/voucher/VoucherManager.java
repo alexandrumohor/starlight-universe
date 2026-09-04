@@ -549,6 +549,62 @@ public class VoucherManager {
         return item;
     }
 
+    // ── Enchant Protection Scroll ──
+
+    private static final NamespacedKey ENCHANT_PROTECTED_KEY = NamespacedKey.fromString("starlightuniverse:enchant_protected");
+
+    public ItemStack createEnchantProtectionScroll() {
+        ItemStack item = new ItemStack(Material.PAPER);
+        ItemMeta meta = item.getItemMeta();
+        meta.displayName(Component.text("Enchant Protection Scroll", CYAN)
+                .decoration(TextDecoration.ITALIC, false)
+                .decoration(TextDecoration.BOLD, true));
+        meta.lore(List.of(
+                Component.text("Right-click while holding an item", GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("in your off-hand to protect it.", GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.empty(),
+                Component.text("Protected items won't lose durability", YELLOW).decoration(TextDecoration.ITALIC, false),
+                Component.text("on enchantment failure. (One-time use)", YELLOW).decoration(TextDecoration.ITALIC, false)
+        ));
+        meta.setEnchantmentGlintOverride(true);
+        meta.setItemModel(NamespacedKey.fromString("starlight:enchant_protection_scroll"));
+        PersistentDataContainer pdc = meta.getPersistentDataContainer();
+        pdc.set(TAG_VOUCHER_TYPE, PersistentDataType.STRING, "ENCHANT_PROTECTION_SCROLL");
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public void redeemEnchantProtectionScroll(Player player, ItemStack scroll) {
+        ItemStack offHand = player.getInventory().getItemInOffHand();
+        if (offHand.getType() == Material.AIR || offHand.getType().getMaxDurability() <= 0) {
+            Msg.error(player, "Hold the item you want to protect in your off-hand!");
+            return;
+        }
+
+        if (offHand.hasItemMeta()) {
+            byte val = offHand.getItemMeta().getPersistentDataContainer()
+                    .getOrDefault(ENCHANT_PROTECTED_KEY, PersistentDataType.BYTE, (byte) 0);
+            if (val == 1) {
+                Msg.error(player, "That item is already protected!");
+                return;
+            }
+        }
+
+        ItemMeta meta = offHand.getItemMeta();
+        meta.getPersistentDataContainer().set(ENCHANT_PROTECTED_KEY, PersistentDataType.BYTE, (byte) 1);
+
+        List<Component> lore = meta.lore();
+        if (lore == null) lore = new ArrayList<>();
+        lore.add(Component.text("✦ Enchant Protected", CYAN)
+                .decoration(TextDecoration.ITALIC, false));
+        meta.lore(lore);
+        offHand.setItemMeta(meta);
+
+        consumeOne(player, scroll);
+        Msg.success(player, "Your item is now protected from enchant failure damage!");
+        player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.5f);
+    }
+
     // ── Voucher detection ──
 
     public String getVoucherType(ItemStack item) {
@@ -565,6 +621,7 @@ public class VoucherManager {
             case "BOOSTER" -> redeemBooster(player, item);
             case "PROTECTION" -> redeemProtectionToken(player, item);
             case "GEAR_TICKET" -> redeemGearTicket(player, item);
+            case "ENCHANT_PROTECTION_SCROLL" -> redeemEnchantProtectionScroll(player, item);
         }
     }
 

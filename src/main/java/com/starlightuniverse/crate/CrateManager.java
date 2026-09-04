@@ -449,6 +449,7 @@ public class CrateManager {
         r.add(randomVirtualSpawner("Random Virtual Spawner", "Epic", EPIC_COLOR, 3));
         r.add(enchantBook("Stellar Enchant Book", enchants_stellar(), "Epic", EPIC_COLOR, 5));
         r.add(gearTicket("Celestial Gear Ticket", CrateType.CELESTIAL, "Epic", EPIC_COLOR, 5));
+        r.add(enchantProtectionScroll("Enchant Protection Scroll", "Epic", EPIC_COLOR, 3));
         r.add(bonusKeys("2 Celestial Keys", CrateType.CELESTIAL, 2, "Epic", EPIC_COLOR, 2));
         return r;
     }
@@ -465,6 +466,7 @@ public class CrateManager {
         r.add(randomPhysicalSpawner("Random Mob Spawner", "Legendary", LEGENDARY_COLOR, 1.5));
         r.add(enchantBook("Celestial Enchant Book", enchants_celestial(), "Legendary", LEGENDARY_COLOR, 3));
         r.add(gearTicket("Universe Gear Ticket", CrateType.UNIVERSE, "Legendary", LEGENDARY_COLOR, 3));
+        r.add(enchantProtectionScroll("Enchant Protection Scroll", "Legendary", LEGENDARY_COLOR, 2));
         r.add(bonusKeys("2 Universe Keys", CrateType.UNIVERSE, 2, "Legendary", LEGENDARY_COLOR, 1));
         return r;
     }
@@ -525,6 +527,12 @@ public class CrateManager {
     private CrateReward item(String name, ItemStack stack, String rarity, TextColor color, double weight) {
         return new CrateReward(name, stack.getType(), stack.getAmount(), rarity, color, weight,
                 p -> giveItem(p, stack.clone()));
+    }
+
+    private CrateReward enchantProtectionScroll(String name, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:enchant_protection_scroll");
+        return new CrateReward(name, Material.PAPER, 1, rarity, color, weight,
+                p -> giveItem(p, voucherManager.createEnchantProtectionScroll()), model);
     }
 
     private CrateReward enchantBook(String name, Map<Enchantment, Integer> enchants, String rarity, TextColor color, double weight) {

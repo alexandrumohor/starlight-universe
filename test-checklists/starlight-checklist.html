@@ -2394,6 +2394,53 @@
 
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  CRATE OVERHAUL — PASUL 3: Enchant Success/Fail + Protection Scroll  -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="phase" id="co3">
+    <h2>Crate Overhaul — Pasul 3: Enchant Success/Fail + Protection Scroll</h2>
+
+    <h3>Enchant Book Success Rate Lore</h3>
+    <label><input type="checkbox" id="co3_lore_common"> Open the Custom Enchanting Table, roll a Stardust (Common) book — check that the lore shows "Success Rate: 90%" in green.</label>
+    <label><input type="checkbox" id="co3_lore_uncommon"> Roll a Starlight (Uncommon) book — lore shows "Success Rate: 80%" in green.</label>
+    <label><input type="checkbox" id="co3_lore_rare"> Roll a Starborn (Rare) book — lore shows "Success Rate: 60%" in yellow.</label>
+    <label><input type="checkbox" id="co3_lore_epic"> Roll a Stellar (Epic) book — lore shows "Success Rate: 50%" in yellow.</label>
+    <label><input type="checkbox" id="co3_lore_legendary"> Roll a Celestial (Legendary) book — lore shows "Success Rate: 20%" in red.</label>
+
+    <h3>Enchant Success (Anvil)</h3>
+    <label><input type="checkbox" id="co3_success_apply"> Place a tool/armor in anvil slot 1 and a custom enchant book (Common, high success rate) in slot 2. Click the result — confirm the enchant is applied, the book is consumed, you hear an anvil sound, and you see enchant particles.</label>
+    <label><input type="checkbox" id="co3_success_msg"> Confirm you see a green "[SU] Enchantment applied successfully!" message on success.</label>
+    <label><input type="checkbox" id="co3_success_xp"> Confirm XP levels are deducted (1 level for custom enchants).</label>
+
+    <h3>Enchant Fail (Anvil)</h3>
+    <label><input type="checkbox" id="co3_fail_dmg"> Use a Legendary (20% success) book repeatedly until it fails — confirm the book is consumed and the item loses some durability (about 2% of max).</label>
+    <label><input type="checkbox" id="co3_fail_msg"> Confirm you see a red "[SU] Enchantment failed! Your item lost some durability." message.</label>
+    <label><input type="checkbox" id="co3_fail_sound"> Confirm you hear an item-breaking sound on fail.</label>
+    <label><input type="checkbox" id="co3_fail_nobreak"> Confirm the item can NOT be fully broken by enchant failure (it stops at 1 durability remaining).</label>
+    <label><input type="checkbox" id="co3_fail_vanilla"> Place a VANILLA enchant book (not custom) in the anvil — confirm the success/fail system does NOT trigger; vanilla enchanting works as normal.</label>
+
+    <h3>Enchant Protection Scroll — Obtaining</h3>
+    <label><input type="checkbox" id="co3_scroll_crate_cel"> Open a Celestial Crate several times — confirm "Enchant Protection Scroll" can appear as an Epic reward.</label>
+    <label><input type="checkbox" id="co3_scroll_crate_uni"> Open a Universe Crate several times — confirm "Enchant Protection Scroll" can appear as a Legendary reward.</label>
+    <label><input type="checkbox" id="co3_scroll_preview"> Check the Celestial and Universe crate preview GUIs — confirm the scroll appears in the reward list.</label>
+    <label><input type="checkbox" id="co3_scroll_item"> The scroll is a glowing Paper item with cyan name "Enchant Protection Scroll" and lore explaining how to use it.</label>
+
+    <h3>Enchant Protection Scroll — Applying</h3>
+    <label><input type="checkbox" id="co3_scroll_apply"> Hold the scroll in your main hand and a tool/armor in your off-hand. Right-click — confirm the message "Your item is now protected from enchant failure damage!" appears.</label>
+    <label><input type="checkbox" id="co3_scroll_lore_added"> Check the protected item's lore — confirm "✦ Enchant Protected" in cyan appears at the bottom.</label>
+    <label><input type="checkbox" id="co3_scroll_consumed"> Confirm the scroll is consumed (1 used up).</label>
+    <label><input type="checkbox" id="co3_scroll_no_offhand"> Right-click the scroll with nothing in your off-hand — confirm error "Hold the item you want to protect in your off-hand!"</label>
+    <label><input type="checkbox" id="co3_scroll_no_dura"> Right-click the scroll with a non-durable item (like dirt) in off-hand — confirm the same error message.</label>
+    <label><input type="checkbox" id="co3_scroll_double"> Try applying a second scroll to an already protected item — confirm error "That item is already protected!"</label>
+
+    <h3>Enchant Protection Scroll — Protection on Fail</h3>
+    <label><input type="checkbox" id="co3_scroll_protect"> Protect a tool with a scroll, then use a Legendary book (low success rate) until it fails. Confirm the item does NOT lose durability on that failure.</label>
+    <label><input type="checkbox" id="co3_scroll_removed"> After the protected fail, check the item — confirm the "✦ Enchant Protected" lore is removed and the PDC tag is gone.</label>
+    <label><input type="checkbox" id="co3_scroll_msg_prot"> Confirm you see a yellow "[SU] Enchantment failed! Your Protection Scroll saved the item from damage." message.</label>
+    <label><input type="checkbox" id="co3_scroll_next_fail"> Use another book on the same item and let it fail again — this time confirm it DOES lose durability (protection was one-time).</label>
+
+    </div>
+
     <script>
         (function() {
             document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {

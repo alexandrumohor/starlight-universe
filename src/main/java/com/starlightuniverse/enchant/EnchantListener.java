@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.AnvilInventory;
@@ -1528,6 +1529,91 @@ public class EnchantListener implements Listener {
 
         event.setResult(result);
         anvil.setRepairCost(1);
+    }
+
+    // ==================== ANVIL TAKE (success / fail roll) ====================
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onAnvilResultTake(InventoryClickEvent event) {
+        if (!(event.getInventory() instanceof AnvilInventory anvil)) return;
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!auth.isAuthenticated(player.getUniqueId())) return;
+        if (event.getRawSlot() != 2) return;
+
+        ItemStack book = anvil.getItem(1);
+        if (book == null || !manager.isEnchantBook(book)) return;
+
+        ItemStack target = anvil.getItem(0);
+        if (target == null) return;
+
+        ItemStack result = anvil.getItem(2);
+        if (result == null || result.getType() == Material.AIR) return;
+
+        CustomEnchant enchant = manager.getBookEnchant(book);
+        if (enchant == null) return;
+
+        event.setCancelled(true);
+
+        if (event.getCursor() != null && event.getCursor().getType() != Material.AIR) return;
+
+        int cost = anvil.getRepairCost();
+        if (player.getLevel() < cost) {
+            Msg.error(player, "Not enough experience levels!");
+            return;
+        }
+
+        int successRate = enchant.getRarity().getSuccessRate();
+        boolean success = ThreadLocalRandom.current().nextInt(100) < successRate;
+
+        player.setLevel(player.getLevel() - cost);
+
+        ItemStack targetCopy = target.clone();
+        ItemStack resultCopy = result.clone();
+
+        anvil.setItem(0, null);
+        anvil.setItem(1, null);
+        anvil.setItem(2, null);
+
+        if (success) {
+            var overflow = player.getInventory().addItem(resultCopy);
+            for (ItemStack leftover : overflow.values()) {
+                player.getWorld().dropItemNaturally(player.getLocation(), leftover);
+            }
+            Msg.success(player, "Enchantment applied successfully!");
+            player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1f, 1.2f);
+            player.getWorld().spawnParticle(Particle.ENCHANT,
+                    player.getLocation().add(0, 1, 0), 30, 0.5, 0.5, 0.5, 0.5);
+        } else {
+            boolean wasProtected = manager.isEnchantProtected(targetCopy);
+            if (wasProtected) {
+                manager.removeEnchantProtection(targetCopy);
+                Msg.info(player, "Enchantment failed! Your Protection Scroll saved the item from damage.");
+                player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.5f);
+            } else {
+                applyFailDamage(targetCopy);
+                Msg.error(player, "Enchantment failed! Your item lost some durability.");
+                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 0.8f);
+            }
+            var overflow = player.getInventory().addItem(targetCopy);
+            for (ItemStack leftover : overflow.values()) {
+                player.getWorld().dropItemNaturally(player.getLocation(), leftover);
+            }
+        }
+
+        Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
+    }
+
+    private void applyFailDamage(ItemStack item) {
+        short maxDurability = item.getType().getMaxDurability();
+        if (maxDurability <= 0) return;
+        if (!(item.getItemMeta() instanceof org.bukkit.inventory.meta.Damageable damageable)) return;
+
+        int damage = (int) Math.round(maxDurability * 0.02);
+        damage = Math.max(1, damage);
+
+        int newDamage = Math.min(damageable.getDamage() + damage, maxDurability - 1);
+        damageable.setDamage(newDamage);
+        item.setItemMeta((ItemMeta) damageable);
     }
 
     // ==================== HELPER METHODS ====================

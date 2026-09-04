@@ -24,8 +24,14 @@ public class EnchantManager {
     private static final TextColor DARK_GRAY = TextColor.color(0x555555);
     private static final TextColor WHITE = TextColor.color(0xFFFFFF);
 
+    private static final TextColor GREEN = TextColor.color(0x55FF55);
+    private static final TextColor YELLOW_BRIGHT = TextColor.color(0xFFFF55);
+    private static final TextColor RED = TextColor.color(0xFF5555);
+    private static final TextColor CYAN = TextColor.color(0x55FFFF);
+
     private static final NamespacedKey BOOK_TYPE_KEY = NamespacedKey.fromString("starlightuniverse:ce_book_type");
     private static final NamespacedKey BOOK_LEVEL_KEY = NamespacedKey.fromString("starlightuniverse:ce_book_level");
+    private static final NamespacedKey ENCHANT_PROTECTED_KEY = NamespacedKey.fromString("starlightuniverse:enchant_protected");
 
     private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
     private static final java.util.Set<String> ROMAN_SET = java.util.Set.of(
@@ -163,6 +169,11 @@ public class EnchantManager {
         lore.add(Component.empty());
         lore.add(Component.text(enchant.getDescription(), DARK_GRAY).decoration(TextDecoration.ITALIC, true));
         lore.add(Component.empty());
+        int rate = enchant.getRarity().getSuccessRate();
+        TextColor rateColor = rate >= 80 ? GREEN : rate >= 50 ? YELLOW_BRIGHT : RED;
+        lore.add(Component.text("Success Rate: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(rate + "%", rateColor)));
+        lore.add(Component.empty());
         lore.add(Component.text("Apply at Anvil or Alchemist", GOLD).decoration(TextDecoration.ITALIC, false));
 
         meta.lore(lore);
@@ -262,5 +273,30 @@ public class EnchantManager {
 
     public void clearStarHeartCache(java.util.UUID uuid) {
         starHeartCache.remove(uuid);
+    }
+
+    // --- Enchant Protection ---
+
+    public boolean isEnchantProtected(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        return item.getItemMeta().getPersistentDataContainer()
+                .getOrDefault(ENCHANT_PROTECTED_KEY, PersistentDataType.BYTE, (byte) 0) == 1;
+    }
+
+    public void removeEnchantProtection(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return;
+        ItemMeta meta = item.getItemMeta();
+        meta.getPersistentDataContainer().remove(ENCHANT_PROTECTED_KEY);
+
+        List<Component> lore = meta.lore();
+        if (lore != null) {
+            lore.removeIf(line -> {
+                String plain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+                        .plainText().serialize(line);
+                return plain.contains("Enchant Protected");
+            });
+            meta.lore(lore.isEmpty() ? null : lore);
+        }
+        item.setItemMeta(meta);
     }
 }
