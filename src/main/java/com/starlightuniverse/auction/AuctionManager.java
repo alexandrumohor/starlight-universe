@@ -155,47 +155,69 @@ public class AuctionManager {
 
     public static ShopCategory categorize(Material mat) {
         String name = mat.name();
-        if (name.endsWith("_SWORD") || name.equals("BOW") || name.equals("CROSSBOW")
-                || name.equals("TRIDENT") || name.equals("MACE") || name.endsWith("_ARROW")
-                || name.equals("ARROW") || name.equals("SHIELD") || name.equals("TOTEM_OF_UNDYING"))
-            return ShopCategory.WEAPONS;
-        if (name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE") || name.endsWith("_LEGGINGS")
-                || name.endsWith("_BOOTS") || name.equals("ELYTRA") || name.endsWith("_HORSE_ARMOR")
-                || name.equals("TURTLE_HELMET"))
-            return ShopCategory.ARMOR;
-        if (name.endsWith("_PICKAXE") || name.endsWith("_SHOVEL") || name.endsWith("_HOE")
-                || name.equals("SHEARS") || name.equals("FISHING_ROD") || name.equals("FLINT_AND_STEEL")
-                || name.equals("SPYGLASS") || name.equals("BRUSH") || name.equals("COMPASS"))
-            return ShopCategory.TOOLS;
-        if (name.endsWith("_AXE") && !name.endsWith("_PICKAXE")) return ShopCategory.TOOLS;
-        if (name.endsWith("_DYE")) return ShopCategory.DYES;
-        if (name.endsWith("_SPAWN_EGG")) return ShopCategory.SPAWN_EGGS;
+        if (name.endsWith("_SAPLING") || name.equals("MANGROVE_PROPAGULE")
+                || name.equals("WARPED_FUNGUS") || name.equals("CRIMSON_FUNGUS"))
+            return ShopCategory.SAPLINGS;
+        if (name.endsWith("_SPAWN_EGG")) return ShopCategory.SPAWNERS;
+        if (name.endsWith("_LOG") || name.endsWith("_WOOD") || name.endsWith("_STEM")
+                || name.endsWith("_HYPHAE") || name.endsWith("_PLANKS") || name.endsWith("_STAIRS")
+                && (name.contains("OAK") || name.contains("SPRUCE") || name.contains("BIRCH")
+                || name.contains("JUNGLE") || name.contains("ACACIA") || name.contains("CHERRY")
+                || name.contains("MANGROVE") || name.contains("BAMBOO") || name.contains("CRIMSON")
+                || name.contains("WARPED")))
+            return ShopCategory.WOOD_BLOCKS;
+        if (name.contains("STONE") || name.contains("COBBLESTONE") || name.contains("DEEPSLATE")
+                || name.contains("GRANITE") || name.contains("DIORITE") || name.contains("ANDESITE")
+                || name.contains("BRICK") || name.contains("SANDSTONE") || name.contains("BLACKSTONE")
+                || name.contains("QUARTZ") || name.contains("PURPUR") || name.contains("PRISMARINE")
+                || name.contains("TUFF") || name.contains("NETHERRACK") || name.contains("BASALT")
+                || name.contains("PACKED_MUD"))
+            return ShopCategory.STONE_BLOCKS;
+        if (name.equals("COAL") || name.contains("_INGOT") || name.contains("RAW_")
+                || name.equals("DIAMOND") || name.equals("EMERALD") || name.contains("LAPIS")
+                || name.contains("AMETHYST") || name.contains("NETHERITE")
+                || name.equals("REDSTONE") || name.contains("_BLOCK") && (name.contains("COAL")
+                || name.contains("COPPER") || name.contains("IRON") || name.contains("GOLD")
+                || name.contains("DIAMOND") || name.contains("EMERALD") || name.contains("NETHERITE")))
+            return ShopCategory.MINERALS;
+        if (name.equals("BONE") || name.equals("STRING") || name.equals("LEATHER")
+                || name.equals("FEATHER") || name.equals("GUNPOWDER") || name.equals("BLAZE_ROD")
+                || name.equals("ENDER_PEARL") || name.equals("SLIME_BALL") || name.equals("MAGMA_CREAM")
+                || name.equals("SPIDER_EYE") || name.equals("INK_SAC") || name.equals("GLOW_INK_SAC")
+                || name.equals("SHULKER_SHELL") || name.equals("NETHER_STAR") || name.equals("GHAST_TEAR")
+                || name.equals("PHANTOM_MEMBRANE") || name.equals("PRISMARINE_SHARD")
+                || name.equals("NAUTILUS_SHELL") || name.equals("HEART_OF_THE_SEA")
+                || name.equals("BREEZE_ROD") || name.contains("SCUTE") || name.equals("HONEYCOMB")
+                || name.equals("RABBIT_HIDE") || name.equals("SNOWBALL") || name.equals("EGG")
+                || name.equals("ROTTEN_FLESH") || name.equals("ARROW"))
+            return ShopCategory.MOB_DROPS;
         if (mat.isEdible()) return ShopCategory.FOOD;
-        if (name.contains("POTION") || name.equals("BREWING_STAND") || name.equals("CAULDRON")
-                || name.equals("BLAZE_ROD") || name.equals("BLAZE_POWDER") || name.equals("NETHER_WART")
-                || name.equals("DRAGON_BREATH") || name.equals("GLASS_BOTTLE"))
-            return ShopCategory.BREWING;
-        if (name.contains("REDSTONE") || name.contains("PISTON") || name.equals("DISPENSER")
-                || name.equals("DROPPER") || name.equals("HOPPER") || name.equals("OBSERVER")
-                || name.equals("REPEATER") || name.equals("COMPARATOR") || name.equals("TNT")
-                || name.equals("TARGET") || name.equals("DAYLIGHT_DETECTOR"))
-            return ShopCategory.REDSTONE;
-        if (name.contains("RAIL") || name.contains("MINECART") || name.contains("BOAT")
-                || name.equals("SADDLE") || name.equals("LEAD"))
-            return ShopCategory.TRANSPORT;
-        if (name.contains("INGOT") || name.equals("DIAMOND") || name.equals("EMERALD")
-                || name.equals("COAL") || name.contains("LAPIS") || name.equals("QUARTZ")
-                || name.contains("AMETHYST") || name.contains("DEBRIS") || name.contains("NETHERITE_SCRAP")
-                || name.equals("BONE") || name.equals("GUNPOWDER") || name.equals("SLIME_BALL")
-                || name.equals("ENDER_PEARL") || name.equals("STRING") || name.equals("LEATHER")
-                || name.equals("SHULKER_SHELL") || name.equals("NETHER_STAR"))
-            return ShopCategory.MATERIALS;
-        if (name.contains("LANTERN") || name.contains("CAMPFIRE") || name.contains("CANDLE")
-                || name.equals("PAINTING") || name.contains("ITEM_FRAME") || name.equals("ARMOR_STAND")
-                || name.equals("FLOWER_POT") || name.equals("BELL") || name.equals("CHAIN"))
+        if (name.contains("WOOL") || name.contains("TERRACOTTA") || name.contains("STAINED_GLASS")
+                || name.contains("CONCRETE") || name.contains("CANDLE") || name.contains("BANNER")
+                || name.contains("TRIM") || name.contains("CORAL") || name.contains("TULIP")
+                || name.contains("_FLOWER") || name.equals("POPPY") || name.equals("DANDELION")
+                || name.equals("LILAC") || name.equals("PEONY") || name.equals("ROSE_BUSH")
+                || name.equals("SUNFLOWER") || name.equals("CORNFLOWER") || name.equals("ALLIUM")
+                || name.equals("AZURE_BLUET") || name.equals("BLUE_ORCHID")
+                || name.equals("LILY_OF_THE_VALLEY") || name.equals("OXEYE_DAISY")
+                || name.equals("WITHER_ROSE") || name.contains("LANTERN") || name.contains("CAMPFIRE")
+                || name.contains("_ROD") || name.contains("ITEM_FRAME"))
             return ShopCategory.DECORATION;
-        if (mat.isBlock()) return ShopCategory.BUILDING;
-        return ShopCategory.MISC;
+        if (name.equals("WHEAT") || name.equals("CARROT") || name.equals("POTATO")
+                || name.equals("BEETROOT") || name.equals("SUGAR_CANE") || name.equals("BAMBOO")
+                || name.equals("CACTUS") || name.equals("MELON_SLICE") || name.equals("KELP")
+                || name.equals("GLOW_BERRIES") || name.equals("SWEET_BERRIES") || name.equals("NETHER_WART")
+                || name.equals("PUMPKIN") || name.contains("SEEDS") || name.equals("COCOA_BEANS"))
+            return ShopCategory.FARMING;
+        if (name.contains("DIRT") || name.equals("GRASS_BLOCK") || name.equals("MUD")
+                || name.equals("GRAVEL") || name.equals("SAND") || name.equals("RED_SAND")
+                || name.contains("MOSS") || name.contains("LEAVES") || name.contains("ICE")
+                || name.contains("SNOW") || name.equals("OBSIDIAN") || name.equals("CRYING_OBSIDIAN")
+                || name.contains("SOUL_S") || name.contains("MUSHROOM") || name.contains("FROGLIGHT")
+                || name.equals("SHROOMLIGHT") || name.equals("PODZOL") || name.equals("MYCELIUM")
+                || name.equals("CLAY"))
+            return ShopCategory.NATURAL_BLOCKS;
+        return ShopCategory.MISCELLANEOUS;
     }
 
     // --- Listing Creation ---
@@ -220,7 +242,7 @@ public class AuctionManager {
         double fee = Math.ceil(totalValue * LISTING_FEE_RATE);
 
         if (!economy.hasMoney(player.getUniqueId(), fee)) {
-            Msg.error(player, "Insufficient funds for the listing fee of $" + EconomyManager.format(fee) + "!");
+            Msg.error(player, "Insufficient funds for the listing fee of " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(fee) + "!");
             return;
         }
 
@@ -266,7 +288,7 @@ public class AuctionManager {
                 listings.add(listing);
                 Bukkit.getScheduler().runTask(plugin, () ->
                         Msg.success(player, "Listed " + amount + "x " + ShopManager.formatMaterial(hand.getType())
-                                + " at $" + EconomyManager.format(pricePerUnit) + " each! Fee: $"
+                                + " at " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(pricePerUnit) + " each! Fee: $"
                                 + EconomyManager.format(fee)));
             }
         });
@@ -371,16 +393,16 @@ public class AuctionManager {
         double total = listing.getPricePerUnit() * session.buyQuantity;
         List<String> infoLines = new ArrayList<>();
         infoLines.add("Seller: " + listing.getSellerUsername());
-        infoLines.add("Price: $" + EconomyManager.format(listing.getPricePerUnit()) + " each");
+        infoLines.add("Price: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(listing.getPricePerUnit()) + " each");
         infoLines.add("Buying: " + session.buyQuantity + " / " + listing.getRemainingAmount());
         infoLines.add("");
-        infoLines.add("Total: $" + EconomyManager.format(total));
+        infoLines.add("Total: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(total));
 
         inv.setItem(31, createGuiItem(Material.PAPER, ShopManager.formatMaterial(mat), 0xFFD700,
                 infoLines.toArray(new String[0])));
 
         ItemStack confirm = createGuiItem(Material.LIME_STAINED_GLASS_PANE, "Confirm Purchase", 0x55FF55,
-                "Total: $" + EconomyManager.format(total), "Click to buy!");
+                "Total: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(total), "Click to buy!");
         inv.setItem(47, confirm);
     }
 
@@ -644,7 +666,7 @@ public class AuctionManager {
         UUID buyerUuid = player.getUniqueId();
 
         if (!economy.hasMoney(buyerUuid, total)) {
-            Msg.error(player, "Insufficient funds! You need $" + EconomyManager.format(total) + ".");
+            Msg.error(player, "Insufficient funds! You need " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(total) + ".");
             return;
         }
 
@@ -652,10 +674,16 @@ public class AuctionManager {
 
         Player seller = Bukkit.getPlayerExact(listing.getSellerUsername());
         if (seller != null) {
-            economy.addMoney(seller.getUniqueId(), total);
+            double sellerTotal = total;
+            var boosterMgr = com.starlightuniverse.StarlightUniverse.getInstance().getBoosterManager();
+            if (boosterMgr != null) {
+                sellerTotal *= boosterMgr.getMultiplier(seller.getUniqueId(),
+                        com.starlightuniverse.booster.BoosterType.AH_MULTIPLIER);
+            }
+            economy.addMoney(seller.getUniqueId(), sellerTotal);
             Msg.success(seller, player.getName() + " bought " + session.buyQuantity + "x "
                     + ShopManager.formatMaterial(Material.valueOf(listing.getItemMaterial()))
-                    + " for $" + EconomyManager.format(total) + "!");
+                    + " for " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(sellerTotal) + "!");
         } else {
             economy.giveOffline(listing.getSellerUsername(), "money", total);
         }
@@ -705,7 +733,7 @@ public class AuctionManager {
         player.closeInventory();
         Msg.success(player, "Purchased " + purchasedQty + "x "
                 + ShopManager.formatMaterial(Material.valueOf(materialName))
-                + " for $" + EconomyManager.format(total) + "!");
+                + " for " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(total) + "!");
     }
 
     // --- Cancel & Collect ---
@@ -794,7 +822,7 @@ public class AuctionManager {
                         double ppu = rs.getDouble("price_per_unit");
                         double total = rs.getDouble("total_price");
                         lines.add(buyer + " bought " + amount + "x from " + seller
-                                + " at $" + EconomyManager.format(ppu) + "/ea ($"
+                                + " at " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(ppu) + "/ea ($"
                                 + EconomyManager.format(total) + " total)");
                     }
                 }
@@ -918,7 +946,7 @@ public class AuctionManager {
         lore.add(Component.empty());
         lore.add(Component.text("Seller: " + listing.getSellerUsername(), TextColor.color(0xFFFF55))
                 .decoration(TextDecoration.ITALIC, false));
-        lore.add(Component.text("Price: $" + EconomyManager.format(listing.getPricePerUnit()) + " each",
+        lore.add(Component.text("Price: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(listing.getPricePerUnit()) + " each",
                         TextColor.color(0x55FF55))
                 .decoration(TextDecoration.ITALIC, false));
         lore.add(Component.text("Amount: " + listing.getRemainingAmount() + " / " + listing.getItemAmount(),
@@ -960,7 +988,7 @@ public class AuctionManager {
         List<Component> existingLore = meta.lore();
         List<Component> lore = existingLore != null ? new ArrayList<>(existingLore) : new ArrayList<>();
         lore.add(Component.empty());
-        lore.add(Component.text("Price: $" + EconomyManager.format(listing.getPricePerUnit()) + " each",
+        lore.add(Component.text("Price: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(listing.getPricePerUnit()) + " each",
                         TextColor.color(0x55FF55))
                 .decoration(TextDecoration.ITALIC, false));
         lore.add(Component.text("Remaining: " + listing.getRemainingAmount() + " / " + listing.getItemAmount(),

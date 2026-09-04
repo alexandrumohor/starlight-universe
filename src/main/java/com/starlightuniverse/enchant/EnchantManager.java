@@ -27,14 +27,44 @@ public class EnchantManager {
     private static final NamespacedKey BOOK_TYPE_KEY = NamespacedKey.fromString("starlightuniverse:ce_book_type");
     private static final NamespacedKey BOOK_LEVEL_KEY = NamespacedKey.fromString("starlightuniverse:ce_book_level");
 
-    private static final String ENCHANT_LORE_MARKER = "​";
-
     private static final String[] ROMAN = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
+    private static final java.util.Set<String> ROMAN_SET = java.util.Set.of(
+            "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X");
+    private static final java.util.Set<String> ENCHANT_DISPLAY_NAMES;
+    static {
+        java.util.HashSet<String> set = new java.util.HashSet<>();
+        for (CustomEnchant e : CustomEnchant.values()) set.add(e.getDisplayName());
+        ENCHANT_DISPLAY_NAMES = java.util.Collections.unmodifiableSet(set);
+    }
+
+    /**
+     * True if a lore line's plain text matches "{enchant display name} {Roman I-X}" —
+     * i.e. a line that we (or a prior version of us) wrote as a custom-enchant tag.
+     * Used instead of a leading invisible-marker char, which TLauncher renders as
+     * a literal "ZWSP" glyph.
+     */
+    private static boolean isCustomEnchantLine(String plain) {
+        if (plain == null || plain.isEmpty()) return false;
+        int lastSpace = plain.lastIndexOf(' ');
+        if (lastSpace <= 0 || lastSpace == plain.length() - 1) return false;
+        String suffix = plain.substring(lastSpace + 1);
+        if (!ROMAN_SET.contains(suffix)) return false;
+        String prefix = plain.substring(0, lastSpace);
+        return ENCHANT_DISPLAY_NAMES.contains(prefix);
+    }
 
     private final JavaPlugin plugin;
     private final Map<CustomEnchant, NamespacedKey> enchantKeys = new EnumMap<>(CustomEnchant.class);
 
     private static final NamespacedKey STAR_HEART_MODIFIER_KEY = NamespacedKey.fromString("starlightuniverse:star_heart");
+
+    // Cache the last-applied Star Heart level per player so we only touch the
+    // AttributeInstance when the enchant level actually changes. Removing +
+    // re-adding a modifier every tick trips a "missing required data class
+    // java.lang.Float" serialization warning in Paper 26.2 when the modifier's
+    // NBT is re-encoded before the previous update has fully landed.
+    private final java.util.Map<java.util.UUID, Integer> starHeartCache =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     public EnchantManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -136,6 +166,7 @@ public class EnchantManager {
         lore.add(Component.text("Apply at Anvil or Alchemist", GOLD).decoration(TextDecoration.ITALIC, false));
 
         meta.lore(lore);
+        meta.setItemModel(NamespacedKey.fromString("starlight:shop_enchant_book"));
         book.setItemMeta(meta);
         return book;
     }
@@ -174,7 +205,7 @@ public class EnchantManager {
         if (existingLore != null) {
             for (Component line : existingLore) {
                 String plain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(line);
-                if (!plain.startsWith(ENCHANT_LORE_MARKER)) {
+                if (!isCustomEnchantLine(plain)) {
                     newLore.add(line);
                 }
             }
@@ -186,7 +217,7 @@ public class EnchantManager {
                 CustomEnchant enchant = entry.getKey();
                 int level = entry.getValue();
                 TextColor color = enchant.getRarity().getColor();
-                String text = ENCHANT_LORE_MARKER + enchant.getDisplayName() + " " + toRoman(level);
+                String text = enchant.getDisplayName() + " " + toRoman(level);
                 newLore.addFirst(Component.text(text, color).decoration(TextDecoration.ITALIC, false));
             }
         }
@@ -201,17 +232,35 @@ public class EnchantManager {
         AttributeInstance attr = player.getAttribute(Attribute.MAX_HEALTH);
         if (attr == null) return;
 
-        attr.removeModifier(STAR_HEART_MODIFIER_KEY);
-
         int level = getArmorEnchantLevel(player, CustomEnchant.STAR_HEART);
+        Integer cached = starHeartCache.get(player.getUniqueId());
+        if (cached != null && cached == level) return;
+
+        starHeartCache.put(player.getUniqueId(), level);
+        try {
+            attr.removeModifier(STAR_HEART_MODIFIER_KEY);
+        } catch (Exception ignored) {}
         if (level > 0) {
-            attr.addModifier(new AttributeModifier(STAR_HEART_MODIFIER_KEY, level * 2.0, AttributeModifier.Operation.ADD_NUMBER));
+            try {
+                attr.addTransientModifier(new AttributeModifier(
+                        STAR_HEART_MODIFIER_KEY,
+                        level * 2.0,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        org.bukkit.inventory.EquipmentSlotGroup.ARMOR));
+            } catch (Exception ignored) {}
         }
     }
 
     public void removeStarHeartAttribute(Player player) {
         AttributeInstance attr = player.getAttribute(Attribute.MAX_HEALTH);
         if (attr == null) return;
-        attr.removeModifier(STAR_HEART_MODIFIER_KEY);
+        starHeartCache.remove(player.getUniqueId());
+        try {
+            attr.removeModifier(STAR_HEART_MODIFIER_KEY);
+        } catch (Exception ignored) {}
+    }
+
+    public void clearStarHeartCache(java.util.UUID uuid) {
+        starHeartCache.remove(uuid);
     }
 }

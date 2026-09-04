@@ -98,6 +98,10 @@ public final class PackServer {
         return packHashHex;
     }
 
+    public byte[] getPackBytes() {
+        return packBytes;
+    }
+
     public String buildUrl(String host) {
         return "http://" + host + ":" + PACK_PORT + PACK_PATH;
     }

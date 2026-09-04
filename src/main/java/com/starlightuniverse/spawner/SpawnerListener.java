@@ -14,7 +14,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -147,6 +149,7 @@ public class SpawnerListener implements Listener {
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
         int slot = event.getRawSlot();
+        ClickType click = event.getClick();
 
         if (holder.getType() == SpawnerHolder.Type.SHOP) {
             ItemStack clicked = event.getCurrentItem();
@@ -159,19 +162,51 @@ public class SpawnerListener implements Listener {
             return;
         }
 
-        if (holder.getType() == SpawnerHolder.Type.MANAGE) {
-            VirtualSpawner spawner = spawnerManager.getSpawnerById(holder.getSpawnerId());
-            if (spawner == null) {
-                player.closeInventory();
+        VirtualSpawner spawner = spawnerManager.getSpawnerById(holder.getSpawnerId());
+        if (spawner == null) {
+            player.closeInventory();
+            return;
+        }
+
+        if (holder.getType() == SpawnerHolder.Type.MANAGE_MENU) {
+            switch (slot) {
+                case 11 -> { // Info — no-op, live-updated
+                }
+                case 13 -> { // Storage
+                    if (click.isRightClick()) spawnerManager.sellAll(player, spawner);
+                    else spawnerManager.openStorageGui(player, spawner, 0);
+                }
+                case 15 -> spawnerManager.collectXp(player, spawner);
+                case 22 -> player.closeInventory();
+            }
+            return;
+        }
+
+        if (holder.getType() == SpawnerHolder.Type.STORAGE) {
+            // Item grid slots 0-44 → collect that stack
+            if (slot >= 0 && slot < 45) {
+                ItemStack clicked = event.getCurrentItem();
+                if (clicked == null || clicked.getType() == org.bukkit.Material.AIR) return;
+                spawnerManager.collectStack(player, spawner, clicked.getType());
                 return;
             }
             switch (slot) {
-                case 45 -> spawnerManager.takeAll(player, spawner);
-                case 47 -> spawnerManager.sellAll(player, spawner);
-                case 49 -> spawnerManager.upgradeTier(player, spawner);
-                case 51 -> spawnerManager.collectXp(player, spawner);
-                case 53 -> player.closeInventory();
+                case 45 -> spawnerManager.openManageGui(player, spawner);
+                case 47 -> {
+                    if (holder.getPage() > 0) {
+                        spawnerManager.openStorageGui(player, spawner, holder.getPage() - 1);
+                    }
+                }
+                case 49 -> spawnerManager.collectAll(player, spawner);
+                case 51 -> spawnerManager.sellAll(player, spawner);
+                case 53 -> spawnerManager.openStorageGui(player, spawner, holder.getPage() + 1);
             }
         }
+    }
+
+    @EventHandler
+    public void onClose(InventoryCloseEvent event) {
+        if (!(event.getInventory().getHolder() instanceof SpawnerHolder)) return;
+        if (event.getPlayer() instanceof Player p) spawnerManager.untrackViewer(p);
     }
 }

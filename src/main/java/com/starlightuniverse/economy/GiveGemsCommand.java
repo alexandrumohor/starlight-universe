@@ -59,17 +59,27 @@ public class GiveGemsCommand extends Command {
 
         if (target != null && target.isOnline()) {
             economyManager.addGems(target.getUniqueId(), amount);
-            sender.sendMessage(Component.text("[SU] ", TextColor.color(0xFFD700))
-                    .append(Component.text("Gave ◆" + EconomyManager.format(amount) + " to " + target.getName(), CYAN)));
+            sender.sendMessage(Msg.prefix()
+                    .append(Component.text("Gave ", CYAN))
+                    .append(EconomyManager.gemsText(amount))
+                    .append(Component.text(" to " + target.getName(), CYAN)));
             target.sendMessage(Msg.prefix()
-                    .append(Component.text("You received ◆" + EconomyManager.format(amount), CYAN)));
+                    .append(Component.text("You received ", CYAN))
+                    .append(EconomyManager.gemsText(amount)));
         } else {
             double finalAmount = amount;
             economyManager.giveOffline(targetName, "gems", amount).thenAccept(success -> {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     if (success) {
-                        sender.sendMessage(Component.text("[SU] ", TextColor.color(0xFFD700))
-                                .append(Component.text("Gave ◆" + EconomyManager.format(finalAmount) + " to " + targetName + " (offline)", CYAN)));
+                        sender.sendMessage(Msg.prefix()
+                                .append(Component.text("Gave ", CYAN))
+                                .append(EconomyManager.gemsText(finalAmount))
+                                .append(Component.text(" to " + targetName + " (offline)", CYAN)));
+                        com.starlightuniverse.StarlightUniverse.getInstance().getPendingMessageManager()
+                                .enqueue(targetName, Msg.prefix()
+                                        .append(Component.text("You received ", CYAN))
+                                        .append(EconomyManager.gemsText(finalAmount))
+                                        .append(Component.text(" (while you were offline)", TextColor.color(0xAAAAAA))));
                     } else {
                         sender.sendMessage(Component.text("[SU] Player not found!", TextColor.color(0xFF5555)));
                     }

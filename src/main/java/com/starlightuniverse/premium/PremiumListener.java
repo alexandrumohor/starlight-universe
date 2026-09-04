@@ -153,8 +153,12 @@ public class PremiumListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onXpGain(PlayerExpChangeEvent event) {
         Player player = event.getPlayer();
-        PremiumRank rank = premiumManager.getPlayerRank(player.getUniqueId());
-        double boost = rank.getXpBoost();
+        double boost = premiumManager.getPlayerRank(player.getUniqueId()).getXpBoost();
+        var boosterMgr = com.starlightuniverse.StarlightUniverse.getInstance().getBoosterManager();
+        if (boosterMgr != null) {
+            boost *= boosterMgr.getMultiplier(player.getUniqueId(),
+                    com.starlightuniverse.booster.BoosterType.XP_VANILLA);
+        }
         if (boost > 1.0) {
             event.setAmount((int) Math.ceil(event.getAmount() * boost));
         }

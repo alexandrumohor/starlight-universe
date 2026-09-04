@@ -16,6 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,13 +30,11 @@ public class HomeManager {
     static final int MAX_HOME_SLOTS_NONPREMIUM = 5;
     static final double EXTRA_SLOT_MONEY_COST = 10_000;
     static final double EXTRA_SLOT_GEMS_COST = 500;
-    static final int DEFAULT_PROTECTION_RADIUS = 25;
     static final double GOLEM_MONEY_COST = 5_000;
 
-    static final int[] EXPAND_RADII = {25, 35, 45, 55, 65, 75};
-    static final double[] EXPAND_MONEY_COSTS = {0, 5_000, 10_000, 15_000, 20_000, 30_000};
-    static final double[] EXPAND_GEM_COSTS = {0, 100, 200, 300, 400, 500};
-    static final double[] EXPAND_STAR_COSTS = {0, 10, 10, 10, 10, 10};
+    static final int DEFAULT_PROTECTION_BLOCKS = 1_000;
+    static final int[] BLOCK_PURCHASE_AMOUNTS = {100, 500, 1_000, 5_000};
+    static final double[] BLOCK_PURCHASE_COSTS = {2_500, 10_000, 18_000, 75_000};
 
     static final Material[] ICON_OPTIONS = {
             Material.GRASS_BLOCK, Material.STONE, Material.OAK_LOG, Material.BIRCH_LOG,
@@ -61,6 +60,7 @@ public class HomeManager {
 
     private final Map<String, List<Home>> homeCache = new ConcurrentHashMap<>();
     private final Map<String, Integer> extraSlotsCache = new ConcurrentHashMap<>();
+    private final Map<String, List<Home>> homesByColumn = new ConcurrentHashMap<>();
     private final List<Protection> protections = Collections.synchronizedList(new ArrayList<>());
     private final Map<Integer, Map<String, ProtectionLevel>> protMembers = new ConcurrentHashMap<>();
     private final Set<UUID> protectionGolems = ConcurrentHashMap.newKeySet();
@@ -68,6 +68,10 @@ public class HomeManager {
     private final Map<UUID, Long> homeCooldowns = new ConcurrentHashMap<>();
     private final Set<UUID> addMemberMode = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Integer> addMemberProtId = new ConcurrentHashMap<>();
+
+    private final Map<String, Integer> blockBudgetCache = new ConcurrentHashMap<>();
+    private final Map<UUID, Location> selectionCornerA = new ConcurrentHashMap<>();
+    private final Map<UUID, BukkitTask> hudTasks = new ConcurrentHashMap<>();
 
     public HomeManager(JavaPlugin plugin, DatabaseManager db, EconomyManager economy, AdminManager adminManager) {
         this.plugin = plugin;
@@ -78,9 +82,78 @@ public class HomeManager {
 
     public void initialize() {
         loadAllProtections();
+        loadAllHomeColumns();
+    }
+
+    private void loadAllHomeColumns() {
+        db.queryAsync(conn -> {
+            List<Home> all = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM su_homes");
+                 ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    all.add(new Home(rs.getInt("id"), rs.getString("username"),
+                            rs.getInt("home_number"), rs.getString("home_name"),
+                            rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"),
+                            rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch"),
+                            rs.getString("icon_material")));
+                }
+            }
+            return all;
+        }).thenAccept(all -> {
+            if (all == null) return;
+            homesByColumn.clear();
+            for (Home h : all) addToColumnIndex(h);
+            plugin.getLogger().info("[SU] Indexed " + all.size() + " home spawn columns.");
+        });
+    }
+
+    private String columnKey(String world, int blockX, int blockZ) {
+        return world + "|" + blockX + "|" + blockZ;
+    }
+
+    private void addToColumnIndex(Home home) {
+        String key = columnKey(home.getWorld(),
+                (int) Math.floor(home.getX()), (int) Math.floor(home.getZ()));
+        homesByColumn.computeIfAbsent(key, k -> Collections.synchronizedList(new ArrayList<>()))
+                .add(home);
+    }
+
+    private void removeFromColumnIndex(String world, double x, double z, int homeId) {
+        String key = columnKey(world, (int) Math.floor(x), (int) Math.floor(z));
+        List<Home> list = homesByColumn.get(key);
+        if (list == null) return;
+        list.removeIf(h -> h.getId() == homeId);
+        if (list.isEmpty()) homesByColumn.remove(key);
+    }
+
+    public boolean canPlaceInHomeSpawnColumn(Player player, Location loc) {
+        String world = loc.getWorld().getName();
+        int bx = loc.getBlockX();
+        int bz = loc.getBlockZ();
+        List<Home> homes = homesByColumn.get(columnKey(world, bx, bz));
+        if (homes == null || homes.isEmpty()) return true;
+
+        String lower = player.getName().toLowerCase();
+        if (adminManager.getAdminLevel(player.getUniqueId()) >= 3) return true;
+
+        synchronized (homes) {
+            for (Home h : homes) {
+                if (h.getUsername().equalsIgnoreCase(lower)) continue;
+                Protection prot = getProtectionAt(h.getWorld(),
+                        (int) Math.floor(h.getX()), (int) Math.floor(h.getZ()));
+                if (prot == null) return false;
+                ProtectionLevel level = getMemberLevel(prot.getId(), lower);
+                if (prot.getOwner().equalsIgnoreCase(lower)) continue;
+                if (level.getLevel() < ProtectionLevel.BUILDER.getLevel()) return false;
+            }
+        }
+        return true;
     }
 
     public void shutdown() {
+        hudTasks.values().forEach(BukkitTask::cancel);
+        hudTasks.clear();
+        selectionCornerA.clear();
         protectionGolems.clear();
         golemToProtection.clear();
     }
@@ -93,8 +166,9 @@ public class HomeManager {
                 while (rs.next()) {
                     list.add(new Protection(
                             rs.getInt("id"), rs.getString("owner_username"),
-                            rs.getString("world"), rs.getInt("center_x"),
-                            rs.getInt("center_z"), rs.getInt("radius")));
+                            rs.getString("world"), rs.getInt("min_x"),
+                            rs.getInt("min_z"), rs.getInt("max_x"),
+                            rs.getInt("max_z")));
                 }
             }
             Map<Integer, Map<String, ProtectionLevel>> members = new HashMap<>();
@@ -140,21 +214,53 @@ public class HomeManager {
                 }
             }
             int extraSlots = 0;
+            int blocks = DEFAULT_PROTECTION_BLOCKS;
+            boolean giveDaily = false;
             try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT extra_home_slots FROM su_players WHERE username = ?")) {
+                    "SELECT extra_home_slots, protection_blocks, daily_blocks_date FROM su_players WHERE username = ?")) {
                 ps.setString(1, lower);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) extraSlots = rs.getInt("extra_home_slots");
+                    if (rs.next()) {
+                        extraSlots = rs.getInt("extra_home_slots");
+                        blocks = rs.getInt("protection_blocks");
+                        if (blocks <= 0) blocks = DEFAULT_PROTECTION_BLOCKS;
+                        java.sql.Date lastDate = rs.getDate("daily_blocks_date");
+                        java.sql.Date today = java.sql.Date.valueOf(java.time.LocalDate.now());
+                        giveDaily = (lastDate == null || lastDate.before(today));
+                    }
                 }
             }
-            return new Object[]{homes, extraSlots};
+            if (giveDaily) {
+                blocks += 5;
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "UPDATE su_players SET protection_blocks = ?, daily_blocks_date = CURDATE() WHERE username = ?")) {
+                    ps.setInt(1, blocks);
+                    ps.setString(2, lower);
+                    ps.executeUpdate();
+                }
+            }
+            return new Object[]{homes, extraSlots, blocks, giveDaily};
         }).thenAccept(result -> {
             if (result == null) return;
             @SuppressWarnings("unchecked")
             List<Home> homes = (List<Home>) ((Object[]) result)[0];
             int extra = (int) ((Object[]) result)[1];
+            int blocks = (int) ((Object[]) result)[2];
+            boolean gaveDaily = (boolean) ((Object[]) result)[3];
             homeCache.put(lower, Collections.synchronizedList(new ArrayList<>(homes)));
             extraSlotsCache.put(lower, extra);
+            blockBudgetCache.put(lower, blocks);
+            if (gaveDaily) {
+                final int finalBlocks = blocks;
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (p.getName().toLowerCase().equals(lower)) {
+                            Msg.info(p, "+5 daily protection blocks! Budget: " + String.format("%,d", finalBlocks));
+                            break;
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -162,6 +268,7 @@ public class HomeManager {
         String lower = username.toLowerCase();
         homeCache.remove(lower);
         extraSlotsCache.remove(lower);
+        blockBudgetCache.remove(lower);
     }
 
     public List<Home> getHomes(String username) {
@@ -181,30 +288,20 @@ public class HomeManager {
         String lower = player.getName().toLowerCase();
         int extra = extraSlotsCache.getOrDefault(lower, 0);
         int premiumMax = getPremiumMaxHomes(uuid);
+        if (premiumMax < 0) return Integer.MAX_VALUE;
         return Math.max(DEFAULT_HOME_SLOTS + extra, premiumMax);
     }
 
     private int getPremiumMaxHomes(UUID uuid) {
         int premiumLevel = adminManager.getPremiumLevel(uuid);
         return switch (premiumLevel) {
-            case 1 -> 3;   // Meteor
-            case 2 -> 5;   // Comet
-            case 3 -> 7;   // Nebula
-            case 4 -> 10;  // Supernova
-            case 5 -> 15;  // Galaxy
+            case 1 -> 3;
+            case 2 -> 5;
+            case 3 -> 10;
+            case 4 -> 20;
+            case 5 -> 40;
+            case 6 -> -1;
             default -> DEFAULT_HOME_SLOTS;
-        };
-    }
-
-    public int getMaxProtectionRadius(UUID uuid) {
-        int premiumLevel = adminManager.getPremiumLevel(uuid);
-        return switch (premiumLevel) {
-            case 1 -> 75;
-            case 2 -> 100;
-            case 3 -> 150;
-            case 4 -> 200;
-            case 5 -> 300;
-            default -> 75;
         };
     }
 
@@ -230,7 +327,7 @@ public class HomeManager {
             if (!success) { Msg.error(player, "Not enough Gems! Need " + EconomyManager.GEMS_ICON + EconomyManager.format(EXTRA_SLOT_GEMS_COST)); return; }
         } else {
             success = economy.removeMoney(uuid, EXTRA_SLOT_MONEY_COST);
-            if (!success) { Msg.error(player, "Not enough Money! Need $" + EconomyManager.format(EXTRA_SLOT_MONEY_COST)); return; }
+            if (!success) { Msg.error(player, "Not enough Money! Need " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(EXTRA_SLOT_MONEY_COST)); return; }
         }
         int newExtra = extra + 1;
         extraSlotsCache.put(lower, newExtra);
@@ -261,6 +358,10 @@ public class HomeManager {
 
         Location loc = player.getLocation();
         Home existing = getHome(lower, number);
+        String oldWorld = existing != null ? existing.getWorld() : null;
+        double oldX = existing != null ? existing.getX() : 0;
+        double oldZ = existing != null ? existing.getZ() : 0;
+        int oldId = existing != null ? existing.getId() : -1;
 
         db.executeAsync(conn -> {
             if (existing != null) {
@@ -292,7 +393,29 @@ public class HomeManager {
                 }
             }
         }).thenRun(() -> {
+            if (existing != null && oldWorld != null) {
+                removeFromColumnIndex(oldWorld, oldX, oldZ, oldId);
+            }
             loadPlayerHomes(lower);
+            db.queryAsync(conn -> {
+                try (PreparedStatement ps = conn.prepareStatement(
+                        "SELECT * FROM su_homes WHERE username=? AND home_number=?")) {
+                    ps.setString(1, lower);
+                    ps.setInt(2, number);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            return new Home(rs.getInt("id"), rs.getString("username"),
+                                    rs.getInt("home_number"), rs.getString("home_name"),
+                                    rs.getString("world"), rs.getDouble("x"), rs.getDouble("y"),
+                                    rs.getDouble("z"), rs.getFloat("yaw"), rs.getFloat("pitch"),
+                                    rs.getString("icon_material"));
+                        }
+                    }
+                }
+                return null;
+            }).thenAccept(fresh -> {
+                if (fresh != null) addToColumnIndex(fresh);
+            });
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (player.isOnline())
                     Msg.success(player, "Home #" + number + " set at " + loc.getWorld().getName()
@@ -314,6 +437,7 @@ public class HomeManager {
         }).thenRun(() -> {
             List<Home> homes = homeCache.get(lower);
             if (homes != null) homes.removeIf(h -> h.getNumber() == number);
+            removeFromColumnIndex(home.getWorld(), home.getX(), home.getZ(), home.getId());
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (player.isOnline()) Msg.success(player, "Home #" + number + " deleted!");
             });
@@ -367,6 +491,9 @@ public class HomeManager {
         Home home = getHome(lower, number);
         if (home == null) { Msg.error(player, "Home #" + number + " does not exist!"); return; }
 
+        World world = WorldManager.findWorld(home.getWorld());
+        if (world == null) { Msg.error(player, "World not found!"); return; }
+
         long now = System.currentTimeMillis();
         Long last = homeCooldowns.get(uuid);
         if (last != null && now - last < 3000) {
@@ -375,12 +502,54 @@ public class HomeManager {
         }
         homeCooldowns.put(uuid, now);
 
-        World world = Bukkit.getWorld(home.getWorld());
-        if (world == null) { Msg.error(player, "World not found!"); return; }
-
         Location loc = new Location(world, home.getX(), home.getY(), home.getZ(), home.getYaw(), home.getPitch());
-        player.teleport(loc);
-        Msg.success(player, "Teleported to " + home.getDisplayName() + "!");
+
+        for (org.bukkit.entity.Entity passenger : new ArrayList<>(player.getPassengers())) {
+            if (passenger instanceof org.bukkit.entity.TextDisplay) {
+                player.removePassenger(passenger);
+                passenger.remove();
+            }
+        }
+        if (player.isInsideVehicle()) player.leaveVehicle();
+
+        Runnable doTeleport = () -> {
+            if (!player.isOnline()) return;
+            player.setFallDistance(0);
+            player.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+            player.setFireTicks(0);
+            player.setNoDamageTicks(40);
+            boolean success = player.teleport(loc,
+                    org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.COMMAND);
+            if (success) {
+                player.setFallDistance(0);
+                player.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+                player.setNoDamageTicks(40);
+                Msg.success(player, "Teleported to " + home.getDisplayName() + "!");
+                player.playSound(player.getLocation(),
+                        org.bukkit.Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+            } else {
+                Msg.error(player, "Teleport was cancelled!");
+                homeCooldowns.remove(uuid);
+            }
+        };
+
+        int cx = loc.getBlockX() >> 4;
+        int cz = loc.getBlockZ() >> 4;
+        if (world.isChunkLoaded(cx, cz)) {
+            doTeleport.run();
+        } else {
+            world.getChunkAtAsync(cx, cz, true)
+                    .thenAccept(chunk -> Bukkit.getScheduler().runTask(plugin, doTeleport))
+                    .exceptionally(ex -> {
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            if (player.isOnline()) {
+                                Msg.error(player, "Teleport failed: " + ex.getClass().getSimpleName());
+                            }
+                            homeCooldowns.remove(uuid);
+                        });
+                        return null;
+                    });
+        }
     }
 
     public void shareHome(Player player, int number, Player target) {
@@ -392,8 +561,24 @@ public class HomeManager {
         target.sendMessage(Component.text("[SU] ", GOLD)
                 .append(Component.text(player.getName(), GREEN))
                 .append(Component.text(" shared their home with you: ", YELLOW))
-                .append(Component.text(home.getWorld() + " (" + (int) home.getX() + ", "
-                        + (int) home.getY() + ", " + (int) home.getZ() + ")", CYAN)));
+                .append(Component.text(worldDisplayName(home.getWorld()) + " ("
+                        + (int) home.getX() + " | " + (int) home.getY() + " | "
+                        + (int) home.getZ() + ")", CYAN)));
+    }
+
+    private static String worldDisplayName(String worldName) {
+        String stripped = worldName == null ? "" : worldName;
+        int colon = stripped.indexOf(':');
+        if (colon >= 0) stripped = stripped.substring(colon + 1);
+        return switch (stripped) {
+            case "world", WorldManager.OVERWORLD -> "Overworld";
+            case "world_nether", "the_nether", "nether", WorldManager.WORLD_NETHER -> "Nether";
+            case "world_the_end", "the_end", "end" -> "End";
+            case WorldManager.RESOURCE_OVERWORLD -> "Resource Overworld";
+            case WorldManager.RESOURCE_NETHER -> "Resource Nether";
+            case WorldManager.RESOURCE_END -> "Resource End";
+            default -> stripped;
+        };
     }
 
     // ==================== PROTECTION ====================
@@ -417,25 +602,148 @@ public class HomeManager {
         return null;
     }
 
-    public boolean createProtection(Player player, Location loc) {
+    // ── Block Budget ──
+
+    public int getPlayerBlockBudget(String username) {
+        return blockBudgetCache.getOrDefault(username.toLowerCase(), DEFAULT_PROTECTION_BLOCKS);
+    }
+
+    public void addProtectionBlocks(String username, int blocks) {
+        String lower = username.toLowerCase();
+        int current = blockBudgetCache.getOrDefault(lower, DEFAULT_PROTECTION_BLOCKS);
+        int newBudget = current + blocks;
+        blockBudgetCache.put(lower, newBudget);
+        db.executeAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE su_players SET protection_blocks = ? WHERE username = ?")) {
+                ps.setInt(1, newBudget);
+                ps.setString(2, lower);
+                ps.executeUpdate();
+            }
+        });
+    }
+
+    public void purchaseBlocks(Player player, int index) {
+        if (index < 0 || index >= BLOCK_PURCHASE_AMOUNTS.length) return;
+        int blocks = BLOCK_PURCHASE_AMOUNTS[index];
+        double cost = BLOCK_PURCHASE_COSTS[index];
+        UUID uuid = player.getUniqueId();
+        if (!economy.removeMoney(uuid, cost)) {
+            Msg.error(player, "Not enough money! Need " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(cost));
+            return;
+        }
+        String lower = player.getName().toLowerCase();
+        addProtectionBlocks(lower, blocks);
+        int newBudget = blockBudgetCache.getOrDefault(lower, DEFAULT_PROTECTION_BLOCKS);
+        Msg.success(player, "Purchased +" + String.format("%,d", blocks) + " protection blocks! Budget: " + String.format("%,d", newBudget));
+    }
+
+    // ── Selection System (two-corner) ──
+
+    public boolean hasCornerA(UUID uuid) {
+        return selectionCornerA.containsKey(uuid);
+    }
+
+    public void setCornerA(Player player, Location loc) {
+        UUID uuid = player.getUniqueId();
+        selectionCornerA.put(uuid, loc);
+        startHudTask(player);
+        int x = loc.getBlockX();
+        int z = loc.getBlockZ();
+        Msg.info(player, "Corner A set at (" + x + ", " + z + "). Right-click another block to set Corner B.");
+    }
+
+    public void cancelSelection(UUID uuid) {
+        selectionCornerA.remove(uuid);
+        BukkitTask task = hudTasks.remove(uuid);
+        if (task != null) task.cancel();
+    }
+
+    private void startHudTask(Player player) {
+        UUID uuid = player.getUniqueId();
+        BukkitTask old = hudTasks.remove(uuid);
+        if (old != null) old.cancel();
+        long startTime = System.currentTimeMillis();
+        BukkitTask task = new org.bukkit.scheduler.BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!player.isOnline()) { cancelSelection(uuid); cancel(); return; }
+                if (System.currentTimeMillis() - startTime > 60_000) {
+                    Msg.error(player, "Protection selection timed out!");
+                    cancelSelection(uuid);
+                    cancel();
+                    return;
+                }
+                ItemStack hand = player.getInventory().getItemInMainHand();
+                if (hand.getType() != Material.GOLDEN_SHOVEL) {
+                    cancelSelection(uuid);
+                    cancel();
+                    return;
+                }
+                Location cornerA = selectionCornerA.get(uuid);
+                if (cornerA == null) { cancel(); return; }
+
+                Location current = player.getLocation();
+                int ax = cornerA.getBlockX();
+                int az = cornerA.getBlockZ();
+                int bx = current.getBlockX();
+                int bz = current.getBlockZ();
+
+                int w = Math.abs(bx - ax) + 1;
+                int l = Math.abs(bz - az) + 1;
+                int area = w * l;
+                int budget = getPlayerBlockBudget(player.getName().toLowerCase());
+
+                TextColor color = area <= budget ? GREEN : RED;
+                player.sendActionBar(Component.text("Protection: " + w + " x " + l + " | "
+                        + String.format("%,d", area) + " / " + String.format("%,d", budget) + " blocks", color));
+            }
+        }.runTaskTimer(plugin, 0L, 5L);
+        hudTasks.put(uuid, task);
+    }
+
+    public boolean tryCreateProtection(Player player, Location locB) {
+        UUID uuid = player.getUniqueId();
+        Location locA = selectionCornerA.remove(uuid);
+        BukkitTask task = hudTasks.remove(uuid);
+        if (task != null) task.cancel();
+
+        if (locA == null) return false;
         String lower = player.getName().toLowerCase();
 
         if (getPlayerProtection(lower) != null) {
-            Msg.error(player, "You already have a protection! Use /homeprotect to manage it.");
+            Msg.error(player, "You already have a protection! Delete it first to create a new one.");
             return false;
         }
 
-        if (WorldManager.getWorldGroup(loc.getWorld()) != WorldManager.WorldGroup.SURVIVAL) {
+        if (WorldManager.getWorldGroup(locA.getWorld()) != WorldManager.WorldGroup.SURVIVAL) {
             Msg.error(player, "You can only create protections in survival worlds!");
             return false;
         }
+        if (!locA.getWorld().getName().equals(locB.getWorld().getName())) {
+            Msg.error(player, "Both corners must be in the same world!");
+            return false;
+        }
 
-        int cx = loc.getBlockX();
-        int cz = loc.getBlockZ();
-        String worldName = loc.getWorld().getName();
-        int radius = DEFAULT_PROTECTION_RADIUS;
+        int ax = locA.getBlockX();
+        int az = locA.getBlockZ();
+        int bx = locB.getBlockX();
+        int bz = locB.getBlockZ();
+        int minX = Math.min(ax, bx);
+        int maxX = Math.max(ax, bx);
+        int minZ = Math.min(az, bz);
+        int maxZ = Math.max(az, bz);
+        int area = (maxX - minX + 1) * (maxZ - minZ + 1);
 
-        Protection temp = new Protection(0, lower, worldName, cx, cz, radius);
+        int budget = getPlayerBlockBudget(lower);
+        if (area > budget) {
+            Msg.error(player, "Not enough blocks! Area: " + String.format("%,d", area)
+                    + ", Budget: " + String.format("%,d", budget));
+            return false;
+        }
+
+        String worldName = locA.getWorld().getName();
+        Protection temp = new Protection(0, lower, worldName, minX, minZ, maxX, maxZ);
         synchronized (protections) {
             for (Protection p : protections) {
                 if (p.overlaps(temp)) {
@@ -447,13 +755,14 @@ public class HomeManager {
 
         db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
-                    "INSERT INTO su_protections (owner_username, world, center_x, center_z, radius) VALUES (?,?,?,?,?)",
+                    "INSERT INTO su_protections (owner_username, world, min_x, min_z, max_x, max_z) VALUES (?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
                 ps.setString(1, lower);
                 ps.setString(2, worldName);
-                ps.setInt(3, cx);
-                ps.setInt(4, cz);
-                ps.setInt(5, radius);
+                ps.setInt(3, minX);
+                ps.setInt(4, minZ);
+                ps.setInt(5, maxX);
+                ps.setInt(6, maxZ);
                 ps.executeUpdate();
                 try (ResultSet keys = ps.getGeneratedKeys()) {
                     if (keys.next()) return keys.getInt(1);
@@ -462,13 +771,13 @@ public class HomeManager {
             return -1;
         }).thenAccept(id -> {
             if (id == null || id < 0) return;
-            Protection prot = new Protection(id, lower, worldName, cx, cz, radius);
+            Protection prot = new Protection(id, lower, worldName, minX, minZ, maxX, maxZ);
             protections.add(prot);
-            addLog(id, lower, "Created protection");
+            addLog(id, lower, "Created protection " + (maxX - minX + 1) + "x" + (maxZ - minZ + 1));
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (player.isOnline()) {
-                    Msg.success(player, "Protection created! Area: " + (radius * 2 + 1) + "x" + (radius * 2 + 1)
-                            + " centered at (" + cx + ", " + cz + ")");
+                    Msg.success(player, "Protection created! Area: " + (maxX - minX + 1) + "x" + (maxZ - minZ + 1)
+                            + " (" + String.format("%,d", area) + " blocks)");
                     showVisualizer(player, prot);
                 }
             });
@@ -546,83 +855,6 @@ public class HomeManager {
             }
         });
         addLog(protId, lower, "Removed from protection");
-    }
-
-    public boolean expandProtection(Player player, int protId, String currency) {
-        Protection prot = null;
-        synchronized (protections) {
-            for (Protection p : protections) {
-                if (p.getId() == protId) { prot = p; break; }
-            }
-        }
-        if (prot == null) { Msg.error(player, "Protection not found!"); return false; }
-
-        int currentLevel = prot.getSizeLevel();
-        if (currentLevel >= EXPAND_RADII.length - 1) {
-            Msg.error(player, "Protection is already at maximum size!");
-            return false;
-        }
-
-        int maxRadius = getMaxProtectionRadius(player.getUniqueId());
-        int nextRadius = EXPAND_RADII[currentLevel + 1];
-        if (nextRadius > maxRadius) {
-            Msg.error(player, "You need a higher premium rank to expand further!");
-            return false;
-        }
-
-        int nextLevel = currentLevel + 1;
-
-        Protection tempExpanded = new Protection(protId, prot.getOwner(), prot.getWorld(),
-                prot.getCenterX(), prot.getCenterZ(), nextRadius);
-        synchronized (protections) {
-            for (Protection p : protections) {
-                if (p.getId() != protId && p.overlaps(tempExpanded)) {
-                    Msg.error(player, "Expansion would overlap with " + p.getOwner() + "'s protection!");
-                    return false;
-                }
-            }
-        }
-
-        UUID uuid = player.getUniqueId();
-        boolean success;
-        String costDisplay;
-
-        switch (currency.toLowerCase()) {
-            case "gems" -> {
-                double cost = EXPAND_GEM_COSTS[nextLevel];
-                success = economy.removeGems(uuid, cost);
-                costDisplay = EconomyManager.GEMS_ICON + EconomyManager.format(cost);
-                if (!success) { Msg.error(player, "Not enough Gems! Need " + costDisplay); return false; }
-            }
-            case "stars" -> {
-                double cost = EXPAND_STAR_COSTS[nextLevel];
-                success = economy.removeStars(uuid, cost);
-                costDisplay = EconomyManager.STARS_ICON + EconomyManager.format(cost);
-                if (!success) { Msg.error(player, "Not enough Stars! Need " + costDisplay); return false; }
-            }
-            default -> {
-                double cost = EXPAND_MONEY_COSTS[nextLevel];
-                success = economy.removeMoney(uuid, cost);
-                costDisplay = "$" + EconomyManager.format(cost);
-                if (!success) { Msg.error(player, "Not enough Money! Need " + costDisplay); return false; }
-            }
-        }
-
-        prot.setRadius(nextRadius);
-        db.executeAsync(conn -> {
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "UPDATE su_protections SET radius = ? WHERE id = ?")) {
-                ps.setInt(1, nextRadius);
-                ps.setInt(2, protId);
-                ps.executeUpdate();
-            }
-        });
-
-        int size = nextRadius * 2 + 1;
-        Msg.success(player, "Protection expanded to " + size + "x" + size + " for " + costDisplay + "!");
-        addLog(protId, player.getName().toLowerCase(), "Expanded to " + size + "x" + size);
-        showVisualizer(player, prot);
-        return true;
     }
 
     public void deleteProtection(Player player) {
@@ -711,7 +943,7 @@ public class HomeManager {
     public void spawnGolem(Player player, Protection prot) {
         UUID uuid = player.getUniqueId();
         if (!economy.removeMoney(uuid, GOLEM_MONEY_COST)) {
-            Msg.error(player, "Not enough Money! Need $" + EconomyManager.format(GOLEM_MONEY_COST));
+            Msg.error(player, "Not enough Money! Need " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(GOLEM_MONEY_COST));
             return;
         }
 
@@ -737,7 +969,7 @@ public class HomeManager {
             }
         });
 
-        Msg.success(player, "Guardian Golem spawned! Cost: $" + EconomyManager.format(GOLEM_MONEY_COST));
+        Msg.success(player, "Guardian Golem spawned! Cost: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(GOLEM_MONEY_COST));
         addLog(prot.getId(), player.getName().toLowerCase(), "Spawned Guardian Golem");
     }
 
@@ -838,7 +1070,7 @@ public class HomeManager {
             ItemMeta meta = buy.getItemMeta();
             meta.displayName(Component.text("Buy Extra Home Slot", GREEN).decoration(TextDecoration.ITALIC, false));
             meta.lore(List.of(
-                    Component.text("$" + EconomyManager.format(EXTRA_SLOT_MONEY_COST) + " or "
+                    Component.text(EconomyManager.MONEY_ICON + " $" + EconomyManager.format(EXTRA_SLOT_MONEY_COST) + " or "
                             + EconomyManager.GEMS_ICON + EconomyManager.format(EXTRA_SLOT_GEMS_COST), YELLOW)
                             .decoration(TextDecoration.ITALIC, false)
             ));
@@ -947,7 +1179,7 @@ public class HomeManager {
         ItemStack money = new ItemStack(Material.GOLD_INGOT);
         ItemMeta moneyMeta = money.getItemMeta();
         moneyMeta.displayName(Component.text("Buy with Money", GREEN).decoration(TextDecoration.ITALIC, false));
-        moneyMeta.lore(List.of(Component.text("Cost: $" + EconomyManager.format(EXTRA_SLOT_MONEY_COST), YELLOW)
+        moneyMeta.lore(List.of(Component.text("Cost: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(EXTRA_SLOT_MONEY_COST), YELLOW)
                 .decoration(TextDecoration.ITALIC, false)));
         money.setItemMeta(moneyMeta);
         inv.setItem(2, money);
@@ -973,7 +1205,7 @@ public class HomeManager {
         String lower = player.getName().toLowerCase();
         Protection prot = getPlayerProtection(lower);
         if (prot == null) {
-            Msg.error(player, "You don't have a protection! Right-click with a Golden Shovel to create one.");
+            Msg.error(player, "You don't have a protection! Right-click with a Protection Shovel to create one.");
             return;
         }
 
@@ -983,15 +1215,18 @@ public class HomeManager {
                 Component.text("Home Protection", GOLD).decoration(TextDecoration.ITALIC, false));
         holder.setInventory(inv);
 
-        int size = prot.getRadius() * 2 + 1;
+        int w = prot.getWidth();
+        int l = prot.getLength();
+        int area = prot.getArea();
+        int budget = getPlayerBlockBudget(lower);
         ItemStack info = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta infoMeta = info.getItemMeta();
         infoMeta.displayName(Component.text("Protection Info", GREEN).decoration(TextDecoration.ITALIC, false));
         infoMeta.lore(List.of(
                 Component.text("World: " + prot.getWorld(), GRAY).decoration(TextDecoration.ITALIC, false),
-                Component.text("Center: " + prot.getCenterX() + ", " + prot.getCenterZ(), GRAY).decoration(TextDecoration.ITALIC, false),
-                Component.text("Size: " + size + "x" + size, GRAY).decoration(TextDecoration.ITALIC, false),
-                Component.text("Radius: " + prot.getRadius() + " blocks", GRAY).decoration(TextDecoration.ITALIC, false)
+                Component.text("Area: " + w + " x " + l + " (" + String.format("%,d", area) + " blocks)", GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("From: (" + prot.getMinX() + ", " + prot.getMinZ() + ") To: (" + prot.getMaxX() + ", " + prot.getMaxZ() + ")", GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("Block Budget: " + String.format("%,d", budget), CYAN).decoration(TextDecoration.ITALIC, false)
         ));
         info.setItemMeta(infoMeta);
         inv.setItem(10, info);
@@ -1008,17 +1243,11 @@ public class HomeManager {
 
         ItemStack expand = new ItemStack(Material.SLIME_BALL);
         ItemMeta expandMeta = expand.getItemMeta();
-        expandMeta.displayName(Component.text("Expand", YELLOW).decoration(TextDecoration.ITALIC, false));
-        int currentLevel = prot.getSizeLevel();
-        if (currentLevel < EXPAND_RADII.length - 1) {
-            int nextSize = EXPAND_RADII[currentLevel + 1] * 2 + 1;
-            expandMeta.lore(List.of(
-                    Component.text("Next: " + nextSize + "x" + nextSize, GRAY).decoration(TextDecoration.ITALIC, false),
-                    Component.text("Click to see costs", YELLOW).decoration(TextDecoration.ITALIC, false)
-            ));
-        } else {
-            expandMeta.lore(List.of(Component.text("Maximum size reached!", GREEN).decoration(TextDecoration.ITALIC, false)));
-        }
+        expandMeta.displayName(Component.text("Buy Blocks", YELLOW).decoration(TextDecoration.ITALIC, false));
+        expandMeta.lore(List.of(
+                Component.text("Budget: " + String.format("%,d", budget) + " blocks", GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("Click to buy more blocks", YELLOW).decoration(TextDecoration.ITALIC, false)
+        ));
         expand.setItemMeta(expandMeta);
         inv.setItem(14, expand);
 
@@ -1026,7 +1255,7 @@ public class HomeManager {
         ItemMeta golemMeta = golem.getItemMeta();
         golemMeta.displayName(Component.text("Spawn Guardian Golem", GREEN).decoration(TextDecoration.ITALIC, false));
         golemMeta.lore(List.of(
-                Component.text("Cost: $" + EconomyManager.format(GOLEM_MONEY_COST), YELLOW).decoration(TextDecoration.ITALIC, false),
+                Component.text("Cost: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(GOLEM_MONEY_COST), YELLOW).decoration(TextDecoration.ITALIC, false),
                 Component.text("Golems attack intruders inside", GRAY).decoration(TextDecoration.ITALIC, false)
         ));
         golem.setItemMeta(golemMeta);
@@ -1100,56 +1329,46 @@ public class HomeManager {
     }
 
     public void openExpandGui(Player player, int protId) {
-        Protection prot = getProtectionById(protId);
-        if (prot == null) return;
+        String lower = player.getName().toLowerCase();
+        int budget = getPlayerBlockBudget(lower);
 
         HomeHolder holder = new HomeHolder(HomeHolder.Type.PROTECT_EXPAND);
         holder.setProtectionId(protId);
-        Inventory inv = Bukkit.createInventory(holder, 9,
-                Component.text("Expand Protection", GOLD).decoration(TextDecoration.ITALIC, false));
+        Inventory inv = Bukkit.createInventory(holder, 27,
+                Component.text("Buy Protection Blocks", GOLD).decoration(TextDecoration.ITALIC, false));
         holder.setInventory(inv);
 
-        int currentLevel = prot.getSizeLevel();
-        if (currentLevel >= EXPAND_RADII.length - 1) {
-            ItemStack maxed = new ItemStack(Material.BARRIER);
-            ItemMeta meta = maxed.getItemMeta();
-            meta.displayName(Component.text("Maximum Size Reached!", RED).decoration(TextDecoration.ITALIC, false));
-            maxed.setItemMeta(meta);
-            inv.setItem(4, maxed);
-        } else {
-            int nextLevel = currentLevel + 1;
-            int nextSize = EXPAND_RADII[nextLevel] * 2 + 1;
+        ItemStack budgetInfo = new ItemStack(Material.WRITABLE_BOOK);
+        ItemMeta budgetMeta = budgetInfo.getItemMeta();
+        budgetMeta.displayName(Component.text("Your Block Budget", CYAN).decoration(TextDecoration.ITALIC, false));
+        budgetMeta.lore(List.of(
+                Component.text(String.format("%,d", budget) + " blocks", GREEN).decoration(TextDecoration.ITALIC, false),
+                Component.text("Buy more to protect larger areas", GRAY).decoration(TextDecoration.ITALIC, false)
+        ));
+        budgetInfo.setItemMeta(budgetMeta);
+        inv.setItem(4, budgetInfo);
 
-            ItemStack moneyBtn = new ItemStack(Material.GOLD_INGOT);
-            ItemMeta moneyMeta = moneyBtn.getItemMeta();
-            moneyMeta.displayName(Component.text("Expand with Money", GREEN).decoration(TextDecoration.ITALIC, false));
-            moneyMeta.lore(List.of(
-                    Component.text("Cost: $" + EconomyManager.format(EXPAND_MONEY_COSTS[nextLevel]), YELLOW).decoration(TextDecoration.ITALIC, false),
-                    Component.text("New size: " + nextSize + "x" + nextSize, GRAY).decoration(TextDecoration.ITALIC, false)
-            ));
-            moneyBtn.setItemMeta(moneyMeta);
-            inv.setItem(1, moneyBtn);
+        for (int i = 0; i < BLOCK_PURCHASE_AMOUNTS.length; i++) {
+            int blocks = BLOCK_PURCHASE_AMOUNTS[i];
+            double cost = BLOCK_PURCHASE_COSTS[i];
+            int slot = 10 + (i * 2);
 
-            ItemStack gemsBtn = new ItemStack(Material.DIAMOND);
-            ItemMeta gemsMeta = gemsBtn.getItemMeta();
-            gemsMeta.displayName(Component.text("Expand with Gems", CYAN).decoration(TextDecoration.ITALIC, false));
-            gemsMeta.lore(List.of(
-                    Component.text("Cost: " + EconomyManager.GEMS_ICON + EconomyManager.format(EXPAND_GEM_COSTS[nextLevel]), YELLOW).decoration(TextDecoration.ITALIC, false),
-                    Component.text("New size: " + nextSize + "x" + nextSize, GRAY).decoration(TextDecoration.ITALIC, false)
+            ItemStack btn = new ItemStack(Material.GOLD_INGOT);
+            ItemMeta meta = btn.getItemMeta();
+            meta.displayName(Component.text("+" + String.format("%,d", blocks) + " Blocks", GREEN).decoration(TextDecoration.ITALIC, false));
+            meta.lore(List.of(
+                    Component.text("Cost: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(cost), YELLOW).decoration(TextDecoration.ITALIC, false),
+                    Component.text("New budget: " + String.format("%,d", budget + blocks), GRAY).decoration(TextDecoration.ITALIC, false)
             ));
-            gemsBtn.setItemMeta(gemsMeta);
-            inv.setItem(4, gemsBtn);
-
-            ItemStack starsBtn = new ItemStack(Material.NETHER_STAR);
-            ItemMeta starsMeta = starsBtn.getItemMeta();
-            starsMeta.displayName(Component.text("Expand with Stars", TextColor.color(0xAA00AA)).decoration(TextDecoration.ITALIC, false));
-            starsMeta.lore(List.of(
-                    Component.text("Cost: " + EconomyManager.STARS_ICON + EconomyManager.format(EXPAND_STAR_COSTS[nextLevel]), YELLOW).decoration(TextDecoration.ITALIC, false),
-                    Component.text("New size: " + nextSize + "x" + nextSize, GRAY).decoration(TextDecoration.ITALIC, false)
-            ));
-            starsBtn.setItemMeta(starsMeta);
-            inv.setItem(7, starsBtn);
+            btn.setItemMeta(meta);
+            inv.setItem(slot, btn);
         }
+
+        ItemStack back = new ItemStack(Material.ARROW);
+        ItemMeta backMeta = back.getItemMeta();
+        backMeta.displayName(Component.text("Back", GRAY).decoration(TextDecoration.ITALIC, false));
+        back.setItemMeta(backMeta);
+        inv.setItem(22, back);
 
         player.openInventory(inv);
     }

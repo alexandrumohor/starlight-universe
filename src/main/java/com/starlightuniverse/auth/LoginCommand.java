@@ -45,15 +45,48 @@ public class LoginCommand extends Command {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             AuthManager.LoginResult result = authManager.login(username, password);
 
+            SkinManager.SkinData skin = null;
             if (result == AuthManager.LoginResult.SUCCESS) {
                 authManager.saveSession(username, ip);
+                // Re-fetch skin — profile textures reset each session.
+                SkinManager sm = StarlightUniverse.getInstance().getSkinManager();
+                if (sm != null) {
+                    String uuid = authManager.getPremiumUuid(username);
+                    if (uuid != null) skin = sm.fetchMojangSkin(uuid);
+                    if (skin == null) {
+                        AuthManager.MojangProfile p = authManager.checkMojangPremium(username);
+                        if (p != null) skin = sm.fetchMojangSkin(p.id());
+                    }
+                    if (skin == null) skin = sm.getRandomSkin();
+                }
             }
+            final SkinManager.SkinData finalSkin = skin;
 
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (!player.isOnline()) return;
                 switch (result) {
                     case SUCCESS -> {
                         authManager.setAuthenticated(player.getUniqueId());
+                        player.setHealth(player.getMaxHealth());
+                        player.setFoodLevel(20);
+                        player.setSaturation(20f);
+                        player.setFireTicks(0);
+                        com.starlightuniverse.world.LobbyManager.ensureInLobby(player);
+                        SkinManager sm = StarlightUniverse.getInstance().getSkinManager();
+                        if (finalSkin != null && sm != null) sm.applySkin(player, finalSkin);
+                        var headMgr = StarlightUniverse.getInstance().getPlayerHeadPackManager();
+                        if (headMgr != null) headMgr.sendHeadOverlayAfterAuth(player);
+                        var np = StarlightUniverse.getInstance().getNameplateManager();
+                        if (np != null) {
+                            Bukkit.getScheduler().runTaskLater(StarlightUniverse.getInstance(), () -> {
+                                if (!player.isOnline()) return;
+                                np.spawnFor(player);
+                                for (Player other : player.getWorld().getPlayers()) {
+                                    if (other.equals(player)) continue;
+                                    np.remount(other);
+                                }
+                            }, 10L);
+                        }
                         Msg.success(player, "Successfully logged in! Welcome back.");
                         StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
                         com.starlightuniverse.announce.WelcomeMessage.send(player);

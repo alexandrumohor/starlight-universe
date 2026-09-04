@@ -286,7 +286,8 @@ public class PWarpManager {
         }
 
         if (!economy.removeMoney(player.getUniqueId(), CREATE_COST)) {
-            Msg.error(player, "Not enough Money! Need $" + EconomyManager.format(CREATE_COST));
+            Msg.error(player, Component.text("Not enough Money! Need ")
+                    .append(EconomyManager.moneyText(CREATE_COST)));
             return;
         }
 
@@ -320,7 +321,8 @@ public class PWarpManager {
             warps.add(warp);
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (player.isOnline()) {
-                    Msg.success(player, "Warp \"" + name + "\" created! Cost: $" + EconomyManager.format(CREATE_COST));
+                    Msg.success(player, Component.text("Warp \"" + name + "\" created! Cost: ")
+                            .append(EconomyManager.moneyText(CREATE_COST)));
                     Msg.gray(player, "Area is auto-protected within " + PROTECTION_RADIUS + " blocks. Use /pwarps to manage.");
                 }
             });
@@ -375,7 +377,9 @@ public class PWarpManager {
 
         if (!isOwner && w.getEntryCost() > 0) {
             if (!economy.removeMoney(player.getUniqueId(), w.getEntryCost())) {
-                Msg.error(player, "This warp costs $" + EconomyManager.format(w.getEntryCost()) + " to enter — you don't have enough!");
+                Msg.error(player, Component.text("This warp costs ")
+                        .append(EconomyManager.moneyText(w.getEntryCost()))
+                        .append(Component.text(" to enter — you don't have enough!")));
                 return;
             }
             Player ownerPlayer = Bukkit.getPlayerExact(w.getOwner());
@@ -384,7 +388,9 @@ public class PWarpManager {
             } else {
                 economy.giveOffline(w.getOwner(), "money", w.getEntryCost());
             }
-            Msg.info(player, "Paid $" + EconomyManager.format(w.getEntryCost()) + " to " + w.getOwner() + " for entry.");
+            Msg.info(player, Component.text("Paid ")
+                    .append(EconomyManager.moneyText(w.getEntryCost()))
+                    .append(Component.text(" to " + w.getOwner() + " for entry.")));
         }
 
         player.teleport(loc);
@@ -718,7 +724,8 @@ public class PWarpManager {
         lore.add(Component.text("Reviews Number: " + (int) r[1], GRAY).decoration(TextDecoration.ITALIC, false));
         lore.add(Component.text("Visitors: " + w.getVisitors(), GRAY).decoration(TextDecoration.ITALIC, false));
         if (w.getEntryCost() > 0)
-            lore.add(Component.text("Entry cost: $" + EconomyManager.format(w.getEntryCost()), YELLOW)
+            lore.add(Component.text("Entry cost: ", YELLOW)
+                    .append(EconomyManager.moneyText(w.getEntryCost()).decoration(TextDecoration.ITALIC, false))
                     .decoration(TextDecoration.ITALIC, false));
         else
             lore.add(Component.text("Entry cost: FREE", GREEN).decoration(TextDecoration.ITALIC, false));
@@ -789,7 +796,7 @@ public class PWarpManager {
         im.lore(List.of(
                 Component.text("You have " + mine.size() + "/" + MAX_WARPS_PER_PLAYER + " warps.", GRAY)
                         .decoration(TextDecoration.ITALIC, false),
-                Component.text("Create cost: $" + EconomyManager.format(CREATE_COST), GRAY)
+                Component.text("Create cost: ", GRAY).append(EconomyManager.moneyText(CREATE_COST).decoration(TextDecoration.ITALIC, false))
                         .decoration(TextDecoration.ITALIC, false),
                 Component.text("Description required (min " + MIN_DESCRIPTION + " chars)", GRAY)
                         .decoration(TextDecoration.ITALIC, false)
@@ -839,7 +846,7 @@ public class PWarpManager {
         ItemStack cost = new ItemStack(Material.GOLD_INGOT);
         ItemMeta costm = cost.getItemMeta();
         costm.displayName(Component.text(w.getEntryCost() > 0
-                        ? "Entry cost: $" + EconomyManager.format(w.getEntryCost())
+                        ? "Entry cost: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(w.getEntryCost())
                         : "Entry cost: FREE",
                 w.getEntryCost() > 0 ? YELLOW : GREEN).decoration(TextDecoration.ITALIC, false));
         costm.lore(List.of(

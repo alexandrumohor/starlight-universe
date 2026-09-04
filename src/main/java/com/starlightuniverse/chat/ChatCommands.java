@@ -143,6 +143,14 @@ public final class ChatCommands {
                 Msg.success(player, "Tag set to [" + tag + "]!");
                 return true;
             }
+            @Override
+            public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) {
+                    return List.of("clear").stream()
+                            .filter(x -> x.startsWith(args[0].toLowerCase())).toList();
+                }
+                return List.of();
+            }
         });
 
         Command replyCmd = new Command("reply", "Reply to a player in public chat",
@@ -207,6 +215,15 @@ public final class ChatCommands {
                 }
 
                 return true;
+            }
+            @Override
+            public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) {
+                    String pfx = args[0].toLowerCase();
+                    return Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                            .filter(n -> n.toLowerCase().startsWith(pfx)).toList();
+                }
+                return List.of();
             }
         };
         commands.add(replyCmd);

@@ -197,7 +197,9 @@ public class BenefitManager {
         UUID uuid = player.getUniqueId();
         if (hasUnlock(uuid, CAT_NAME_COLOR, "any")) {
             saveColumn(player.getName().toLowerCase(), "name_color", hex);
-            Msg.success(player, "Name color set to " + hex);
+            chatManager.setNameColor(uuid, hex);
+            refreshNameplate(player);
+            Msg.success(player, hex == null ? "Name color cleared." : "Name color set to " + hex);
             return true;
         }
         if (!economy.removeGems(uuid, NAME_COLOR_GEMS)) {
@@ -207,15 +209,27 @@ public class BenefitManager {
         addUnlockLocal(uuid, CAT_NAME_COLOR, "any");
         saveUnlock(player.getName().toLowerCase(), CAT_NAME_COLOR, "any");
         saveColumn(player.getName().toLowerCase(), "name_color", hex);
+        chatManager.setNameColor(uuid, hex);
+        refreshNameplate(player);
         Msg.success(player, "Name color unlocked and set to " + hex);
         return true;
+    }
+
+    private void refreshNameplate(Player player) {
+        var np = com.starlightuniverse.StarlightUniverse.getInstance().getNameplateManager();
+        if (np != null) {
+            org.bukkit.Bukkit.getScheduler().runTask(
+                    com.starlightuniverse.StarlightUniverse.getInstance(),
+                    () -> np.spawnFor(player));
+        }
     }
 
     public boolean purchaseChatColor(Player player, String hex) {
         UUID uuid = player.getUniqueId();
         if (hasUnlock(uuid, CAT_CHAT_COLOR, "any")) {
             saveColumn(player.getName().toLowerCase(), "chat_color", hex);
-            Msg.success(player, "Chat color set to " + hex);
+            chatManager.setChatColor(uuid, hex);
+            Msg.success(player, hex == null ? "Chat color cleared." : "Chat color set to " + hex);
             return true;
         }
         if (!economy.removeGems(uuid, CHAT_COLOR_GEMS)) {
@@ -225,6 +239,7 @@ public class BenefitManager {
         addUnlockLocal(uuid, CAT_CHAT_COLOR, "any");
         saveUnlock(player.getName().toLowerCase(), CAT_CHAT_COLOR, "any");
         saveColumn(player.getName().toLowerCase(), "chat_color", hex);
+        chatManager.setChatColor(uuid, hex);
         Msg.success(player, "Chat color unlocked and set to " + hex);
         return true;
     }

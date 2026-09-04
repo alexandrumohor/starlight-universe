@@ -14,225 +14,225 @@ public enum VirtualSpawnerType {
     COW(EntityType.COW, "Cow", Material.LEATHER,
             Currency.STARS, 1000, 3,
             List.of(
-                    new Drop(Material.BEEF, 1, 3, 100),
-                    new Drop(Material.LEATHER, 0, 2, 80)
+                    new Drop(Material.BEEF, 1, 3),
+                    new Drop(Material.LEATHER, 0, 2)
             )),
     PIG(EntityType.PIG, "Pig", Material.PORKCHOP,
             Currency.STARS, 1000, 3,
             List.of(
-                    new Drop(Material.PORKCHOP, 1, 3, 100)
+                    new Drop(Material.PORKCHOP, 1, 3)
             )),
     CHICKEN(EntityType.CHICKEN, "Chicken", Material.FEATHER,
             Currency.STARS, 1000, 3,
             List.of(
-                    new Drop(Material.CHICKEN, 1, 1, 100),
-                    new Drop(Material.FEATHER, 0, 2, 60),
-                    new Drop(Material.EGG, 1, 1, 5)
+                    new Drop(Material.CHICKEN, 1, 1),
+                    new Drop(Material.FEATHER, 0, 2),
+                    new Drop(Material.EGG, 1, 1)
             )),
     SHEEP(EntityType.SHEEP, "Sheep", Material.WHITE_WOOL,
             Currency.STARS, 1000, 3,
             List.of(
-                    new Drop(Material.MUTTON, 1, 2, 100),
-                    new Drop(Material.WHITE_WOOL, 1, 1, 100)
+                    new Drop(Material.MUTTON, 1, 2),
+                    new Drop(Material.WHITE_WOOL, 1, 1)
             )),
     RABBIT(EntityType.RABBIT, "Rabbit", Material.RABBIT_HIDE,
             Currency.STARS, 1000, 3,
             List.of(
-                    new Drop(Material.RABBIT, 1, 1, 100),
-                    new Drop(Material.RABBIT_HIDE, 0, 1, 80),
-                    new Drop(Material.RABBIT_FOOT, 1, 1, 5)
+                    new Drop(Material.RABBIT, 1, 1),
+                    new Drop(Material.RABBIT_HIDE, 0, 1),
+                    new Drop(Material.RABBIT_FOOT, 1, 1)
             )),
     COD(EntityType.COD, "Cod", Material.COD,
             Currency.STARS, 1000, 2,
             List.of(
-                    new Drop(Material.COD, 1, 1, 100)
+                    new Drop(Material.COD, 1, 1)
             )),
     SALMON(EntityType.SALMON, "Salmon", Material.SALMON,
             Currency.STARS, 1000, 2,
             List.of(
-                    new Drop(Material.SALMON, 1, 1, 100)
+                    new Drop(Material.SALMON, 1, 1)
             )),
     SQUID(EntityType.SQUID, "Squid", Material.INK_SAC,
             Currency.STARS, 1000, 3,
             List.of(
-                    new Drop(Material.INK_SAC, 1, 3, 100)
+                    new Drop(Material.INK_SAC, 1, 3)
             )),
     TURTLE(EntityType.TURTLE, "Turtle", Material.TURTLE_SCUTE,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.TURTLE_SCUTE, 0, 1, 25),
-                    new Drop(Material.SEAGRASS, 1, 2, 40)
+                    new Drop(Material.TURTLE_SCUTE, 0, 1),
+                    new Drop(Material.SEAGRASS, 1, 2)
             )),
 
     // ─── Common hostile ───
     ZOMBIE(EntityType.ZOMBIE, "Zombie", Material.ROTTEN_FLESH,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.ROTTEN_FLESH, 1, 3, 100),
-                    new Drop(Material.IRON_INGOT, 1, 1, 5),
-                    new Drop(Material.CARROT, 1, 1, 3),
-                    new Drop(Material.POTATO, 1, 1, 3)
+                    new Drop(Material.ROTTEN_FLESH, 1, 3),
+                    new Drop(Material.IRON_INGOT, 1, 1),
+                    new Drop(Material.CARROT, 1, 1),
+                    new Drop(Material.POTATO, 1, 1)
             )),
     SKELETON(EntityType.SKELETON, "Skeleton", Material.BONE,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.BONE, 1, 2, 100),
-                    new Drop(Material.ARROW, 0, 2, 60)
+                    new Drop(Material.BONE, 1, 2),
+                    new Drop(Material.ARROW, 0, 2)
             )),
     SPIDER(EntityType.SPIDER, "Spider", Material.STRING,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.STRING, 1, 2, 100),
-                    new Drop(Material.SPIDER_EYE, 0, 1, 30)
+                    new Drop(Material.STRING, 1, 2),
+                    new Drop(Material.SPIDER_EYE, 0, 1)
             )),
     CAVE_SPIDER(EntityType.CAVE_SPIDER, "Cave Spider", Material.SPIDER_EYE,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.STRING, 1, 2, 100),
-                    new Drop(Material.SPIDER_EYE, 1, 1, 40)
+                    new Drop(Material.STRING, 1, 2),
+                    new Drop(Material.SPIDER_EYE, 1, 1)
             )),
     HUSK(EntityType.HUSK, "Husk", Material.SAND,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.ROTTEN_FLESH, 1, 3, 100)
+                    new Drop(Material.ROTTEN_FLESH, 1, 3)
             )),
     STRAY(EntityType.STRAY, "Stray", Material.SNOWBALL,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.BONE, 1, 2, 100),
-                    new Drop(Material.ARROW, 0, 2, 60)
+                    new Drop(Material.BONE, 1, 2),
+                    new Drop(Material.ARROW, 0, 2)
             )),
     DROWNED(EntityType.DROWNED, "Drowned", Material.TRIDENT,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.ROTTEN_FLESH, 1, 2, 100),
-                    new Drop(Material.COPPER_INGOT, 0, 1, 10),
-                    new Drop(Material.NAUTILUS_SHELL, 1, 1, 3)
+                    new Drop(Material.ROTTEN_FLESH, 1, 2),
+                    new Drop(Material.COPPER_INGOT, 0, 1),
+                    new Drop(Material.NAUTILUS_SHELL, 1, 1)
             )),
     ZOMBIFIED_PIGLIN(EntityType.ZOMBIFIED_PIGLIN, "Zombified Piglin", Material.GOLD_INGOT,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.ROTTEN_FLESH, 1, 2, 100),
-                    new Drop(Material.GOLD_NUGGET, 1, 2, 100),
-                    new Drop(Material.GOLD_INGOT, 1, 1, 5)
+                    new Drop(Material.ROTTEN_FLESH, 1, 2),
+                    new Drop(Material.GOLD_NUGGET, 1, 2),
+                    new Drop(Material.GOLD_INGOT, 1, 1)
             )),
 
     // ─── Uncommon ───
     CREEPER(EntityType.CREEPER, "Creeper", Material.GUNPOWDER,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.GUNPOWDER, 1, 2, 100)
+                    new Drop(Material.GUNPOWDER, 1, 2)
             )),
     SLIME(EntityType.SLIME, "Slime", Material.SLIME_BALL,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.SLIME_BALL, 1, 2, 100)
+                    new Drop(Material.SLIME_BALL, 1, 2)
             )),
     MAGMA_CUBE(EntityType.MAGMA_CUBE, "Magma Cube", Material.MAGMA_CREAM,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.MAGMA_CREAM, 1, 1, 100)
+                    new Drop(Material.MAGMA_CREAM, 1, 1)
             )),
     SNOW_GOLEM(EntityType.SNOW_GOLEM, "Snow Golem", Material.CARVED_PUMPKIN,
             Currency.STARS, 1000, 3,
             List.of(
-                    new Drop(Material.SNOWBALL, 1, 3, 100)
+                    new Drop(Material.SNOWBALL, 1, 3)
             )),
     IRON_GOLEM(EntityType.IRON_GOLEM, "Iron Golem", Material.IRON_BLOCK,
             Currency.STARS, 1000, 10,
             List.of(
-                    new Drop(Material.IRON_INGOT, 1, 2, 100),
-                    new Drop(Material.POPPY, 0, 1, 40)
+                    new Drop(Material.IRON_INGOT, 1, 2),
+                    new Drop(Material.POPPY, 0, 1)
             )),
     GLOW_SQUID(EntityType.GLOW_SQUID, "Glow Squid", Material.GLOW_INK_SAC,
             Currency.STARS, 1000, 5,
             List.of(
-                    new Drop(Material.GLOW_INK_SAC, 1, 3, 100)
+                    new Drop(Material.GLOW_INK_SAC, 1, 3)
             )),
 
     // ─── Rare ───
     ENDERMAN(EntityType.ENDERMAN, "Enderman", Material.ENDER_PEARL,
             Currency.STARS, 1000, 8,
             List.of(
-                    new Drop(Material.ENDER_PEARL, 1, 1, 80)
+                    new Drop(Material.ENDER_PEARL, 1, 1)
             )),
     PIGLIN(EntityType.PIGLIN, "Piglin", Material.GOLD_NUGGET,
             Currency.STARS, 1000, 8,
             List.of(
-                    new Drop(Material.GOLD_NUGGET, 1, 2, 100),
-                    new Drop(Material.GOLD_INGOT, 0, 1, 10)
+                    new Drop(Material.GOLD_NUGGET, 1, 2),
+                    new Drop(Material.GOLD_INGOT, 0, 1)
             )),
     HOGLIN(EntityType.HOGLIN, "Hoglin", Material.PORKCHOP,
             Currency.STARS, 1000, 8,
             List.of(
-                    new Drop(Material.PORKCHOP, 1, 3, 100),
-                    new Drop(Material.LEATHER, 0, 1, 30)
+                    new Drop(Material.PORKCHOP, 1, 3),
+                    new Drop(Material.LEATHER, 0, 1)
             )),
     WITCH(EntityType.WITCH, "Witch", Material.GLASS_BOTTLE,
             Currency.STARS, 1000, 10,
             List.of(
-                    new Drop(Material.REDSTONE, 0, 2, 50),
-                    new Drop(Material.GLOWSTONE_DUST, 0, 2, 50),
-                    new Drop(Material.SUGAR, 0, 2, 50),
-                    new Drop(Material.GLASS_BOTTLE, 0, 2, 40),
-                    new Drop(Material.GUNPOWDER, 0, 1, 30),
-                    new Drop(Material.SPIDER_EYE, 0, 1, 20)
+                    new Drop(Material.REDSTONE, 0, 2),
+                    new Drop(Material.GLOWSTONE_DUST, 0, 2),
+                    new Drop(Material.SUGAR, 0, 2),
+                    new Drop(Material.GLASS_BOTTLE, 0, 2),
+                    new Drop(Material.GUNPOWDER, 0, 1),
+                    new Drop(Material.SPIDER_EYE, 0, 1)
             )),
     PHANTOM(EntityType.PHANTOM, "Phantom", Material.PHANTOM_MEMBRANE,
             Currency.STARS, 1000, 8,
             List.of(
-                    new Drop(Material.PHANTOM_MEMBRANE, 0, 1, 60)
+                    new Drop(Material.PHANTOM_MEMBRANE, 0, 1)
             )),
     PILLAGER(EntityType.PILLAGER, "Pillager", Material.CROSSBOW,
             Currency.STARS, 1000, 8,
             List.of(
-                    new Drop(Material.ARROW, 0, 2, 60),
-                    new Drop(Material.EMERALD, 0, 1, 8)
+                    new Drop(Material.ARROW, 0, 2),
+                    new Drop(Material.EMERALD, 0, 1)
             )),
     VINDICATOR(EntityType.VINDICATOR, "Vindicator", Material.IRON_AXE,
             Currency.STARS, 1000, 10,
             List.of(
-                    new Drop(Material.EMERALD, 0, 1, 20)
+                    new Drop(Material.EMERALD, 0, 1)
             )),
     GUARDIAN(EntityType.GUARDIAN, "Guardian", Material.PRISMARINE_SHARD,
             Currency.STARS, 1000, 8,
             List.of(
-                    new Drop(Material.PRISMARINE_SHARD, 0, 2, 60),
-                    new Drop(Material.PRISMARINE_CRYSTALS, 0, 1, 40),
-                    new Drop(Material.COD, 0, 1, 20)
+                    new Drop(Material.PRISMARINE_SHARD, 0, 2),
+                    new Drop(Material.PRISMARINE_CRYSTALS, 0, 1),
+                    new Drop(Material.COD, 0, 1)
             )),
     GHAST(EntityType.GHAST, "Ghast", Material.GHAST_TEAR,
             Currency.STARS, 1000, 10,
             List.of(
-                    new Drop(Material.GUNPOWDER, 0, 2, 60),
-                    new Drop(Material.GHAST_TEAR, 0, 1, 30)
+                    new Drop(Material.GUNPOWDER, 0, 2),
+                    new Drop(Material.GHAST_TEAR, 0, 1)
             )),
 
     // ─── Very rare ───
     BLAZE(EntityType.BLAZE, "Blaze", Material.BLAZE_ROD,
             Currency.STARS, 1000, 10,
             List.of(
-                    new Drop(Material.BLAZE_ROD, 1, 1, 100)
+                    new Drop(Material.BLAZE_ROD, 1, 1)
             )),
     WITHER_SKELETON(EntityType.WITHER_SKELETON, "Wither Skeleton", Material.WITHER_SKELETON_SKULL,
-            Currency.STARS, 1000, 20,
+            Currency.STARS, 250_000, 20,
             List.of(
-                    new Drop(Material.COAL, 1, 1, 100),
-                    new Drop(Material.BONE, 1, 1, 50),
-                    new Drop(Material.WITHER_SKELETON_SKULL, 1, 1, 3)
+                    new Drop(Material.COAL, 1, 1),
+                    new Drop(Material.BONE, 1, 1),
+                    new Drop(Material.WITHER_SKELETON_SKULL, 1, 1)
             )),
     SHULKER(EntityType.SHULKER, "Shulker", Material.SHULKER_SHELL,
             Currency.STARS, 1000, 20,
             List.of(
-                    new Drop(Material.SHULKER_SHELL, 0, 1, 50)
+                    new Drop(Material.SHULKER_SHELL, 0, 1)
             ));
 
     public enum Currency { MONEY, GEMS, STARS }
 
-    public record Drop(Material material, int minAmount, int maxAmount, int chancePercent) {}
+    public record Drop(Material material, int minAmount, int maxAmount) {}
 
-    // Tier -> seconds between spawns (per stack unit)
-    public static final int[] TIER_SECONDS = {40, 25, 15};
+    // Tier -> seconds between spawns (per stack unit). Kept inside [5, 10].
+    public static final int[] TIER_SECONDS = {10, 7, 5};
     // Tier -> money cost to upgrade FROM this tier to the next (index 0 = 1->2, index 1 = 2->3)
     public static final double[] TIER_UPGRADE_MONEY = {5_000, 25_000};
     // Max stack per placed spawner block

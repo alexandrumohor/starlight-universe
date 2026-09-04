@@ -127,6 +127,44 @@ public final class TeamCommand {
             return true;
         }
 
+        private static final java.util.List<String> SUBS = java.util.List.of(
+                "create", "invite", "accept", "deny", "kick", "promote", "demote",
+                "leave", "disband", "info", "list", "sethome", "home",
+                "setcolor", "setname", "friendlyfire", "ff", "chat",
+                "ally", "unally", "deposit", "withdraw", "bank", "vault",
+                "missions", "top", "request", "war");
+
+        @Override
+        public java.util.List<String> tabComplete(org.bukkit.command.CommandSender s, String a, String[] args) {
+            if (args.length == 1) {
+                String pfx = args[0].toLowerCase();
+                return SUBS.stream().filter(x -> x.startsWith(pfx)).toList();
+            }
+            if (args.length == 2) {
+                String sub = args[0].toLowerCase();
+                switch (sub) {
+                    case "invite", "kick", "promote", "demote":
+                        String pfx = args[1].toLowerCase();
+                        return org.bukkit.Bukkit.getOnlinePlayers().stream()
+                                .map(Player::getName).filter(n -> n.toLowerCase().startsWith(pfx)).toList();
+                    case "setcolor":
+                        return java.util.List.of("#FF5555", "#FFAA00", "#FFFF55",
+                                "#55FF55", "#55FFFF", "#AA00AA", "#FF55FF");
+                    case "deposit", "withdraw":
+                        return java.util.List.of("money", "gems", "stars");
+                    case "request":
+                        return java.util.List.of("100", "500", "1000");
+                    case "war":
+                        return java.util.List.of("surrender");
+                }
+            }
+            if (args.length == 3 && (args[0].equalsIgnoreCase("deposit")
+                    || args[0].equalsIgnoreCase("withdraw"))) {
+                return java.util.List.of("100", "500", "1000", "5000");
+            }
+            return java.util.List.of();
+        }
+
         private void sendHelp(Player player) {
             Msg.info(player, "=== Team Commands ===");
             Msg.gray(player, "/team create <name> - Create a team ($5,000)");

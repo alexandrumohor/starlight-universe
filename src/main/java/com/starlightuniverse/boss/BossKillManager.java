@@ -417,7 +417,7 @@ public class BossKillManager {
                 int money = (int) Math.max(2000, Math.min(5000, 2000 + share * 15000));
                 economy.addMoney(uuid, money);
                 if (player != null && player.isOnline()) {
-                    Msg.info(player, "You got $" + EconomyManager.format(money) + " for " + (int) dmg + " damage to the " + fight.type.getDisplayName() + "!");
+                    Msg.info(player, "You got " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(money) + " for " + (int) dmg + " damage to the " + fight.type.getDisplayName() + "!");
                 }
             }
         }

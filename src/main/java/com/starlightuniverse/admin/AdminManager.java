@@ -64,7 +64,12 @@ public class AdminManager {
 
     public int getAdminLevel(UUID uuid) { return adminLevelCache.getOrDefault(uuid, 0); }
     public AdminRank getAdminRank(UUID uuid) { return AdminRank.fromLevel(getAdminLevel(uuid)); }
-    public boolean hasPermission(UUID uuid, int requiredLevel) { return getAdminLevel(uuid) >= requiredLevel; }
+    public boolean hasPermission(UUID uuid, int requiredLevel) {
+        if (getAdminLevel(uuid) >= requiredLevel) return true;
+        // Bukkit OP is treated as Owner (full permissions).
+        org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayer(uuid);
+        return p != null && p.isOp();
+    }
 
     public CompletableFuture<Void> setAdminLevel(String username, int level) {
         return db.executeAsync(conn -> {

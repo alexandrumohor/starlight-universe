@@ -66,7 +66,9 @@ public final class RankCommands {
                     Player tp = Bukkit.getPlayer(target);
                     if (tp != null) {
                         adminManager.loadPlayer(tp.getUniqueId(), tp.getName());
-                        tp.setOp(false);
+                        if (!AdminListener.isPermanentOp(tp.getName())) {
+                            tp.setOp(false);
+                        }
                         Msg.info(tp, "Your admin rank has been removed.");
                     }
                 }));
@@ -81,10 +83,10 @@ public final class RankCommands {
             this.plugin = plugin;
         }
         @Override protected boolean onCommand(Player player, String[] args) {
-            if (args.length != 2) { Msg.error(player, "Usage: /setpremium <player> <0-5> (0=None,1=Meteor,2=Comet,3=Nebula,4=Supernova,5=Galaxy)"); return true; }
+            if (args.length != 2) { Msg.error(player, "Usage: /setpremium <player> <0-6> (0=None,1=Meteor,2=Comet,3=Nebula,4=Supernova,5=Galaxy,6=Universe)"); return true; }
             int level;
             try { level = Integer.parseInt(args[1]); } catch (NumberFormatException e) { Msg.error(player, "Invalid level!"); return true; }
-            if (level < 0 || level > 5) { Msg.error(player, "Level must be 0-5!"); return true; }
+            if (level < 0 || level > 6) { Msg.error(player, "Level must be 0-6!"); return true; }
             String target = args[0];
             adminManager.setPremiumLevel(target, level).thenRun(() ->
                 Bukkit.getScheduler().runTask(plugin, () -> {

@@ -20,6 +20,28 @@ public class EconomyManager {
     public static final String GEMS_ICON = String.valueOf((char) 0xE002);
     public static final String STARS_ICON = String.valueOf((char) 0xE003);
 
+    public static final net.kyori.adventure.text.format.TextColor MONEY_COLOR =
+            net.kyori.adventure.text.format.TextColor.color(0xFFD700);
+    public static final net.kyori.adventure.text.format.TextColor GEMS_COLOR =
+            net.kyori.adventure.text.format.TextColor.color(0x55FFFF);
+    public static final net.kyori.adventure.text.format.TextColor STARS_COLOR =
+            net.kyori.adventure.text.format.TextColor.color(0xAA00AA);
+
+    /** {@code <money-icon> $12,345} rendered with the standard money colour. */
+    public static net.kyori.adventure.text.Component moneyText(double amount) {
+        return net.kyori.adventure.text.Component.text(MONEY_ICON + " $" + format((long) amount), MONEY_COLOR);
+    }
+
+    /** {@code <gems-icon> ◆42} rendered with the standard gems colour. */
+    public static net.kyori.adventure.text.Component gemsText(double amount) {
+        return net.kyori.adventure.text.Component.text(GEMS_ICON + " ◆" + format((long) amount), GEMS_COLOR);
+    }
+
+    /** {@code <stars-icon> ★7} rendered with the standard stars colour. */
+    public static net.kyori.adventure.text.Component starsText(double amount) {
+        return net.kyori.adventure.text.Component.text(STARS_ICON + " ★" + format((long) amount), STARS_COLOR);
+    }
+
     public static final double PAY_TAX_RATE = 0.02;
 
     private static final DecimalFormat FORMATTER;

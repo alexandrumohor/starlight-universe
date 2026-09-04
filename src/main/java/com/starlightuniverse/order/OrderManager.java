@@ -411,7 +411,7 @@ public class OrderManager {
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Quantity: " + session.createQuantity, TextColor.color(0xFFFF55))
                 .decoration(TextDecoration.ITALIC, false));
-        lore.add(Component.text("Price: $" + EconomyManager.format(session.createPrice) + " each",
+        lore.add(Component.text("Price: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(session.createPrice) + " each",
                         TextColor.color(0x55FF55))
                 .decoration(TextDecoration.ITALIC, false));
         dm.lore(lore);
@@ -425,17 +425,17 @@ public class OrderManager {
         List<String> infoLines = new ArrayList<>();
         infoLines.add("Item: " + ShopManager.formatMaterial(mat));
         infoLines.add("Quantity: " + session.createQuantity);
-        infoLines.add("Price per Unit: $" + EconomyManager.format(session.createPrice));
+        infoLines.add("Price per Unit: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(session.createPrice));
         infoLines.add("");
-        infoLines.add("Subtotal: $" + EconomyManager.format(subtotal));
-        infoLines.add("Fee (3%): $" + EconomyManager.format(fee));
-        infoLines.add("Total Cost: $" + EconomyManager.format(total));
+        infoLines.add("Subtotal: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(subtotal));
+        infoLines.add("Fee (3%): " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(fee));
+        infoLines.add("Total Cost: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(total));
 
         inv.setItem(31, createGuiItem(Material.PAPER, "Order Summary", 0xFFD700,
                 infoLines.toArray(new String[0])));
 
         ItemStack confirm = createGuiItem(Material.LIME_STAINED_GLASS_PANE, "Confirm Order", 0x55FF55,
-                "Total: $" + EconomyManager.format(total), "Click to place order!");
+                "Total: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(total), "Click to place order!");
         inv.setItem(47, confirm);
     }
 
@@ -525,7 +525,7 @@ public class OrderManager {
             List<String> infoLines = new ArrayList<>();
             infoLines.add("Item: " + ShopManager.formatMaterial(targetMat));
             infoLines.add("Delivering: " + deliverable + " / " + order.getRemainingAmount() + " needed");
-            infoLines.add("Payment: $" + EconomyManager.format(payment));
+            infoLines.add("Payment: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(payment));
             if (extraCount > 0) {
                 infoLines.add("");
                 infoLines.add("Extra " + extraCount + " items will be returned");
@@ -535,7 +535,7 @@ public class OrderManager {
                     infoLines.toArray(new String[0])));
 
             confirm.setItem(11, createGuiItem(Material.LIME_STAINED_GLASS_PANE, "Confirm", 0x55FF55,
-                    "Deliver " + deliverable + " items", "Receive $" + EconomyManager.format(payment)));
+                    "Deliver " + deliverable + " items", "Receive " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(payment)));
             confirm.setItem(15, createGuiItem(Material.RED_STAINED_GLASS_PANE, "Cancel", 0xFF5555,
                     "Return all items"));
 
@@ -631,7 +631,7 @@ public class OrderManager {
 
         player.closeInventory();
         Msg.success(player, "Delivered " + deliverable + "x " + ShopManager.formatMaterial(targetMat)
-                + "! Earned $" + EconomyManager.format(payment) + ".");
+                + "! Earned " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(payment) + ".");
 
         if (completed) {
             Msg.info(player, "Order #" + orderId + " is now complete!");
@@ -682,7 +682,7 @@ public class OrderManager {
             mat = Material.BARRIER;
         }
 
-        Msg.success(player, "Order cancelled! Refunded $" + EconomyManager.format(refund)
+        Msg.success(player, "Order cancelled! Refunded " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(refund)
                 + " for " + undelivered + " undelivered " + ShopManager.formatMaterial(mat) + ".");
         openMyOrders(player);
     }
@@ -859,7 +859,7 @@ public class OrderManager {
 
         if (soldCount > 0) {
             economy.addMoney(player.getUniqueId(), totalEarned);
-            Msg.success(player, "Sold " + soldCount + " items for $" + EconomyManager.format(totalEarned) + "!");
+            Msg.success(player, "Sold " + soldCount + " items for " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(totalEarned) + "!");
         }
         if (!unsellable.isEmpty()) {
             Msg.info(player, unsellable.size() + " item(s) have no shop price and were kept in storage.");
@@ -878,7 +878,7 @@ public class OrderManager {
         double subtotal = pricePerUnit * quantity;
 
         if (subtotal < MINIMUM_ORDER) {
-            Msg.error(player, "Minimum order value is $" + EconomyManager.format(MINIMUM_ORDER) + "!");
+            Msg.error(player, "Minimum order value is " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(MINIMUM_ORDER) + "!");
             return;
         }
 
@@ -886,7 +886,7 @@ public class OrderManager {
         double total = subtotal + fee;
 
         if (!economy.hasMoney(player.getUniqueId(), total)) {
-            Msg.error(player, "Insufficient funds! You need $" + EconomyManager.format(total) + ".");
+            Msg.error(player, "Insufficient funds! You need " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(total) + ".");
             return;
         }
 
@@ -1107,7 +1107,7 @@ public class OrderManager {
         List<Component> lore = new ArrayList<>();
         lore.add(Component.text("Buyer: " + order.getCreatorUsername(), TextColor.color(0xFFFF55))
                 .decoration(TextDecoration.ITALIC, false));
-        lore.add(Component.text("Paying: $" + EconomyManager.format(order.getPricePerUnit()) + " each",
+        lore.add(Component.text("Paying: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(order.getPricePerUnit()) + " each",
                         TextColor.color(0x55FF55))
                 .decoration(TextDecoration.ITALIC, false));
         lore.add(Component.text("Needed: " + order.getRemainingAmount() + " / " + order.getItemAmount(),
@@ -1134,7 +1134,7 @@ public class OrderManager {
         meta.displayName(Component.text(ShopManager.formatMaterial(mat), TextColor.color(0xFFFFFF))
                 .decoration(TextDecoration.ITALIC, false));
         List<Component> lore = new ArrayList<>();
-        lore.add(Component.text("Price: $" + EconomyManager.format(order.getPricePerUnit()) + " each",
+        lore.add(Component.text("Price: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(order.getPricePerUnit()) + " each",
                         TextColor.color(0x55FF55))
                 .decoration(TextDecoration.ITALIC, false));
         lore.add(Component.text("Progress: " + order.getDeliveredAmount() + " / " + order.getItemAmount(),
@@ -1144,7 +1144,7 @@ public class OrderManager {
                         TextColor.color(0xAAAAAA))
                 .decoration(TextDecoration.ITALIC, false));
         double escrow = order.getEscrowAmount();
-        lore.add(Component.text("Escrow: $" + EconomyManager.format(escrow),
+        lore.add(Component.text("Escrow: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(escrow),
                         TextColor.color(0xAAAAAA))
                 .decoration(TextDecoration.ITALIC, false));
         lore.add(Component.empty());

@@ -2,6 +2,8 @@ package com.starlightuniverse;
 
 import com.starlightuniverse.admin.*;
 import com.starlightuniverse.announce.*;
+import com.starlightuniverse.booster.*;
+import com.starlightuniverse.border.*;
 import com.starlightuniverse.anticheat.*;
 import com.starlightuniverse.antigrief.*;
 import com.starlightuniverse.arena.*;
@@ -30,12 +32,16 @@ import com.starlightuniverse.order.*;
 import com.starlightuniverse.premium.*;
 import com.starlightuniverse.pvp.*;
 import com.starlightuniverse.pwarp.*;
+import com.starlightuniverse.scoreboard.*;
 import com.starlightuniverse.shop.*;
 import com.starlightuniverse.spawner.*;
 import com.starlightuniverse.spear.*;
 import com.starlightuniverse.starshop.*;
+import com.starlightuniverse.buff.*;
 import com.starlightuniverse.team.*;
 import com.starlightuniverse.travel.*;
+import com.starlightuniverse.vote.*;
+import com.starlightuniverse.voucher.*;
 import com.starlightuniverse.world.*;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -48,11 +54,13 @@ public final class StarlightUniverse extends JavaPlugin {
     private DatabaseManager databaseManager;
     private AuthManager authManager;
     private SkinManager skinManager;
+    private PremiumSessionVerifier premiumSessionVerifier;
     private WorldManager worldManager;
     private InventoryManager inventoryManager;
     private QueueManager queueManager;
     private LobbyManager lobbyManager;
     private EconomyManager economyManager;
+    private com.starlightuniverse.notify.PendingMessageManager pendingMessageManager;
     private ShopManager shopManager;
     private AuctionManager auctionManager;
     private OrderManager orderManager;
@@ -88,7 +96,14 @@ public final class StarlightUniverse extends JavaPlugin {
     private HotTimeManager hotTimeManager;
     private PackServer packServer;
     private ResourcePackManager resourcePackManager;
+    private PlayerHeadPackManager playerHeadPackManager;
+    private VoucherManager voucherManager;
+    private VoteManager voteManager;
+    private BuffManager buffManager;
+    private BoosterManager boosterManager;
     private DiagnosticsService diagnosticsService;
+    private ScoreboardManager scoreboardManager;
+    private BorderManager borderManager;
 
     @Override
     public void onEnable() {
@@ -102,6 +117,9 @@ public final class StarlightUniverse extends JavaPlugin {
         }
 
         authManager = new AuthManager(databaseManager);
+
+        premiumSessionVerifier = new PremiumSessionVerifier(this);
+        premiumSessionVerifier.register();
 
         skinManager = new SkinManager(this);
         skinManager.loadRandomSkins();
@@ -117,6 +135,11 @@ public final class StarlightUniverse extends JavaPlugin {
         lobbyManager = new LobbyManager(this, queueManager);
 
         economyManager = new EconomyManager(databaseManager);
+        pendingMessageManager = new com.starlightuniverse.notify.PendingMessageManager(this, databaseManager);
+        Bukkit.getPluginManager().registerEvents(
+                new com.starlightuniverse.notify.PendingMessageListener(pendingMessageManager, authManager), this);
+        Bukkit.getPluginManager().registerEvents(
+                new com.starlightuniverse.notify.DeathMessageListener(), this);
 
         shopManager = new ShopManager(this, economyManager);
 
@@ -134,6 +157,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
         premiumManager = new PremiumManager(this, databaseManager, economyManager, adminManager);
         premiumManager.initialize();
+
+        borderManager = new BorderManager(this, databaseManager);
+        borderManager.initialize();
 
         teamManager = new TeamManager(this, databaseManager, economyManager);
         teamManager.initialize();
@@ -161,6 +187,7 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new OrderListener(this, orderManager), this);
         Bukkit.getPluginManager().registerEvents(new HomeListener(this, homeManager), this);
         Bukkit.getPluginManager().registerEvents(new PremiumListener(this, premiumManager, adminManager, economyManager), this);
+        Bukkit.getPluginManager().registerEvents(new BorderListener(borderManager, premiumManager), this);
         Bukkit.getPluginManager().registerEvents(new TeamListener(this, teamManager), this);
 
         ChatListener chatListener = new ChatListener(chatManager);
@@ -196,12 +223,17 @@ public final class StarlightUniverse extends JavaPlugin {
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
         for (Command cmd : PasswordNameCommands.create(adminManager, this))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
+        Bukkit.getCommandMap().register("starlightuniverse", new BannerCommand(this));
+        Bukkit.getCommandMap().register("starlightuniverse", BannerCommand.createRemoveCommand());
 
         for (Command cmd : HomeCommands.create(homeManager))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
         Bukkit.getCommandMap().register("starlightuniverse", new HomeProtectCommand(homeManager));
 
-        for (Command cmd : PremiumCommands.create(premiumManager))
+        for (Command cmd : PremiumCommands.create(premiumManager, borderManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
+
+        for (Command cmd : BorderManager.createCommands(borderManager))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
 
         for (Command cmd : TeamCommand.create(teamManager))
@@ -235,7 +267,27 @@ public final class StarlightUniverse extends JavaPlugin {
 
         Bukkit.getCommandMap().register("starlightuniverse", new SpearCommand());
 
-        starShopManager = new StarShopManager(economyManager, enchantManager, crateManager);
+        boosterManager = new BoosterManager(this, databaseManager);
+        boosterManager.start();
+
+        voucherManager = new VoucherManager(this, economyManager, homeManager, crateManager);
+        voucherManager.setBoosterManager(boosterManager);
+        voucherManager.start();
+        crateManager.setVoucherManager(voucherManager);
+        Bukkit.getPluginManager().registerEvents(new VoucherListener(voucherManager, boosterManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new VoteFlyCommand(voucherManager));
+
+        voteManager = new VoteManager(this, databaseManager, economyManager, crateManager);
+        Bukkit.getPluginManager().registerEvents(new VoteListener(voteManager), this);
+        for (Command cmd : VoteCommand.create(voteManager))
+            Bukkit.getCommandMap().register("starlightuniverse", cmd);
+
+        buffManager = new BuffManager(this, databaseManager);
+        buffManager.start();
+        Bukkit.getPluginManager().registerEvents(new BuffListener(this, buffManager), this);
+
+        starShopManager = new StarShopManager(this, economyManager, crateManager,
+                premiumManager, voucherManager, buffManager);
         Bukkit.getPluginManager().registerEvents(new StarShopListener(this, starShopManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new StarShopCommand(starShopManager));
 
@@ -283,14 +335,19 @@ public final class StarlightUniverse extends JavaPlugin {
 
         spawnerManager = new SpawnerManager(this, databaseManager, economyManager);
         spawnerManager.initialize();
+        crateManager.setSpawnerManager(spawnerManager);
         Bukkit.getPluginManager().registerEvents(new SpawnerListener(spawnerManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new SpawnerCommand(spawnerManager));
 
         rtpManager = new RtpManager(this, worldManager);
         tpaManager = new TpaManager(this, databaseManager, adminManager);
         tpaManager.start();
-        Bukkit.getPluginManager().registerEvents(new TravelListener(rtpManager, tpaManager), this);
+        TpDragonCommand tpDragonCommand = new TpDragonCommand(this);
+        Bukkit.getPluginManager().registerEvents(
+                new TravelListener(rtpManager, tpaManager, tpDragonCommand), this);
         Bukkit.getCommandMap().register("starlightuniverse", new RtpCommand(rtpManager, adminManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new SpawnCommand());
+        Bukkit.getCommandMap().register("starlightuniverse", tpDragonCommand);
         for (Command cmd : TpaCommands.create(tpaManager))
             Bukkit.getCommandMap().register("starlightuniverse", cmd);
 
@@ -316,6 +373,7 @@ public final class StarlightUniverse extends JavaPlugin {
         announcementManager.initialize();
         announcementManager.start();
         Bukkit.getPluginManager().registerEvents(new AnnouncementListener(this, announcementManager), this);
+        Bukkit.getPluginManager().registerEvents(new MotdListener(), this);
         Bukkit.getCommandMap().register("starlightuniverse", new AnnounceCommand(announcementManager, adminManager));
 
         maintenanceManager = new MaintenanceManager(this, adminManager, databaseManager);
@@ -327,16 +385,27 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new HotTimeListener(hotTimeManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new HotTimeCommand(hotTimeManager, adminManager));
         jobManager.setHotTimeManager(hotTimeManager);
+        jobManager.setBoosterManager(boosterManager);
 
         packServer = new PackServer(this);
         if (packServer.start()) {
             resourcePackManager = new ResourcePackManager(this, packServer);
+            playerHeadPackManager = new PlayerHeadPackManager(this, packServer);
+            playerHeadPackManager.start();
             Bukkit.getPluginManager().registerEvents(
-                    new ResourcePackListener(resourcePackManager), this);
+                    new ResourcePackListener(resourcePackManager, playerHeadPackManager), this);
+            Bukkit.getPluginManager().registerEvents(
+                    new ConfigPhasePackListener(this, packServer, playerHeadPackManager), this);
         }
 
         diagnosticsService = new DiagnosticsService(this);
         Bukkit.getCommandMap().register("starlightuniverse", new DiagCommand(adminManager, diagnosticsService));
+
+        scoreboardManager = new ScoreboardManager(this, databaseManager, economyManager,
+                adminManager, premiumManager, teamManager, authManager, chatManager);
+        scoreboardManager.start();
+        Bukkit.getPluginManager().registerEvents(
+                new ScoreboardListener(this, scoreboardManager, authManager), this);
 
         getLogger().info("[SU] Enabled!");
         getLogger().info("[SU] Startup summary: " + diagnosticsService.buildStartupSummary());
@@ -344,6 +413,18 @@ public final class StarlightUniverse extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (premiumSessionVerifier != null) {
+            premiumSessionVerifier.unregister();
+        }
+
+        if (scoreboardManager != null) {
+            scoreboardManager.shutdown();
+        }
+
+        if (playerHeadPackManager != null) {
+            playerHeadPackManager.stop();
+        }
+
         if (packServer != null) {
             packServer.stop();
         }
@@ -415,6 +496,10 @@ public final class StarlightUniverse extends JavaPlugin {
             jobManager.shutdown();
         }
 
+        if (boosterManager != null) {
+            boosterManager.shutdown();
+        }
+
         if (crateManager != null) {
             crateManager.shutdown();
         }
@@ -465,6 +550,10 @@ public final class StarlightUniverse extends JavaPlugin {
         return skinManager;
     }
 
+    public PremiumSessionVerifier getPremiumSessionVerifier() {
+        return premiumSessionVerifier;
+    }
+
     public WorldManager getWorldManager() {
         return worldManager;
     }
@@ -483,6 +572,10 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public EconomyManager getEconomyManager() {
         return economyManager;
+    }
+
+    public com.starlightuniverse.notify.PendingMessageManager getPendingMessageManager() {
+        return pendingMessageManager;
     }
 
     public ShopManager getShopManager() {
@@ -613,7 +706,23 @@ public final class StarlightUniverse extends JavaPlugin {
         return resourcePackManager;
     }
 
+    public PlayerHeadPackManager getPlayerHeadPackManager() {
+        return playerHeadPackManager;
+    }
+
+    public BoosterManager getBoosterManager() {
+        return boosterManager;
+    }
+
     public DiagnosticsService getDiagnosticsService() {
         return diagnosticsService;
+    }
+
+    public ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
+    }
+
+    public BorderManager getBorderManager() {
+        return borderManager;
     }
 }

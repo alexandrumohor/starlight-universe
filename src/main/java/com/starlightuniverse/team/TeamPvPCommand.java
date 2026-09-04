@@ -44,4 +44,16 @@ public class TeamPvPCommand extends Command {
         }
         return true;
     }
+
+    @Override
+    public java.util.List<String> tabComplete(CommandSender s, String a, String[] args) {
+        if (args.length == 1) {
+            return java.util.List.of("request", "accept", "cancel").stream()
+                    .filter(x -> x.startsWith(args[0].toLowerCase())).toList();
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("request")) {
+            return java.util.List.of("5", "10", "15", "30");
+        }
+        return java.util.List.of();
+    }
 }

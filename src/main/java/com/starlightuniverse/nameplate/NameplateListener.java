@@ -27,17 +27,10 @@ public class NameplateListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (!player.isOnline()) return;
-            if (authManager != null && !authManager.isAuthenticated(player.getUniqueId())) {
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    if (player.isOnline()) mgr.spawnFor(player);
-                }, 60L);
-                return;
-            }
-            mgr.spawnFor(player);
-        }, 60L);
+        // Nameplate spawn is triggered by AuthListener after auth success
+        // (session restore / /login / /register) once the player is in the
+        // lobby world. No pre-auth spawn here — it would spawn in the wrong
+        // world and get replaced on teleport, causing a visible flash.
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -59,7 +52,16 @@ public class NameplateListener implements Listener {
         if (event.getFrom().getWorld() != null && event.getTo() != null &&
                 !event.getFrom().getWorld().equals(event.getTo().getWorld())) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (player.isOnline()) mgr.spawnFor(player);
+                if (player.isOnline()) {
+                    mgr.spawnFor(player);
+                    // Force-remount every other player's nameplate in the
+                    // destination world so this observer's entity tracker
+                    // receives a fresh SetPassengers packet for each of them.
+                    for (Player other : player.getWorld().getPlayers()) {
+                        if (other.equals(player)) continue;
+                        mgr.remount(other);
+                    }
+                }
             }, 5L);
         }
     }

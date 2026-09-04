@@ -13,10 +13,12 @@ public class TravelListener implements Listener {
 
     private final RtpManager rtpManager;
     private final TpaManager tpaManager;
+    private final TpDragonCommand tpDragonCommand;
 
-    public TravelListener(RtpManager rtpManager, TpaManager tpaManager) {
+    public TravelListener(RtpManager rtpManager, TpaManager tpaManager, TpDragonCommand tpDragonCommand) {
         this.rtpManager = rtpManager;
         this.tpaManager = tpaManager;
+        this.tpDragonCommand = tpDragonCommand;
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -32,13 +34,20 @@ public class TravelListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getInventory().getHolder() instanceof TpDragonHolder) {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+            if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+            tpDragonCommand.handleClick(player, event.getRawSlot());
+            return;
+        }
         if (!(event.getInventory().getHolder() instanceof RtpHolder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
 
         int slot = event.getRawSlot();
-        if (slot == 26) {
+        if (slot == 31) {
             player.closeInventory();
             return;
         }

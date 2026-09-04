@@ -54,6 +54,19 @@
         "\uE216": 64,
         "\uE217": 128
       }
-    }
+    },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_name.png",    "ascent": 8, "height": 10, "chars": ["\uE300"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_admin.png",   "ascent": 8, "height": 10, "chars": ["\uE301"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_premium.png", "ascent": 8, "height": 10, "chars": ["\uE302"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_team.png",    "ascent": 8, "height": 10, "chars": ["\uE303"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_money.png",   "ascent": 8, "height": 10, "chars": ["\uE304"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_gems.png",    "ascent": 8, "height": 10, "chars": ["\uE305"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_stars.png",   "ascent": 8, "height": 10, "chars": ["\uE306"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_exp.png",     "ascent": 8, "height": 10, "chars": ["\uE307"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_pvp.png",     "ascent": 8, "height": 10, "chars": ["\uE308"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_pvm.png",     "ascent": 8, "height": 10, "chars": ["\uE309"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_deaths.png",  "ascent": 8, "height": 10, "chars": ["\uE30A"] },
+    { "type": "bitmap", "file": "starlight:font/heads/self.png",    "ascent": 8, "height": 10, "chars": ["\uE310"] },
+    { "type": "bitmap", "file": "starlight:font/sb/sb_heart.png",   "ascent": 8, "height": 10, "chars": ["\uE30B"] }
   ]
 }

@@ -248,6 +248,15 @@ public class ChatManager {
     public String getNameColor(UUID uuid) { return nameColorCache.get(uuid); }
     public String getChatColor(UUID uuid) { return chatColorCache.get(uuid); }
 
+    public void setNameColor(UUID uuid, String hex) {
+        if (hex == null) nameColorCache.remove(uuid);
+        else nameColorCache.put(uuid, hex);
+    }
+    public void setChatColor(UUID uuid, String hex) {
+        if (hex == null) chatColorCache.remove(uuid);
+        else chatColorCache.put(uuid, hex);
+    }
+
     // ==================== REPLY ====================
 
     public void setReplyTarget(UUID player, UUID target) {

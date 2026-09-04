@@ -60,10 +60,10 @@ public final class PunishCommands {
 
     private static class AdminKillCmd extends AdminCommand {
         AdminKillCmd(AdminManager am) {
-            super("kill", "Kill a player", "/kill <player>", am, AdminRank.MODERATOR.getLevel());
+            super("akill", "Kill a player (admin)", "/akill <player>", am, AdminRank.MODERATOR.getLevel());
         }
         @Override protected boolean onCommand(Player player, String[] args) {
-            if (args.length != 1) { Msg.error(player, "Usage: /kill <player>"); return true; }
+            if (args.length != 1) { Msg.error(player, "Usage: /akill <player>"); return true; }
             Player target = Bukkit.getPlayer(args[0]);
             if (target == null) { Msg.error(player, "Player not online!"); return true; }
             target.setHealth(0);

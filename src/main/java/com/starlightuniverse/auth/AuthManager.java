@@ -21,7 +21,7 @@ public class AuthManager {
     private static final int MAX_LOGIN_ATTEMPTS = 5;
     private static final long ATTEMPT_WINDOW_MS = 60_000;
     private static final long SESSION_DURATION_MS = 5 * 60_000;
-    private static final int MAX_ACCOUNTS_PER_IP = 2;
+    public static final int MAX_SIMULTANEOUS_ACCOUNTS_PER_IP = 3;
     private static final int MIN_PASSWORD_LENGTH = 3;
 
     private final DatabaseManager db;
@@ -82,7 +82,6 @@ public class AuthManager {
         if (password.length() < MIN_PASSWORD_LENGTH) return RegisterResult.PASSWORD_TOO_SHORT;
         if (!password.equals(confirm)) return RegisterResult.PASSWORD_MISMATCH;
         if (isRegistered(username)) return RegisterResult.ALREADY_REGISTERED;
-        if (countAccountsOnIp(ip) >= MAX_ACCOUNTS_PER_IP) return RegisterResult.TOO_MANY_ACCOUNTS;
 
         String hash = BCrypt.hashpw(password, BCrypt.gensalt(10));
 
@@ -202,6 +201,16 @@ public class AuthManager {
         } catch (SQLException ignored) {}
     }
 
+    public void setPremiumUuid(String username, String premiumUuid) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "UPDATE su_players SET premium_uuid = ? WHERE username = ?")) {
+            ps.setString(1, premiumUuid);
+            ps.setString(2, username.toLowerCase());
+            ps.executeUpdate();
+        } catch (SQLException ignored) {}
+    }
+
     public String getPremiumUuid(String username) {
         try (Connection conn = db.getConnection();
              PreparedStatement ps = conn.prepareStatement(
@@ -216,18 +225,22 @@ public class AuthManager {
         return null;
     }
 
-    public int countAccountsOnIp(String ip) {
-        try (Connection conn = db.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "SELECT COUNT(*) FROM su_players WHERE last_login_ip = ?")) {
-            ps.setString(1, ip);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt(1);
-            }
-        } catch (SQLException e) {
-            return 0;
+    /**
+     * Count how many players currently online come from the given IP. Used to
+     * cap simultaneous connections from the same address to
+     * {@link #MAX_SIMULTANEOUS_ACCOUNTS_PER_IP}. Does not count the incoming
+     * connection itself (that player isn't in Bukkit.getOnlinePlayers() yet
+     * during AsyncPlayerPreLoginEvent).
+     */
+    public int countOnlineWithIp(String ip) {
+        if (ip == null) return 0;
+        int count = 0;
+        for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+            if (p.getAddress() == null) continue;
+            String other = p.getAddress().getAddress().getHostAddress();
+            if (ip.equals(other)) count++;
         }
-        return 0;
+        return count;
     }
 
     public MojangProfile checkMojangPremium(String username) {

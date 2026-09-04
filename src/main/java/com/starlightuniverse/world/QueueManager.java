@@ -134,13 +134,41 @@ public class QueueManager {
     }
 
     private void teleportToSurvival(Player player) {
-        World world = Bukkit.getWorld(WorldManager.SURVIVAL_LOBBY);
-        if (world != null) {
-            player.teleport(world.getSpawnLocation());
-            Msg.success(player, "Welcome to Survival!");
-        } else {
+        World world = WorldManager.findWorld(WorldManager.SURVIVAL_LOBBY);
+        if (world == null) {
             Msg.error(player, "Survival world is not available!");
+            return;
         }
+        // Dismount + delete nameplate passengers before teleport; NameplateListener's
+        // PlayerTeleportEvent handler will respawn a fresh set at the destination.
+        java.util.List<org.bukkit.entity.Entity> passengers =
+                new java.util.ArrayList<>(player.getPassengers());
+        for (var p : passengers) {
+            player.removePassenger(p);
+            p.remove();
+        }
+        if (player.isInsideVehicle()) player.leaveVehicle();
+
+        // Kill any inherited motion / fall so the client cannot receive a
+        // stale-position damage tick between now and when the async teleport
+        // packet arrives; grant brief immunity for the same reason.
+        player.setFallDistance(0);
+        player.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+        player.setNoDamageTicks(40);
+        player.setFireTicks(0);
+
+        player.teleportAsync(world.getSpawnLocation(),
+                org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN)
+                .thenAccept(success -> Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (!player.isOnline()) return;
+                    if (Boolean.TRUE.equals(success)) {
+                        player.setFallDistance(0);
+                        player.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+                        player.setNoDamageTicks(40);
+                        player.setFireTicks(0);
+                        Msg.success(player, "Welcome to Survival!");
+                    }
+                }));
     }
 
     private int getPremiumLevel(String username) {

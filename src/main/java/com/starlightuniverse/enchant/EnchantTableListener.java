@@ -135,7 +135,7 @@ public class EnchantTableListener implements Listener {
 
         TextColor moneyColor = playerMoney >= moneyCost ? GREEN : RED;
         lore.add(Component.text("Cost: ", GRAY).decoration(TextDecoration.ITALIC, false)
-                .append(Component.text("$" + EconomyManager.format(moneyCost), moneyColor)));
+                .append(Component.text(EconomyManager.MONEY_ICON + " $" + EconomyManager.format(moneyCost), moneyColor)));
 
         TextColor xpColor = playerXp >= xpCost ? GREEN : RED;
         lore.add(Component.text("  or: ", GRAY).decoration(TextDecoration.ITALIC, false)
@@ -183,7 +183,7 @@ public class EnchantTableListener implements Listener {
         if (economyManager.hasMoney(uuid, moneyCost)) {
             economyManager.removeMoney(uuid, moneyCost);
             paid = true;
-            payMethod = "$" + EconomyManager.format(moneyCost);
+            payMethod = EconomyManager.MONEY_ICON + " $" + EconomyManager.format(moneyCost);
         } else if (player.getTotalExperience() >= xpCost) {
             player.giveExp(-xpCost);
             paid = true;
@@ -191,7 +191,7 @@ public class EnchantTableListener implements Listener {
         }
 
         if (!paid) {
-            Msg.error(player, "You need $" + EconomyManager.format(moneyCost)
+            Msg.error(player, "You need " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(moneyCost)
                     + " or " + EconomyManager.format(xpCost) + " XP!");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
             return;

@@ -36,20 +36,16 @@ public class BalCommand extends Command {
         double gems = economyManager.getGems(player.getUniqueId());
         double stars = economyManager.getStars(player.getUniqueId());
 
-        player.sendMessage(Msg.prefix().append(Component.text("Your balance:", GRAY)));
+        Component sep = Component.text(" | ", GRAY);
+        Component line = Msg.prefix()
+                .append(Component.text("Your balance: ", GRAY))
+                .append(EconomyManager.moneyText(money))
+                .append(sep)
+                .append(EconomyManager.gemsText(gems))
+                .append(sep)
+                .append(EconomyManager.starsText(stars));
 
-        player.sendMessage(Component.text("  ")
-                .append(Component.text(EconomyManager.MONEY_ICON + " ", GOLD))
-                .append(Component.text("$" + EconomyManager.format(money), GREEN)));
-
-        player.sendMessage(Component.text("  ")
-                .append(Component.text(EconomyManager.GEMS_ICON + " ", CYAN))
-                .append(Component.text("◆" + EconomyManager.format(gems), CYAN)));
-
-        player.sendMessage(Component.text("  ")
-                .append(Component.text(EconomyManager.STARS_ICON + " ", VIOLET))
-                .append(Component.text("★" + EconomyManager.format(stars), VIOLET)));
-
+        player.sendMessage(line);
         return true;
     }
 

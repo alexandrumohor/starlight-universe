@@ -4,6 +4,7 @@ import com.starlightuniverse.admin.AdminManager;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.premium.PremiumRank;
 import com.starlightuniverse.util.Msg;
+import com.starlightuniverse.world.WorldManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -11,7 +12,10 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.PreparedStatement;
@@ -136,6 +140,14 @@ public class TpaManager {
             Msg.error(sender, "You can't teleport to yourself!");
             return;
         }
+        if (!isTpaAllowedWorld(sender.getWorld().getName())) {
+            Msg.error(sender, "TPA is not allowed from your current world!");
+            return;
+        }
+        if (!isTpaAllowedWorld(target.getWorld().getName())) {
+            Msg.error(sender, target.getName() + " is in a world where TPA is not allowed!");
+            return;
+        }
         UUID sUuid = sender.getUniqueId();
         long now = System.currentTimeMillis();
         Long cd = cooldowns.get(sUuid);
@@ -208,17 +220,44 @@ public class TpaManager {
         Player toTeleport = req.type == RequestType.TO_TARGET ? sender : target;
         Player anchor = req.type == RequestType.TO_TARGET ? target : sender;
 
-        Msg.success(target, "Accepted! " + toTeleport.getName() + " will teleport in 3s...");
-        Msg.success(sender, target.getName() + " accepted your request! Teleporting in 3s...");
+        if (toTeleport.equals(target)) {
+            Msg.success(target, "You will teleport to " + anchor.getName() + " in 3s...");
+            Msg.success(sender, target.getName() + " accepted! They will teleport to you in 3s...");
+        } else {
+            Msg.success(target, "Accepted! " + toTeleport.getName() + " will teleport to you in 3s...");
+            Msg.success(sender, target.getName() + " accepted your request! You will teleport in 3s...");
+        }
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (!toTeleport.isOnline() || !anchor.isOnline()) {
                 Msg.error(toTeleport, "Teleport failed — player left.");
                 return;
             }
-            toTeleport.teleport(anchor.getLocation());
-            Msg.success(toTeleport, "Teleported to " + anchor.getName() + "!");
-            toTeleport.playSound(toTeleport.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+            for (Entity passenger : new ArrayList<>(toTeleport.getPassengers())) {
+                if (passenger instanceof TextDisplay) {
+                    toTeleport.removePassenger(passenger);
+                    passenger.remove();
+                }
+            }
+            if (toTeleport.isInsideVehicle()) toTeleport.leaveVehicle();
+
+            toTeleport.teleportAsync(anchor.getLocation(), PlayerTeleportEvent.TeleportCause.COMMAND)
+                    .thenAccept(success -> Bukkit.getScheduler().runTask(plugin, () -> {
+                        if (!toTeleport.isOnline()) return;
+                        if (Boolean.TRUE.equals(success)) {
+                            Msg.success(toTeleport, "Teleported to " + anchor.getName() + "!");
+                            toTeleport.playSound(toTeleport.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+                        } else {
+                            Msg.error(toTeleport, "Teleport was cancelled!");
+                        }
+                    })).exceptionally(ex -> {
+                        Bukkit.getScheduler().runTask(plugin, () -> {
+                            if (toTeleport.isOnline()) {
+                                Msg.error(toTeleport, "Teleport failed: " + ex.getClass().getSimpleName());
+                            }
+                        });
+                        return null;
+                    });
         }, WARMUP_MS / 50L);
     }
 
@@ -352,4 +391,17 @@ public class TpaManager {
 
     public boolean hasDisabled(UUID uuid) { return disabledReceive.contains(uuid); }
     public Set<String> getBlockedBy(UUID uuid) { return blocked.getOrDefault(uuid, Set.of()); }
+
+    /**
+     * TPA works only between the 7 permanent survival worlds:
+     * survivallobby, overworld, nether, end, and the 3 resource worlds.
+     * Dragon world, the main lobby, and any minigame/arena world are excluded.
+     */
+    private static boolean isTpaAllowedWorld(String worldName) {
+        if (WorldManager.getWorldGroup(worldName) != WorldManager.WorldGroup.SURVIVAL) return false;
+        String stripped = worldName;
+        int colon = worldName.indexOf(':');
+        if (colon >= 0) stripped = worldName.substring(colon + 1);
+        return !stripped.equals(WorldManager.WORLD_DRAGON);
+    }
 }

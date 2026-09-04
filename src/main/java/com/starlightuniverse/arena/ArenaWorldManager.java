@@ -264,7 +264,6 @@ public class ArenaWorldManager {
             buildingWorlds.remove(world.getName());
             builtWorlds.add(world.getName());
             saveBuiltFlags();
-            world.save();
             plugin.getLogger().info("[SU] Arena built in " + world.getName() +
                     " (" + placed + " blocks).");
             scheduleNextBuild();

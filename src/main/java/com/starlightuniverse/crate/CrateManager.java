@@ -1,29 +1,28 @@
 package com.starlightuniverse.crate;
 
 import com.starlightuniverse.admin.AdminManager;
+import com.starlightuniverse.booster.BoosterType;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.EconomyManager;
+import com.starlightuniverse.spawner.SpawnerManager;
+import com.starlightuniverse.spawner.VirtualSpawnerType;
 import com.starlightuniverse.util.Msg;
+import com.starlightuniverse.voucher.VoucherManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.sql.PreparedStatement;
@@ -58,13 +57,35 @@ public class CrateManager {
     private final Map<CrateType, List<CrateReward>> rewardTables = new EnumMap<>(CrateType.class);
     private final Map<CrateType, Double> totalWeights = new EnumMap<>(CrateType.class);
 
+    private static final Material[] ORE_TYPES = {
+            Material.COAL, Material.RAW_IRON, Material.RAW_COPPER, Material.RAW_GOLD,
+            Material.LAPIS_LAZULI, Material.REDSTONE, Material.DIAMOND, Material.EMERALD,
+            Material.AMETHYST_SHARD, Material.QUARTZ
+    };
+
+    private static final EntityType[] PHYSICAL_SPAWNER_MOBS = {
+            EntityType.ZOMBIE, EntityType.SKELETON, EntityType.SPIDER, EntityType.CREEPER,
+            EntityType.ENDERMAN, EntityType.BLAZE, EntityType.IRON_GOLEM, EntityType.WITCH,
+            EntityType.GUARDIAN, EntityType.PIGLIN
+    };
+
     private BukkitTask particleTask;
+    private VoucherManager voucherManager;
+    private SpawnerManager spawnerManager;
 
     public CrateManager(JavaPlugin plugin, DatabaseManager db, EconomyManager economy, AdminManager adminManager) {
         this.plugin = plugin;
         this.db = db;
         this.economy = economy;
         this.adminManager = adminManager;
+    }
+
+    public void setVoucherManager(VoucherManager voucherManager) {
+        this.voucherManager = voucherManager;
+    }
+
+    public void setSpawnerManager(SpawnerManager spawnerManager) {
+        this.spawnerManager = spawnerManager;
     }
 
     public void initialize() {
@@ -188,7 +209,9 @@ public class CrateManager {
                 if (world.getNearbyPlayers(new Location(world, x, y, z), 32).isEmpty()) continue;
 
                 world.spawnParticle(Particle.SMOKE, x, y + 0.5, z, 3, 0.2, 0.3, 0.2, 0.01);
-                world.spawnParticle(entry.getValue().getParticle(), x, y + 0.3, z, 2, 0.3, 0.2, 0.3, 0.01);
+                CrateType crateType = entry.getValue();
+                var dust = new Particle.DustOptions(crateType.getBukkitColor(), 1.2f);
+                world.spawnParticle(Particle.DUST, x, y + 0.3, z, 2, 0.3, 0.2, 0.3, 0.01, dust);
             }
         }, 20L, 15L);
     }
@@ -202,15 +225,22 @@ public class CrateManager {
                 .decoration(TextDecoration.ITALIC, false)
                 .decoration(TextDecoration.BOLD, true));
 
+        String tierShort = type.getDisplayName().replace(" Crate", "");
         List<Component> lore = new ArrayList<>();
-        lore.add(Component.text("Right-click a " + type.getDisplayName(), GRAY).decoration(TextDecoration.ITALIC, false));
-        lore.add(Component.text("to claim a random reward!", GRAY).decoration(TextDecoration.ITALIC, false));
+        lore.add(Component.text("Right-Click", TextColor.fromHexString("#FF0000"))
+                .append(Component.text(" a ", WHITE))
+                .append(Component.text(tierShort, type.getColor()))
+                .append(Component.text(" ", WHITE))
+                .append(Component.text("Crate", type.getColor()))
+                .append(Component.text(" to claim a random reward!", WHITE))
+                .decoration(TextDecoration.ITALIC, false));
         lore.add(Component.empty());
         lore.add(Component.text("Rarity: ", GRAY).decoration(TextDecoration.ITALIC, false)
                 .append(Component.text(type.getDisplayName(), type.getColor())));
         meta.lore(lore);
 
         meta.setEnchantmentGlintOverride(true);
+        meta.setItemModel(NamespacedKey.fromString("starlight:cr_key_" + type.name().toLowerCase()));
 
         meta.getPersistentDataContainer().set(CRATE_KEY_TAG,
                 org.bukkit.persistence.PersistentDataType.STRING, type.name());
@@ -328,6 +358,10 @@ public class CrateManager {
                     .append(Component.text(PERCENT_FORMAT.format(chance) + "%", YELLOW)));
             meta.lore(lore);
 
+            if (reward.displayModel() != null) {
+                meta.setItemModel(reward.displayModel());
+            }
+
             display.setItemMeta(meta);
             inv.setItem(slot, display);
             slot++;
@@ -351,7 +385,8 @@ public class CrateManager {
         rewardTables.put(CrateType.STAR, buildStarRewards());
         rewardTables.put(CrateType.COSMIC, buildCosmicRewards());
         rewardTables.put(CrateType.GALAXY, buildGalaxyRewards());
-        rewardTables.put(CrateType.SEASONAL, buildSeasonalRewards());
+        rewardTables.put(CrateType.CELESTIAL, buildCelestialRewards());
+        rewardTables.put(CrateType.UNIVERSE, buildUniverseRewards());
 
         for (CrateType type : CrateType.values()) {
             double total = 0;
@@ -362,140 +397,129 @@ public class CrateManager {
 
     private List<CrateReward> buildStarRewards() {
         List<CrateReward> r = new ArrayList<>();
-        r.add(money("$5,000", 5_000, "Common", COMMON_COLOR, 5.5));
-        r.add(money("$10,000", 10_000, "Common", COMMON_COLOR, 5.5));
-        r.add(money("$25,000", 25_000, "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(money("$50,000", 50_000, "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(money("$100,000", 100_000, "Rare", RARE_COLOR, 2.0));
-        r.add(gems(EconomyManager.GEMS_ICON + "10 Gems", 10, "Common", COMMON_COLOR, 5.5));
-        r.add(gems(EconomyManager.GEMS_ICON + "25 Gems", 25, "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(gems(EconomyManager.GEMS_ICON + "50 Gems", 50, "Rare", RARE_COLOR, 3.5));
-        r.add(item("8x Diamond", new ItemStack(Material.DIAMOND, 8), "Common", COMMON_COLOR, 5.5));
-        r.add(item("16x Diamond", new ItemStack(Material.DIAMOND, 16), "Uncommon", UNCOMMON_COLOR, 4.5));
-        r.add(item("32x Diamond", new ItemStack(Material.DIAMOND, 32), "Rare", RARE_COLOR, 2.5));
-        r.add(item("16x Iron Block", new ItemStack(Material.IRON_BLOCK, 16), "Common", COMMON_COLOR, 5.5));
-        r.add(item("8x Gold Block", new ItemStack(Material.GOLD_BLOCK, 8), "Common", COMMON_COLOR, 5.0));
-        r.add(item("1x Netherite Scrap", new ItemStack(Material.NETHERITE_SCRAP, 1), "Rare", RARE_COLOR, 3.0));
-        r.add(item("4x Golden Apple", new ItemStack(Material.GOLDEN_APPLE, 4), "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(item("8x Ender Pearl", new ItemStack(Material.ENDER_PEARL, 8), "Common", COMMON_COLOR, 5.5));
-        r.add(enchantBook("Stardust Enchant Book", enchants_stardust(), "Common", COMMON_COLOR, 5.5));
-        r.add(enchantBook("Starlight Enchant Book", enchants_starlight(), "Uncommon", UNCOMMON_COLOR, 3.5));
-        r.add(item("32x Exp Bottle", new ItemStack(Material.EXPERIENCE_BOTTLE, 32), "Common", COMMON_COLOR, 4.0));
-        r.add(potion("Speed II Potion", PotionEffectType.SPEED, 1, 3600, "Common", COMMON_COLOR, 5.0));
-        r.add(potion("Strength I Potion", PotionEffectType.STRENGTH, 0, 1800, "Common", COMMON_COLOR, 5.0));
-        r.add(item("Diamond Sword", enchantedItem(Material.DIAMOND_SWORD, Map.of(Enchantment.SHARPNESS, 1)), "Uncommon", UNCOMMON_COLOR, 4.5));
+        r.add(moneyRange("$1,000-$5,000", 1_000, 5_000, "Common", COMMON_COLOR, 25));
+        r.add(xpRange("250-1,000 XP", 250, 1_000, "Common", COMMON_COLOR, 25));
+        r.add(flyVoucher("Fly Voucher 10 min", 10, "Uncommon", UNCOMMON_COLOR, 8));
+        r.add(protectionToken("+50 Blocks", 50, "Uncommon", UNCOMMON_COLOR, 8));
+        r.add(boosterRange("Booster 1.5-2.0x", 1.5, 2.0, 15, "Uncommon", UNCOMMON_COLOR, 6));
+        r.add(item("8x Golden Apple", new ItemStack(Material.GOLDEN_APPLE, 8), "Uncommon", UNCOMMON_COLOR, 6));
+        r.add(enchantBook("Stardust Enchant Book", enchants_stardust(), "Common", COMMON_COLOR, 10));
+        r.add(gearTicket("Star Gear Ticket", CrateType.STAR, "Common", COMMON_COLOR, 10));
+        r.add(bonusKeys("2 Star Keys", CrateType.STAR, 2, "Uncommon", UNCOMMON_COLOR, 5));
+        r.add(bonusKeys("1 Universe Key", CrateType.UNIVERSE, 1, "Rare", RARE_COLOR, 2));
         return r;
     }
 
     private List<CrateReward> buildCosmicRewards() {
         List<CrateReward> r = new ArrayList<>();
-        r.add(money("$25,000", 25_000, "Common", COMMON_COLOR, 5.5));
-        r.add(money("$50,000", 50_000, "Common", COMMON_COLOR, 5.5));
-        r.add(money("$100,000", 100_000, "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(money("$250,000", 250_000, "Rare", RARE_COLOR, 3.0));
-        r.add(money("$500,000", 500_000, "Epic", EPIC_COLOR, 1.0));
-        r.add(gems(EconomyManager.GEMS_ICON + "25 Gems", 25, "Common", COMMON_COLOR, 5.5));
-        r.add(gems(EconomyManager.GEMS_ICON + "50 Gems", 50, "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(gems(EconomyManager.GEMS_ICON + "100 Gems", 100, "Rare", RARE_COLOR, 3.5));
-        r.add(stars(EconomyManager.STARS_ICON + "5 Stars", 5, "Rare", RARE_COLOR, 3.0));
-        r.add(item("16x Diamond", new ItemStack(Material.DIAMOND, 16), "Common", COMMON_COLOR, 5.5));
-        r.add(item("32x Diamond", new ItemStack(Material.DIAMOND, 32), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(item("64x Diamond", new ItemStack(Material.DIAMOND, 64), "Rare", RARE_COLOR, 2.0));
-        r.add(item("2x Netherite Scrap", new ItemStack(Material.NETHERITE_SCRAP, 2), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(item("4x Netherite Scrap", new ItemStack(Material.NETHERITE_SCRAP, 4), "Rare", RARE_COLOR, 2.5));
-        r.add(enchantBook("Starlight Enchant Book", enchants_starlight(), "Common", COMMON_COLOR, 5.5));
-        r.add(enchantBook("Starborn Enchant Book", enchants_starborn(), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(enchantBook("Stellar Enchant Book", enchants_stellar(), "Rare", RARE_COLOR, 2.0));
-        r.add(item("Diamond Chestplate", enchantedItem(Material.DIAMOND_CHESTPLATE, Map.of(Enchantment.PROTECTION, 3)), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(item("Diamond Sword", enchantedItem(Material.DIAMOND_SWORD, Map.of(Enchantment.SHARPNESS, 3)), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(potion("Strength II Potion", PotionEffectType.STRENGTH, 1, 1800, "Common", COMMON_COLOR, 5.0));
-        r.add(potion("Fire Resistance Potion", PotionEffectType.FIRE_RESISTANCE, 0, 6000, "Common", COMMON_COLOR, 5.5));
-        r.add(item("4x Enchanted Golden Apple", new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 4), "Epic", EPIC_COLOR, 1.0));
-        r.add(item("8x Golden Apple", new ItemStack(Material.GOLDEN_APPLE, 8), "Common", COMMON_COLOR, 5.0));
-        r.add(item("1x Netherite Ingot", new ItemStack(Material.NETHERITE_INGOT, 1), "Epic", EPIC_COLOR, 1.0));
-        r.add(item("64x Exp Bottle", new ItemStack(Material.EXPERIENCE_BOTTLE, 64), "Common", COMMON_COLOR, 3.5));
+        r.add(moneyRange("$5,000-$10,000", 5_000, 10_000, "Common", COMMON_COLOR, 25));
+        r.add(xpRange("1,000-1,500 XP", 1_000, 1_500, "Common", COMMON_COLOR, 25));
+        r.add(flyVoucher("Fly Voucher 30 min", 30, "Uncommon", UNCOMMON_COLOR, 8));
+        r.add(protectionToken("+100 Blocks", 100, "Uncommon", UNCOMMON_COLOR, 8));
+        r.add(boosterRange("Booster 2.0-2.5x", 2.0, 2.5, 15, "Uncommon", UNCOMMON_COLOR, 6));
+        r.add(enchantBook("Starlight Enchant Book", enchants_starlight(), "Uncommon", UNCOMMON_COLOR, 8));
+        r.add(gearTicket("Cosmic Gear Ticket", CrateType.COSMIC, "Uncommon", UNCOMMON_COLOR, 8));
+        r.add(bonusKeys("2 Cosmic Keys", CrateType.COSMIC, 2, "Rare", RARE_COLOR, 4));
+        r.add(bonusKeys("1 Universe Key", CrateType.UNIVERSE, 1, "Epic", EPIC_COLOR, 1.5));
         return r;
     }
 
     private List<CrateReward> buildGalaxyRewards() {
         List<CrateReward> r = new ArrayList<>();
-        r.add(money("$100,000", 100_000, "Common", COMMON_COLOR, 5.5));
-        r.add(money("$250,000", 250_000, "Common", COMMON_COLOR, 5.0));
-        r.add(money("$500,000", 500_000, "Uncommon", UNCOMMON_COLOR, 4.5));
-        r.add(money("$1,000,000", 1_000_000, "Rare", RARE_COLOR, 3.0));
-        r.add(money("$2,500,000", 2_500_000, "Epic", EPIC_COLOR, 1.0));
-        r.add(gems(EconomyManager.GEMS_ICON + "50 Gems", 50, "Common", COMMON_COLOR, 5.5));
-        r.add(gems(EconomyManager.GEMS_ICON + "100 Gems", 100, "Uncommon", UNCOMMON_COLOR, 4.5));
-        r.add(gems(EconomyManager.GEMS_ICON + "250 Gems", 250, "Rare", RARE_COLOR, 2.5));
-        r.add(stars(EconomyManager.STARS_ICON + "10 Stars", 10, "Rare", RARE_COLOR, 3.0));
-        r.add(stars(EconomyManager.STARS_ICON + "25 Stars", 25, "Epic", EPIC_COLOR, 1.5));
-        r.add(item("64x Diamond", new ItemStack(Material.DIAMOND, 64), "Common", COMMON_COLOR, 5.0));
-        r.add(item("2x Netherite Ingot", new ItemStack(Material.NETHERITE_INGOT, 2), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(item("4x Netherite Ingot", new ItemStack(Material.NETHERITE_INGOT, 4), "Rare", RARE_COLOR, 2.5));
-        r.add(enchantBook("Starborn Enchant Book", enchants_starborn(), "Common", COMMON_COLOR, 5.0));
-        r.add(enchantBook("Stellar Enchant Book", enchants_stellar(), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(enchantBook("Celestial Enchant Book", enchants_celestial(), "Legendary", LEGENDARY_COLOR, 0.5));
-        r.add(item("Netherite Chestplate", enchantedItem(Material.NETHERITE_CHESTPLATE, Map.of(Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3)), "Epic", EPIC_COLOR, 1.5));
-        r.add(item("Netherite Sword", enchantedItem(Material.NETHERITE_SWORD, Map.of(Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3)), "Epic", EPIC_COLOR, 1.5));
-        r.add(spawner("Zombie Spawner", EntityType.ZOMBIE, "Rare", RARE_COLOR, 2.0));
-        r.add(spawner("Skeleton Spawner", EntityType.SKELETON, "Rare", RARE_COLOR, 2.0));
-        r.add(spawner("Blaze Spawner", EntityType.BLAZE, "Epic", EPIC_COLOR, 0.5));
-        r.add(item("8x Enchanted Golden Apple", new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 8), "Rare", RARE_COLOR, 2.5));
-        r.add(item("Netherite Helmet", enchantedItem(Material.NETHERITE_HELMET, Map.of(Enchantment.PROTECTION, 4)), "Rare", RARE_COLOR, 3.0));
-        r.add(potion("Strength III Buff", PotionEffectType.STRENGTH, 2, 3600, "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(item("16x Netherite Scrap", new ItemStack(Material.NETHERITE_SCRAP, 16), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(item("Totem of Undying", new ItemStack(Material.TOTEM_OF_UNDYING, 1), "Rare", RARE_COLOR, 3.0));
-        r.add(money("$5,000,000", 5_000_000, "Legendary", LEGENDARY_COLOR, 0.2));
-        r.add(stars(EconomyManager.STARS_ICON + "50 Stars", 50, "Legendary", LEGENDARY_COLOR, 0.3));
+        r.add(moneyRange("$15,000-$25,000", 15_000, 25_000, "Common", COMMON_COLOR, 22));
+        r.add(xpRange("2,000-4,000 XP", 2_000, 4_000, "Common", COMMON_COLOR, 22));
+        r.add(flyVoucher("Fly Voucher 45 min", 45, "Uncommon", UNCOMMON_COLOR, 7));
+        r.add(protectionToken("+150 Blocks", 150, "Uncommon", UNCOMMON_COLOR, 7));
+        r.add(boosterRange("Booster 2.5-3.0x", 2.5, 3.0, 20, "Rare", RARE_COLOR, 5));
+        r.add(orePack("Ore Pack (15x)", 15, "Rare", RARE_COLOR, 4));
+        r.add(enchantBook("Starborn Enchant Book", enchants_starborn(), "Rare", RARE_COLOR, 6));
+        r.add(gearTicket("Galaxy Gear Ticket", CrateType.GALAXY, "Rare", RARE_COLOR, 6));
+        r.add(bonusKeys("2 Galaxy Keys", CrateType.GALAXY, 2, "Rare", RARE_COLOR, 3));
         return r;
     }
 
-    private List<CrateReward> buildSeasonalRewards() {
+    private List<CrateReward> buildCelestialRewards() {
         List<CrateReward> r = new ArrayList<>();
-        r.add(money("$50,000", 50_000, "Common", COMMON_COLOR, 5.5));
-        r.add(money("$100,000", 100_000, "Common", COMMON_COLOR, 5.5));
-        r.add(money("$250,000", 250_000, "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(money("$500,000", 500_000, "Rare", RARE_COLOR, 3.0));
-        r.add(money("$1,000,000", 1_000_000, "Epic", EPIC_COLOR, 1.5));
-        r.add(gems(EconomyManager.GEMS_ICON + "50 Gems", 50, "Common", COMMON_COLOR, 5.5));
-        r.add(gems(EconomyManager.GEMS_ICON + "100 Gems", 100, "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(gems(EconomyManager.GEMS_ICON + "200 Gems", 200, "Rare", RARE_COLOR, 3.0));
-        r.add(stars(EconomyManager.STARS_ICON + "10 Stars", 10, "Rare", RARE_COLOR, 3.0));
-        r.add(stars(EconomyManager.STARS_ICON + "25 Stars", 25, "Epic", EPIC_COLOR, 1.0));
-        r.add(item("32x Diamond", new ItemStack(Material.DIAMOND, 32), "Common", COMMON_COLOR, 5.5));
-        r.add(item("64x Diamond", new ItemStack(Material.DIAMOND, 64), "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(item("2x Netherite Ingot", new ItemStack(Material.NETHERITE_INGOT, 2), "Rare", RARE_COLOR, 3.0));
-        r.add(enchantBook("Starborn Enchant Book", enchants_starborn(), "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(enchantBook("Stellar Enchant Book", enchants_stellar(), "Rare", RARE_COLOR, 3.0));
-        r.add(enchantBook("Celestial Enchant Book", enchants_celestial(), "Legendary", LEGENDARY_COLOR, 0.5));
-        r.add(item("Diamond Chestplate", enchantedItem(Material.DIAMOND_CHESTPLATE, Map.of(Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3)), "Rare", RARE_COLOR, 3.0));
-        r.add(item("Enchanted Golden Apple x4", new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 4), "Rare", RARE_COLOR, 3.0));
-        r.add(spawner("Zombie Spawner", EntityType.ZOMBIE, "Rare", RARE_COLOR, 2.5));
-        r.add(item("Totem of Undying", new ItemStack(Material.TOTEM_OF_UNDYING, 1), "Rare", RARE_COLOR, 3.0));
-        r.add(item("Dragon Egg", new ItemStack(Material.DRAGON_EGG, 1), "Legendary", LEGENDARY_COLOR, 0.2));
-        r.add(potion("Haste II Buff", PotionEffectType.HASTE, 1, 6000, "Uncommon", UNCOMMON_COLOR, 5.0));
-        r.add(item("Elytra", new ItemStack(Material.ELYTRA, 1), "Legendary", LEGENDARY_COLOR, 0.3));
-        r.add(item("8x Golden Apple", new ItemStack(Material.GOLDEN_APPLE, 8), "Common", COMMON_COLOR, 5.5));
-        r.add(potion("Regeneration III Buff", PotionEffectType.REGENERATION, 2, 1200, "Uncommon", UNCOMMON_COLOR, 4.0));
-        r.add(item("64x Exp Bottle", new ItemStack(Material.EXPERIENCE_BOTTLE, 64), "Common", COMMON_COLOR, 3.5));
+        r.add(moneyRange("$30,000-$50,000", 30_000, 50_000, "Uncommon", UNCOMMON_COLOR, 20));
+        r.add(xpRange("5,000-10,000 XP", 5_000, 10_000, "Uncommon", UNCOMMON_COLOR, 20));
+        r.add(flyVoucher("Fly Voucher 1h", 60, "Rare", RARE_COLOR, 6));
+        r.add(protectionToken("+250 Blocks", 250, "Rare", RARE_COLOR, 6));
+        r.add(boosterRange("Booster 3.0-3.5x", 3.0, 3.5, 25, "Epic", EPIC_COLOR, 4));
+        r.add(orePack("Ore Pack (32x)", 32, "Epic", EPIC_COLOR, 4));
+        r.add(randomVirtualSpawner("Random Virtual Spawner", "Epic", EPIC_COLOR, 3));
+        r.add(enchantBook("Stellar Enchant Book", enchants_stellar(), "Epic", EPIC_COLOR, 5));
+        r.add(gearTicket("Celestial Gear Ticket", CrateType.CELESTIAL, "Epic", EPIC_COLOR, 5));
+        r.add(bonusKeys("2 Celestial Keys", CrateType.CELESTIAL, 2, "Epic", EPIC_COLOR, 2));
+        return r;
+    }
+
+    private List<CrateReward> buildUniverseRewards() {
+        List<CrateReward> r = new ArrayList<>();
+        r.add(moneyRange("$75,000-$100,000", 75_000, 100_000, "Uncommon", UNCOMMON_COLOR, 18));
+        r.add(xpRange("10,000-20,000 XP", 10_000, 20_000, "Rare", RARE_COLOR, 15));
+        r.add(flyVoucher("Fly Voucher 2h", 120, "Rare", RARE_COLOR, 5));
+        r.add(protectionToken("+500 Blocks", 500, "Epic", EPIC_COLOR, 5));
+        r.add(boosterRange("Booster 4.0-5.0x", 4.0, 5.0, 30, "Legendary", LEGENDARY_COLOR, 2));
+        r.add(orePack("Ore Pack (64x)", 64, "Legendary", LEGENDARY_COLOR, 2));
+        r.add(starsPack("Stars Pack (10★)", 10, "Legendary", LEGENDARY_COLOR, 2));
+        r.add(randomPhysicalSpawner("Random Mob Spawner", "Legendary", LEGENDARY_COLOR, 1.5));
+        r.add(enchantBook("Celestial Enchant Book", enchants_celestial(), "Legendary", LEGENDARY_COLOR, 3));
+        r.add(gearTicket("Universe Gear Ticket", CrateType.UNIVERSE, "Legendary", LEGENDARY_COLOR, 3));
+        r.add(bonusKeys("2 Universe Keys", CrateType.UNIVERSE, 2, "Legendary", LEGENDARY_COLOR, 1));
         return r;
     }
 
     // ── Reward factory helpers ──
 
-    private CrateReward money(String name, double amount, String rarity, TextColor color, double weight) {
-        return new CrateReward(name, Material.SUNFLOWER, 1, rarity, color, weight,
-                p -> { economy.addMoney(p.getUniqueId(), amount); });
+    private CrateReward moneyRange(String name, double min, double max, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_money_reward");
+        return new CrateReward(name, Material.SUNFLOWER, 1, rarity, color, weight, p -> {
+            double amount = min + ThreadLocalRandom.current().nextDouble() * (max - min);
+            amount = Math.round(amount / 100.0) * 100.0;
+            economy.addMoney(p.getUniqueId(), amount);
+        }, model);
     }
 
-    private CrateReward gems(String name, double amount, String rarity, TextColor color, double weight) {
-        return new CrateReward(name, Material.EMERALD, Math.max(1, (int) amount), rarity, color, weight,
-                p -> { economy.addGems(p.getUniqueId(), amount); });
+    private CrateReward xpRange(String name, int min, int max, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:shop_xp");
+        return new CrateReward(name, Material.EXPERIENCE_BOTTLE, 1, rarity, color, weight,
+                p -> p.giveExp(ThreadLocalRandom.current().nextInt(min, max + 1), false), model);
     }
 
-    private CrateReward stars(String name, double amount, String rarity, TextColor color, double weight) {
-        return new CrateReward(name, Material.NETHER_STAR, Math.max(1, (int) amount), rarity, color, weight,
-                p -> { economy.addStars(p.getUniqueId(), amount); });
+    private CrateReward protectionToken(String name, int blocks, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_protection");
+        return new CrateReward(name, Material.HEART_OF_THE_SEA, 1, rarity, color, weight,
+                p -> giveItem(p, voucherManager.createProtectionToken(blocks)), model);
+    }
+
+    private CrateReward flyVoucher(String name, int minutes, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:shop_fly");
+        return new CrateReward(name, Material.FEATHER, 1, rarity, color, weight,
+                p -> giveItem(p, voucherManager.createFlyVoucher(minutes)), model);
+    }
+
+    private CrateReward boosterRange(String name, double minMult, double maxMult, int durationMin,
+                                     String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_booster");
+        BoosterType[] types = BoosterType.values();
+        return new CrateReward(name, Material.BLAZE_POWDER, 1, rarity, color, weight, p -> {
+            BoosterType type = types[ThreadLocalRandom.current().nextInt(types.length)];
+            double mult = minMult + ThreadLocalRandom.current().nextDouble() * (maxMult - minMult);
+            mult = Math.round(mult * 10.0) / 10.0;
+            giveItem(p, voucherManager.createBooster(type, mult, durationMin));
+        }, model);
+    }
+
+    private CrateReward bonusKeys(String name, CrateType keyType, int amount, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_key_" + keyType.name().toLowerCase());
+        return new CrateReward(name, Material.TRIPWIRE_HOOK, amount, rarity, color, weight,
+                p -> giveItem(p, createKey(keyType, amount)), model);
+    }
+
+    private CrateReward gearTicket(String name, CrateType tier, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:gear_ticket_" + tier.name().toLowerCase());
+        return new CrateReward(name, Material.PAPER, 1, rarity, color, weight,
+                p -> giveItem(p, voucherManager.createGearTicket(tier)), model);
     }
 
     private CrateReward item(String name, ItemStack stack, String rarity, TextColor color, double weight) {
@@ -508,41 +532,61 @@ public class CrateManager {
         EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
         enchants.forEach((e, lvl) -> meta.addStoredEnchant(e, lvl, true));
         meta.displayName(Component.text(name, color).decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
+        NamespacedKey model = NamespacedKey.fromString("starlight:shop_enchant_book");
+        meta.setItemModel(model);
         book.setItemMeta(meta);
         return new CrateReward(name, Material.ENCHANTED_BOOK, 1, rarity, color, weight,
-                p -> giveItem(p, book.clone()));
+                p -> giveItem(p, book.clone()), model);
     }
 
-    private CrateReward potion(String name, PotionEffectType effectType, int amplifier, int durationTicks,
-                               String rarity, TextColor color, double weight) {
-        ItemStack bottle = new ItemStack(Material.SPLASH_POTION);
-        PotionMeta meta = (PotionMeta) bottle.getItemMeta();
-        meta.addCustomEffect(new PotionEffect(effectType, durationTicks, amplifier), true);
-        meta.displayName(Component.text(name, color).decoration(TextDecoration.ITALIC, false));
-        bottle.setItemMeta(meta);
-        return new CrateReward(name, Material.SPLASH_POTION, 1, rarity, color, weight,
-                p -> giveItem(p, bottle.clone()));
+    private CrateReward orePack(String name, int amount, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_ore_pack");
+        return new CrateReward(name, Material.DIAMOND, amount, rarity, color, weight, p -> {
+            Material ore = ORE_TYPES[ThreadLocalRandom.current().nextInt(ORE_TYPES.length)];
+            giveItem(p, new ItemStack(ore, amount));
+        }, model);
     }
 
-    private CrateReward spawner(String name, EntityType entityType, String rarity, TextColor color, double weight) {
+    private CrateReward starsPack(String name, int stars, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_stars_pack");
+        return new CrateReward(name, Material.NETHER_STAR, stars, rarity, color, weight,
+                p -> economy.addStars(p.getUniqueId(), stars), model);
+    }
+
+    private CrateReward randomVirtualSpawner(String name, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_spawner");
+        VirtualSpawnerType[] types = VirtualSpawnerType.values();
         return new CrateReward(name, Material.SPAWNER, 1, rarity, color, weight, p -> {
-            ItemStack spawnerItem = new ItemStack(Material.SPAWNER);
-            BlockStateMeta meta = (BlockStateMeta) spawnerItem.getItemMeta();
-            CreatureSpawner cs = (CreatureSpawner) meta.getBlockState();
-            cs.setSpawnedType(entityType);
-            meta.setBlockState(cs);
-            meta.displayName(Component.text(name, color).decoration(TextDecoration.ITALIC, false));
-            spawnerItem.setItemMeta(meta);
-            giveItem(p, spawnerItem);
-        });
+            VirtualSpawnerType type = types[ThreadLocalRandom.current().nextInt(types.length)];
+            giveItem(p, spawnerManager.createSpawnerItem(type, 1, 1));
+        }, model);
     }
 
-    private ItemStack enchantedItem(Material material, Map<Enchantment, Integer> enchants) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        enchants.forEach((e, lvl) -> meta.addEnchant(e, lvl, true));
-        item.setItemMeta(meta);
-        return item;
+    private CrateReward randomPhysicalSpawner(String name, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:cr_spawner");
+        return new CrateReward(name, Material.SPAWNER, 1, rarity, color, weight, p -> {
+            EntityType mob = PHYSICAL_SPAWNER_MOBS[ThreadLocalRandom.current().nextInt(PHYSICAL_SPAWNER_MOBS.length)];
+            ItemStack spawner = new ItemStack(Material.SPAWNER);
+            ItemMeta meta = spawner.getItemMeta();
+            String mobName = mob.name().charAt(0) + mob.name().substring(1).toLowerCase().replace('_', ' ');
+            meta.displayName(Component.text(mobName + " Spawner", LEGENDARY_COLOR)
+                    .decoration(TextDecoration.ITALIC, false)
+                    .decoration(TextDecoration.BOLD, true));
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Mob: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                    .append(Component.text(mobName, YELLOW)));
+            lore.add(Component.text("Place to activate!", GRAY).decoration(TextDecoration.ITALIC, false));
+            meta.lore(lore);
+            meta.setEnchantmentGlintOverride(true);
+            meta.setItemModel(model);
+            org.bukkit.block.BlockState blockState = ((org.bukkit.inventory.meta.BlockStateMeta) meta).getBlockState();
+            if (blockState instanceof org.bukkit.block.CreatureSpawner cs) {
+                cs.setSpawnedType(mob);
+                ((org.bukkit.inventory.meta.BlockStateMeta) meta).setBlockState(blockState);
+            }
+            spawner.setItemMeta(meta);
+            giveItem(p, spawner);
+        }, model);
     }
 
     // ── Enchant maps per tier ──
@@ -654,4 +698,5 @@ public class CrateManager {
 
     public AdminManager getAdminManager() { return adminManager; }
     public EconomyManager getEconomy() { return economy; }
+    public VoucherManager getVoucherManager() { return voucherManager; }
 }

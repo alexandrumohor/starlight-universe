@@ -13,8 +13,12 @@ public final class ResourcePackManager {
     private static final UUID PACK_UUID = UUID.fromString("534c1717-5555-5555-5555-5354415250");
     private static final boolean REQUIRED = true;
     private static final Component PROMPT =
-            Component.text("Descarcă pack-ul Starlight Universe pentru iconuri și modele custom.")
-                    .color(NamedTextColor.AQUA);
+            Component.text("Starlight Universe cere resource pack-ul custom.\n", NamedTextColor.GOLD)
+                    .append(Component.text("Alege ", NamedTextColor.WHITE))
+                    .append(Component.text("[Yes]", NamedTextColor.GREEN))
+                    .append(Component.text(" ca sa descarci si intri, sau ", NamedTextColor.WHITE))
+                    .append(Component.text("[No]", NamedTextColor.RED))
+                    .append(Component.text(" ca sa te deconectezi.", NamedTextColor.WHITE));
 
     private static final String PACK_HOST_OVERRIDE = "";
 

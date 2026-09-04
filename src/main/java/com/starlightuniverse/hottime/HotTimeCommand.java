@@ -84,4 +84,17 @@ public class HotTimeCommand extends Command {
         p.sendMessage(Component.text("  /hottime stop — end early", GRAY));
         p.sendMessage(Component.text("  /hottime status — show current state", GRAY));
     }
+
+    @Override
+    public java.util.List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
+        if (args.length == 1) {
+            return java.util.List.of("stop", "status", "5", "15", "30", "60").stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase())).toList();
+        }
+        if (args.length == 2) {
+            return java.util.List.of("1.5", "2", "2.5", "3").stream()
+                    .filter(s -> s.startsWith(args[1])).toList();
+        }
+        return java.util.List.of();
+    }
 }

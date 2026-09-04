@@ -61,6 +61,8 @@ public class EnchantListener implements Listener {
 
     private final Map<UUID, Integer> sunlightTouchUses = new ConcurrentHashMap<>();
 
+    private final Set<UUID> worldChangeCooldown = Collections.newSetFromMap(new ConcurrentHashMap<>());
+
     public EnchantListener(JavaPlugin plugin, EnchantManager manager, AuthManager auth, EconomyManager economy) {
         this.plugin = plugin;
         this.manager = manager;
@@ -217,8 +219,11 @@ public class EnchantListener implements Listener {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, deepStar * 100, 0, true, false, false));
             }
 
-            // Star Heart attribute
-            manager.applyStarHeartAttribute(player);
+            // Star Heart attribute — skip during world-change cooldown to avoid
+            // Paper 26.2 Float serialization error during entity rebuild
+            if (!worldChangeCooldown.contains(player.getUniqueId())) {
+                manager.applyStarHeartAttribute(player);
+            }
         }
     }
 
@@ -1461,14 +1466,30 @@ public class EnchantListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskLater(plugin, () ->
-                manager.applyStarHeartAttribute(event.getPlayer()), 20L);
+        UUID uuid = event.getPlayer().getUniqueId();
+        worldChangeCooldown.add(uuid);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            worldChangeCooldown.remove(uuid);
+            manager.applyStarHeartAttribute(event.getPlayer());
+        }, 40L);
+    }
+
+    @EventHandler
+    public void onWorldChange(PlayerChangedWorldEvent event) {
+        UUID uuid = event.getPlayer().getUniqueId();
+        manager.clearStarHeartCache(uuid);
+        worldChangeCooldown.add(uuid);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            worldChangeCooldown.remove(uuid);
+            manager.applyStarHeartAttribute(event.getPlayer());
+        }, 40L);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         manager.removeStarHeartAttribute(player);
+        worldChangeCooldown.remove(player.getUniqueId());
         consecutiveHits.remove(player.getUniqueId());
         lastHitTime.remove(player.getUniqueId());
         sunlightTouchUses.remove(player.getUniqueId());

@@ -39,6 +39,20 @@ public class SpawnerManager {
     public static final NamespacedKey SPAWNER_TIER_KEY = NamespacedKey.fromString("starlightuniverse:vspawner_tier");
     public static final NamespacedKey SPAWNER_STACK_KEY = NamespacedKey.fromString("starlightuniverse:vspawner_stack");
 
+    // Storage GUI layout
+    private static final int STORAGE_ITEMS_PER_PAGE = 45;
+    private static final int STORAGE_BACK = 45;
+    private static final int STORAGE_PREV = 47;
+    private static final int STORAGE_COLLECT_ALL = 49;
+    private static final int STORAGE_SELL_ALL = 51;
+    private static final int STORAGE_NEXT = 53;
+
+    // Menu layout (27 slots)
+    private static final int MENU_INFO = 11;
+    private static final int MENU_STORAGE = 13;
+    private static final int MENU_XP = 15;
+    private static final int MENU_CLOSE = 22;
+
     private final JavaPlugin plugin;
     private final DatabaseManager db;
     private final EconomyManager economy;
@@ -46,7 +60,23 @@ public class SpawnerManager {
     private final Map<String, VirtualSpawner> spawnersByLoc = new ConcurrentHashMap<>();
     private final Map<Integer, VirtualSpawner> spawnersById = new ConcurrentHashMap<>();
 
+    // Real-time refresh: track which player has which spawner view open.
+    private final Map<UUID, ViewerState> openViewers = new ConcurrentHashMap<>();
+
     private BukkitTask tickTask;
+    private BukkitTask refreshTask;
+
+    private static final class ViewerState {
+        final int spawnerId;
+        final SpawnerHolder.Type type;
+        int page;
+
+        ViewerState(int spawnerId, SpawnerHolder.Type type, int page) {
+            this.spawnerId = spawnerId;
+            this.type = type;
+            this.page = page;
+        }
+    }
 
     public SpawnerManager(JavaPlugin plugin, DatabaseManager db, EconomyManager economy) {
         this.plugin = plugin;
@@ -57,10 +87,13 @@ public class SpawnerManager {
     public void initialize() {
         loadAll();
         tickTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20L, 20L);
+        // 1s refresh for open GUIs (matches AH countdown cadence).
+        refreshTask = Bukkit.getScheduler().runTaskTimer(plugin, this::refreshOpenViewers, 20L, 20L);
     }
 
     public void shutdown() {
         if (tickTask != null) tickTask.cancel();
+        if (refreshTask != null) refreshTask.cancel();
         for (VirtualSpawner spawner : spawnersByLoc.values()) {
             saveSpawnerSync(spawner);
         }
@@ -222,7 +255,6 @@ public class SpawnerManager {
         });
     }
 
-    /** Attempt to stack a placed spawner with an existing one at loc. Returns true if stacked. */
     public boolean tryStackOnto(Player player, Location loc, VirtualSpawnerType type, int stack) {
         VirtualSpawner existing = getSpawnerAt(loc);
         if (existing == null) return false;
@@ -310,7 +342,6 @@ public class SpawnerManager {
         return v == null ? 1 : v;
     }
 
-    /** True if the tool has Silk Touch enchantment. */
     public static boolean hasSilkTouch(ItemStack tool) {
         return tool != null && tool.containsEnchantment(Enchantment.SILK_TOUCH);
     }
@@ -328,19 +359,21 @@ public class SpawnerManager {
 
             World world = Bukkit.getWorld(spawner.getWorldName());
             if (world == null) continue;
-            // Only produce if the chunk is loaded
             if (!world.isChunkLoaded(spawner.getX() >> 4, spawner.getZ() >> 4)) continue;
 
+            List<VirtualSpawnerType.Drop> drops = type.getDrops();
+            if (drops.isEmpty()) continue;
             int spawnCount = spawner.getStackCount();
             for (int i = 0; i < spawnCount; i++) {
-                for (VirtualSpawnerType.Drop drop : type.getDrops()) {
-                    if (ThreadLocalRandom.current().nextInt(100) < drop.chancePercent()) {
-                        int amt = ThreadLocalRandom.current().nextInt(
-                                drop.minAmount(), drop.maxAmount() + 1);
-                        if (amt > 0 && !spawner.isStorageFullFor(drop.material())) {
-                            spawner.addToStorage(drop.material(), amt);
-                        }
-                    }
+                // One drop + XP per stack unit per tick.
+                VirtualSpawnerType.Drop drop = drops.get(
+                        ThreadLocalRandom.current().nextInt(drops.size()));
+                int maxAmt = Math.max(drop.minAmount(), drop.maxAmount());
+                int minAmt = Math.min(drop.minAmount(), drop.maxAmount());
+                int amt = minAmt == maxAmt ? minAmt
+                        : ThreadLocalRandom.current().nextInt(minAmt, maxAmt + 1);
+                if (amt > 0 && !spawner.isStorageFullFor(drop.material())) {
+                    spawner.addToStorage(drop.material(), amt);
                 }
                 spawner.addStoredXp(type.getXpPerSpawn());
             }
@@ -358,108 +391,210 @@ public class SpawnerManager {
         world.spawnParticle(Particle.SOUL_FIRE_FLAME, x, y + 0.5, z, 4, 0.25, 0.25, 0.25, 0.01);
     }
 
-    // ── GUI: manage ──
+    // ── Real-time refresh of open GUIs ──
+
+    private void refreshOpenViewers() {
+        if (openViewers.isEmpty()) return;
+        for (Map.Entry<UUID, ViewerState> e : openViewers.entrySet()) {
+            Player player = Bukkit.getPlayer(e.getKey());
+            if (player == null || !player.isOnline()) continue;
+            ViewerState vs = e.getValue();
+            VirtualSpawner spawner = spawnersById.get(vs.spawnerId);
+            if (spawner == null) continue;
+            Inventory top = player.getOpenInventory().getTopInventory();
+            if (top == null || !(top.getHolder() instanceof SpawnerHolder)) continue;
+            switch (vs.type) {
+                case MANAGE_MENU -> renderMenu(top, spawner);
+                case STORAGE -> renderStorage(top, spawner, vs.page);
+                default -> {}
+            }
+        }
+    }
+
+    public void trackViewer(Player player, int spawnerId, SpawnerHolder.Type type, int page) {
+        openViewers.put(player.getUniqueId(), new ViewerState(spawnerId, type, page));
+    }
+
+    public void untrackViewer(Player player) {
+        openViewers.remove(player.getUniqueId());
+    }
+
+    // ── GUI: manage menu ──
 
     public void openManageGui(Player player, VirtualSpawner spawner) {
-        SpawnerHolder holder = new SpawnerHolder(SpawnerHolder.Type.MANAGE, spawner.getId());
-        Inventory inv = Bukkit.createInventory(holder, 54,
+        SpawnerHolder holder = new SpawnerHolder(SpawnerHolder.Type.MANAGE_MENU, spawner.getId());
+        Inventory inv = Bukkit.createInventory(holder, 27,
                 Component.text(spawner.getType().getDisplayName() + " Spawner", GOLD)
                         .decoration(TextDecoration.ITALIC, false));
         holder.setInventory(inv);
 
         ItemStack border = borderPane();
-        for (int slot : new int[]{0,1,2,3,5,6,7,8, 9,17, 18,26, 27,35, 36,44, 45,46,47,48,50,51,52,53}) {
-            inv.setItem(slot, border);
-        }
+        for (int i = 0; i < 27; i++) inv.setItem(i, border);
+        inv.setItem(MENU_INFO, null);
+        inv.setItem(MENU_STORAGE, null);
+        inv.setItem(MENU_XP, null);
+        inv.setItem(MENU_CLOSE, null);
 
-        // Info slot (top center)
-        ItemStack info = new ItemStack(spawner.getType().getIcon());
-        ItemMeta infoMeta = info.getItemMeta();
-        infoMeta.displayName(Component.text(spawner.getType().getDisplayName() + " Spawner", GOLD)
-                .decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
-        List<Component> infoLore = new ArrayList<>();
-        infoLore.add(Component.text("Owner: ", GRAY).decoration(TextDecoration.ITALIC, false)
-                .append(Component.text(spawner.getOwnerUsername(), WHITE)));
-        infoLore.add(Component.text("Tier: ", GRAY).decoration(TextDecoration.ITALIC, false)
-                .append(Component.text(spawner.getTier() + "/3", tierColor(spawner.getTier()))));
-        infoLore.add(Component.text("Stack: ", GRAY).decoration(TextDecoration.ITALIC, false)
-                .append(Component.text("x" + spawner.getStackCount(), WHITE)));
+        renderMenu(inv, spawner);
+        player.openInventory(inv);
+        trackViewer(player, spawner.getId(), SpawnerHolder.Type.MANAGE_MENU, 0);
+    }
+
+    private void renderMenu(Inventory inv, VirtualSpawner spawner) {
+        VirtualSpawnerType type = spawner.getType();
         int tierIdx = Math.max(0, Math.min(2, spawner.getTier() - 1));
-        infoLore.add(Component.text("Spawn rate: ", GRAY).decoration(TextDecoration.ITALIC, false)
-                .append(Component.text(VirtualSpawnerType.TIER_SECONDS[tierIdx] + "s per unit", YELLOW)));
-        infoMeta.lore(infoLore);
-        info.setItemMeta(infoMeta);
-        inv.setItem(4, info);
+        int intervalSec = VirtualSpawnerType.TIER_SECONDS[tierIdx];
+        long remainingMs = Math.max(0,
+                intervalSec * 1000L - (System.currentTimeMillis() - spawner.getLastSpawnMillis()));
+        long remainingSec = (remainingMs + 999) / 1000;
 
-        // Storage grid — slots 10-16, 19-25, 28-34 (21 cells)
+        // ── Info ──
+        ItemStack info = new ItemStack(type.getIcon());
+        ItemMeta im = info.getItemMeta();
+        im.displayName(Component.text("Info Spawner", GOLD, TextDecoration.BOLD)
+                .decoration(TextDecoration.ITALIC, false));
+        List<Component> il = new ArrayList<>();
+        il.add(Component.text("Type: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(type.getDisplayName(), WHITE)));
+        il.add(Component.text("Owner: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(spawner.getOwnerUsername(), WHITE)));
+        il.add(Component.text("Tier: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(spawner.getTier() + "/3", tierColor(spawner.getTier()))));
+        il.add(Component.text("Stack: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text("x" + spawner.getStackCount(), WHITE)));
+        il.add(Component.text("Rate: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text("1 item + XP every " + intervalSec + "s", YELLOW)));
+        il.add(Component.text("Next drop: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(remainingSec + "s", CYAN)));
+        im.lore(il);
+        info.setItemMeta(im);
+        inv.setItem(MENU_INFO, info);
+
+        // ── Item Storage ──
+        int totalItems = spawner.totalStorageCount();
+        int uniqueMats = (int) spawner.getStorage().values().stream().filter(v -> v > 0).count();
+        ItemStack storageIcon = new ItemStack(Material.CHEST);
+        ItemMeta sm = storageIcon.getItemMeta();
+        sm.displayName(Component.text("Item Storage", GOLD, TextDecoration.BOLD)
+                .decoration(TextDecoration.ITALIC, false));
+        List<Component> sl = new ArrayList<>();
+        sl.add(Component.text("Total items: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(EconomyManager.format(totalItems), YELLOW)));
+        sl.add(Component.text("Unique materials: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(String.valueOf(uniqueMats), WHITE)));
+        sl.add(Component.empty());
+        sl.add(Component.text("Left-click: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text("browse storage", GREEN)));
+        sl.add(Component.text("Right-click: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text("sell all", YELLOW)));
+        sm.lore(sl);
+        storageIcon.setItemMeta(sm);
+        inv.setItem(MENU_STORAGE, storageIcon);
+
+        // ── XP Storage ──
+        int xp = spawner.getStoredXp();
+        ItemStack xpIcon = new ItemStack(Material.EXPERIENCE_BOTTLE);
+        ItemMeta xm = xpIcon.getItemMeta();
+        xm.displayName(Component.text("Exp Storage", GOLD, TextDecoration.BOLD)
+                .decoration(TextDecoration.ITALIC, false));
+        List<Component> xl = new ArrayList<>();
+        xl.add(Component.text("Stored XP: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(EconomyManager.format(xp), YELLOW)));
+        xl.add(Component.text("Max capacity: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                .append(Component.text(EconomyManager.format(VirtualSpawnerType.MAX_STORED_XP), WHITE)));
+        xl.add(Component.empty());
+        xl.add(Component.text("Click to collect", GREEN).decoration(TextDecoration.ITALIC, false));
+        xl.add(Component.text("XP does not repair items!", GRAY).decoration(TextDecoration.ITALIC, false));
+        xm.lore(xl);
+        xpIcon.setItemMeta(xm);
+        inv.setItem(MENU_XP, xpIcon);
+
+        // Close
+        ItemStack close = simpleItem(Material.BARRIER,
+                Component.text("Close", RED).decoration(TextDecoration.ITALIC, false));
+        inv.setItem(MENU_CLOSE, close);
+    }
+
+    // ── GUI: storage subpage ──
+
+    public void openStorageGui(Player player, VirtualSpawner spawner, int page) {
+        SpawnerHolder holder = new SpawnerHolder(SpawnerHolder.Type.STORAGE, spawner.getId(), page);
+        Inventory inv = Bukkit.createInventory(holder, 54,
+                Component.text(spawner.getType().getDisplayName() + " Storage", GOLD)
+                        .decoration(TextDecoration.ITALIC, false));
+        holder.setInventory(inv);
+        renderStorage(inv, spawner, page);
+        player.openInventory(inv);
+        trackViewer(player, spawner.getId(), SpawnerHolder.Type.STORAGE, page);
+    }
+
+    private void renderStorage(Inventory inv, VirtualSpawner spawner, int page) {
+        // Fill footer with border
+        ItemStack border = borderPane();
+        for (int i = STORAGE_ITEMS_PER_PAGE; i < 54; i++) inv.setItem(i, border);
+
         List<Map.Entry<Material, Integer>> entries = new ArrayList<>();
         for (Map.Entry<Material, Integer> e : spawner.getStorage().entrySet()) {
             if (e.getValue() > 0) entries.add(e);
         }
-        int[] storageSlots = {10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34};
-        for (int i = 0; i < storageSlots.length; i++) {
-            if (i >= entries.size()) break;
+        int totalPages = Math.max(1, (int) Math.ceil(entries.size() / (double) STORAGE_ITEMS_PER_PAGE));
+        page = Math.max(0, Math.min(page, totalPages - 1));
+
+        int start = page * STORAGE_ITEMS_PER_PAGE;
+        int end = Math.min(start + STORAGE_ITEMS_PER_PAGE, entries.size());
+        // Clear grid
+        for (int i = 0; i < STORAGE_ITEMS_PER_PAGE; i++) inv.setItem(i, null);
+
+        for (int i = start; i < end; i++) {
             Map.Entry<Material, Integer> e = entries.get(i);
             int amount = Math.min(64, e.getValue());
             ItemStack stack = new ItemStack(e.getKey(), amount);
             ItemMeta meta = stack.getItemMeta();
             meta.displayName(Component.text(prettify(e.getKey().name()), WHITE)
                     .decoration(TextDecoration.ITALIC, false));
-            double sellUnit = VirtualSpawnerType.sellPrice(e.getKey());
             List<Component> lore = new ArrayList<>();
             lore.add(Component.text("Stored: ", GRAY).decoration(TextDecoration.ITALIC, false)
                     .append(Component.text(EconomyManager.format(e.getValue()), YELLOW)));
+            double sellUnit = VirtualSpawnerType.sellPrice(e.getKey());
             if (sellUnit > 0) {
-                lore.add(Component.text("Sell price: $", GRAY).decoration(TextDecoration.ITALIC, false)
-                        .append(Component.text(EconomyManager.format(sellUnit) + " each", GREEN)));
+                lore.add(Component.text("Sell price: ", GRAY).decoration(TextDecoration.ITALIC, false)
+                        .append(EconomyManager.moneyText(sellUnit).decoration(TextDecoration.ITALIC, false))
+                        .append(Component.text(" each", GRAY)));
             }
+            lore.add(Component.empty());
+            lore.add(Component.text("Click to collect this stack", GREEN)
+                    .decoration(TextDecoration.ITALIC, false));
             meta.lore(lore);
             stack.setItemMeta(meta);
-            inv.setItem(storageSlots[i], stack);
+            inv.setItem(i - start, stack);
         }
 
-        // Take-All
-        ItemStack takeAll = simpleItem(Material.HOPPER,
-                Component.text("Take All", GREEN).decoration(TextDecoration.ITALIC, false),
-                Component.text("Move stored items into your inventory", GRAY).decoration(TextDecoration.ITALIC, false));
-        inv.setItem(45, takeAll);
-
-        // Sell-All
-        ItemStack sellAll = simpleItem(Material.GOLD_INGOT,
-                Component.text("Sell All", YELLOW).decoration(TextDecoration.ITALIC, false),
-                Component.text("Sell all stored items for Money", GRAY).decoration(TextDecoration.ITALIC, false));
-        inv.setItem(47, sellAll);
-
-        // Upgrade
-        int nextTier = spawner.getTier() + 1;
-        if (nextTier <= 3) {
-            double cost = VirtualSpawnerType.TIER_UPGRADE_MONEY[spawner.getTier() - 1];
-            ItemStack upgrade = simpleItem(Material.NETHER_STAR,
-                    Component.text("Upgrade to Tier " + nextTier, PURPLE).decoration(TextDecoration.ITALIC, false),
-                    Component.text("Cost: $" + EconomyManager.format(cost), YELLOW).decoration(TextDecoration.ITALIC, false),
-                    Component.text("New spawn rate: "
-                            + VirtualSpawnerType.TIER_SECONDS[nextTier - 1] + "s", GRAY).decoration(TextDecoration.ITALIC, false));
-            inv.setItem(49, upgrade);
+        // Buttons row
+        inv.setItem(STORAGE_BACK, simpleItem(Material.BARRIER,
+                Component.text("Back to Menu", RED).decoration(TextDecoration.ITALIC, false)));
+        if (page > 0) {
+            inv.setItem(STORAGE_PREV, simpleItem(Material.ARROW,
+                    Component.text("Previous Page", YELLOW).decoration(TextDecoration.ITALIC, false)));
         } else {
-            inv.setItem(49, simpleItem(Material.NETHER_STAR,
-                    Component.text("Tier MAX", GOLD).decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true),
-                    Component.text("This spawner is already at maximum tier", GRAY).decoration(TextDecoration.ITALIC, false)));
+            inv.setItem(STORAGE_PREV, border);
+        }
+        inv.setItem(STORAGE_COLLECT_ALL, simpleItem(Material.HOPPER,
+                Component.text("Collect All", GREEN).decoration(TextDecoration.ITALIC, false),
+                Component.text("Move every stored item to your inventory", GRAY).decoration(TextDecoration.ITALIC, false)));
+        inv.setItem(STORAGE_SELL_ALL, simpleItem(Material.GOLD_INGOT,
+                Component.text("Sell All", GOLD).decoration(TextDecoration.ITALIC, false),
+                Component.text("Sell all items for money", GRAY).decoration(TextDecoration.ITALIC, false)));
+        if (page < totalPages - 1) {
+            inv.setItem(STORAGE_NEXT, simpleItem(Material.ARROW,
+                    Component.text("Next Page", YELLOW).decoration(TextDecoration.ITALIC, false)));
+        } else {
+            inv.setItem(STORAGE_NEXT, border);
         }
 
-        // XP Collect
-        ItemStack xpBtn = simpleItem(Material.EXPERIENCE_BOTTLE,
-                Component.text("Collect XP", CYAN).decoration(TextDecoration.ITALIC, false),
-                Component.text("Stored: ", GRAY).decoration(TextDecoration.ITALIC, false)
-                        .append(Component.text(EconomyManager.format(spawner.getStoredXp()) + " XP", YELLOW)),
-                Component.text("Click to collect", GRAY).decoration(TextDecoration.ITALIC, false));
-        inv.setItem(51, xpBtn);
-
-        // Close
-        ItemStack close = simpleItem(Material.BARRIER,
-                Component.text("Close", RED).decoration(TextDecoration.ITALIC, false));
-        inv.setItem(53, close);
-
-        player.openInventory(inv);
+        // Page indicator in slot 46 (near back)
+        inv.setItem(46, simpleItem(Material.PAPER,
+                Component.text("Page " + (page + 1) + "/" + totalPages, GRAY)
+                        .decoration(TextDecoration.ITALIC, false)));
     }
 
     private static ItemStack simpleItem(Material material, Component displayName, Component... lore) {
@@ -504,7 +639,37 @@ public class SpawnerManager {
 
     // ── GUI actions ──
 
-    public void takeAll(Player player, VirtualSpawner spawner) {
+    public void collectStack(Player player, VirtualSpawner spawner, Material material) {
+        Integer stored = spawner.getStorage().get(material);
+        if (stored == null || stored <= 0) return;
+
+        int give = Math.min(64, stored);
+        ItemStack stack = new ItemStack(material, give);
+        Map<Integer, ItemStack> overflow = player.getInventory().addItem(stack);
+        int leftover = overflow.values().stream().mapToInt(ItemStack::getAmount).sum();
+        int actuallyGiven = give - leftover;
+        if (actuallyGiven <= 0) {
+            Msg.error(player, "Your inventory is full!");
+            return;
+        }
+
+        int newStored = stored - actuallyGiven;
+        if (newStored <= 0) spawner.getStorage().remove(material);
+        else spawner.getStorage().put(material, newStored);
+
+        saveSpawnerAsync(spawner);
+        player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.6f, 1.4f);
+        // Force-refresh the current storage view so counts update immediately.
+        ViewerState vs = openViewers.get(player.getUniqueId());
+        if (vs != null && vs.type == SpawnerHolder.Type.STORAGE) {
+            Inventory top = player.getOpenInventory().getTopInventory();
+            if (top != null && top.getHolder() instanceof SpawnerHolder) {
+                renderStorage(top, spawner, vs.page);
+            }
+        }
+    }
+
+    public void collectAll(Player player, VirtualSpawner spawner) {
         if (spawner.getStorage().isEmpty()) {
             Msg.error(player, "The storage is empty!");
             return;
@@ -522,7 +687,6 @@ public class SpawnerManager {
                 if (overflow.isEmpty()) {
                     given += chunk;
                 } else {
-                    // Inventory full
                     int leftover = overflow.values().stream().mapToInt(ItemStack::getAmount).sum();
                     given += chunk - leftover;
                     e.setValue(amount - given);
@@ -530,7 +694,6 @@ public class SpawnerManager {
                     if (given > 0) player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.6f, 1.2f);
                     Msg.error(player, "Your inventory is full! Moved " + EconomyManager.format(totalMoved) + " items.");
                     saveSpawnerAsync(spawner);
-                    openManageGui(player, spawner);
                     return;
                 }
             }
@@ -539,9 +702,8 @@ public class SpawnerManager {
         }
         for (Material m : toRemove) spawner.getStorage().remove(m);
         saveSpawnerAsync(spawner);
-        Msg.success(player, "Took " + EconomyManager.format(totalMoved) + " items from the spawner!");
+        Msg.success(player, "Collected " + EconomyManager.format(totalMoved) + " items!");
         player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.8f, 1.5f);
-        openManageGui(player, spawner);
     }
 
     public void sellAll(Player player, VirtualSpawner spawner) {
@@ -567,10 +729,11 @@ public class SpawnerManager {
         for (Material m : toRemove) spawner.getStorage().remove(m);
         economy.addMoney(player.getUniqueId(), totalMoney);
         saveSpawnerAsync(spawner);
-        Msg.success(player, "Sold " + EconomyManager.format(totalCount) + " items for $"
-                + EconomyManager.format(totalMoney) + "!");
+        player.sendMessage(Msg.prefix()
+                .append(Component.text("Sold " + EconomyManager.format(totalCount) + " items for ", GREEN))
+                .append(EconomyManager.moneyText(totalMoney))
+                .append(Component.text("!", GREEN)));
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 1.5f);
-        openManageGui(player, spawner);
     }
 
     public void collectXp(Player player, VirtualSpawner spawner) {
@@ -579,30 +742,17 @@ public class SpawnerManager {
             Msg.error(player, "No stored XP to collect!");
             return;
         }
-        player.giveExp(xp);
+        // Bypass Mending: virtual-spawner XP does not repair items.
+        try {
+            player.giveExp(xp, false);
+        } catch (NoSuchMethodError e) {
+            // Fallback for older Paper APIs
+            player.giveExp(xp);
+        }
         spawner.setStoredXp(0);
         saveSpawnerAsync(spawner);
         Msg.success(player, "Collected " + EconomyManager.format(xp) + " XP!");
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.5f);
-        openManageGui(player, spawner);
-    }
-
-    public void upgradeTier(Player player, VirtualSpawner spawner) {
-        int nextTier = spawner.getTier() + 1;
-        if (nextTier > 3) {
-            Msg.error(player, "This spawner is already at maximum tier!");
-            return;
-        }
-        double cost = VirtualSpawnerType.TIER_UPGRADE_MONEY[spawner.getTier() - 1];
-        if (!economy.removeMoney(player.getUniqueId(), cost)) {
-            Msg.error(player, "Not enough Money! Need $" + EconomyManager.format(cost));
-            return;
-        }
-        spawner.setTier(nextTier);
-        saveSpawnerAsync(spawner);
-        Msg.success(player, "Spawner upgraded to Tier " + nextTier + "!");
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.5f);
-        openManageGui(player, spawner);
     }
 
     // ── GUI: shop ──
@@ -621,28 +771,27 @@ public class SpawnerManager {
             ItemMeta meta = item.getItemMeta();
             meta.displayName(Component.text(t.getDisplayName() + " Spawner", GOLD)
                     .decoration(TextDecoration.ITALIC, false).decoration(TextDecoration.BOLD, true));
-            String priceText = switch (t.getCurrency()) {
-                case MONEY -> "$" + EconomyManager.format(t.getShopPrice());
-                case GEMS -> EconomyManager.GEMS_ICON + EconomyManager.format(t.getShopPrice());
-                case STARS -> EconomyManager.STARS_ICON + EconomyManager.format(t.getShopPrice());
-            };
-            TextColor priceColor = switch (t.getCurrency()) {
-                case MONEY -> GREEN;
-                case GEMS -> CYAN;
-                case STARS -> PURPLE;
+            Component priceComp = switch (t.getCurrency()) {
+                case MONEY -> EconomyManager.moneyText(t.getShopPrice());
+                case GEMS -> EconomyManager.gemsText(t.getShopPrice());
+                case STARS -> EconomyManager.starsText(t.getShopPrice());
             };
             List<Component> lore = new ArrayList<>();
             lore.add(Component.text("Cost: ", GRAY).decoration(TextDecoration.ITALIC, false)
-                    .append(Component.text(priceText, priceColor)));
+                    .append(priceComp.decoration(TextDecoration.ITALIC, false)));
             lore.add(Component.text("Tier: ", GRAY).decoration(TextDecoration.ITALIC, false)
                     .append(Component.text("1/3", GREEN)));
             lore.add(Component.text("XP per spawn: ", GRAY).decoration(TextDecoration.ITALIC, false)
                     .append(Component.text(t.getXpPerSpawn(), YELLOW)));
             lore.add(Component.empty());
-            lore.add(Component.text("Drops:", GRAY).decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text("Drops (one random per tick):", GRAY)
+                    .decoration(TextDecoration.ITALIC, false));
             for (VirtualSpawnerType.Drop d : t.getDrops()) {
+                String amountRange = d.minAmount() == d.maxAmount()
+                        ? "x" + d.maxAmount()
+                        : d.minAmount() + "-" + d.maxAmount();
                 lore.add(Component.text("  " + prettify(d.material().name())
-                        + " (" + d.chancePercent() + "%)", WHITE).decoration(TextDecoration.ITALIC, false));
+                        + " (" + amountRange + ")", WHITE).decoration(TextDecoration.ITALIC, false));
             }
             lore.add(Component.empty());
             lore.add(Component.text("Click to purchase", YELLOW).decoration(TextDecoration.ITALIC, false));
@@ -657,25 +806,28 @@ public class SpawnerManager {
 
     public void buyFromShop(Player player, VirtualSpawnerType type) {
         UUID uuid = player.getUniqueId();
+        Component priceComp;
         boolean success;
-        String costText;
         switch (type.getCurrency()) {
             case MONEY -> {
+                priceComp = EconomyManager.moneyText(type.getShopPrice());
                 success = economy.removeMoney(uuid, type.getShopPrice());
-                costText = "$" + EconomyManager.format(type.getShopPrice());
-                if (!success) { Msg.error(player, "Not enough Money! Need " + costText); return; }
             }
             case GEMS -> {
+                priceComp = EconomyManager.gemsText(type.getShopPrice());
                 success = economy.removeGems(uuid, type.getShopPrice());
-                costText = EconomyManager.GEMS_ICON + EconomyManager.format(type.getShopPrice());
-                if (!success) { Msg.error(player, "Not enough Gems! Need " + costText); return; }
             }
             case STARS -> {
+                priceComp = EconomyManager.starsText(type.getShopPrice());
                 success = economy.removeStars(uuid, type.getShopPrice());
-                costText = EconomyManager.STARS_ICON + EconomyManager.format(type.getShopPrice());
-                if (!success) { Msg.error(player, "Not enough Stars! Need " + costText); return; }
             }
             default -> { return; }
+        }
+        if (!success) {
+            player.sendMessage(Msg.prefix()
+                    .append(Component.text("Not enough currency! Need ", RED))
+                    .append(priceComp));
+            return;
         }
 
         ItemStack spawnerItem = createSpawnerItem(type, 1, 1);
@@ -683,7 +835,10 @@ public class SpawnerManager {
         for (ItemStack leftover : overflow.values()) {
             player.getWorld().dropItemNaturally(player.getLocation(), leftover);
         }
-        Msg.success(player, "Purchased " + type.getDisplayName() + " Spawner for " + costText + "!");
+        player.sendMessage(Msg.prefix()
+                .append(Component.text("Purchased " + type.getDisplayName() + " Spawner for ", GREEN))
+                .append(priceComp)
+                .append(Component.text("!", GREEN)));
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.6f, 1.5f);
     }
 

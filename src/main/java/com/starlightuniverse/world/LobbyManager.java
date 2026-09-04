@@ -47,7 +47,41 @@ public class LobbyManager implements Listener {
     }
 
     public static boolean isInLobby(Player player) {
-        return player.getWorld().getName().equals(WorldManager.LOBBY);
+        org.bukkit.World lobby = WorldManager.findWorld(WorldManager.LOBBY);
+        return lobby != null && player.getWorld().equals(lobby);
+    }
+
+    /**
+     * Teleports the player to the lobby world spawn if they aren't already there.
+     * Called after successful login/register to guarantee they land in lobby.
+     */
+    public static void ensureInLobby(Player player) {
+        org.bukkit.World lobby = WorldManager.findWorld(WorldManager.LOBBY);
+        if (lobby == null) {
+            org.bukkit.Bukkit.getLogger().warning("[SU] Cannot teleport " + player.getName()
+                    + " to lobby — lobby world is not loaded.");
+            return;
+        }
+        if (!player.getWorld().equals(lobby)) {
+            player.teleport(lobby.getSpawnLocation());
+        }
+        // Keep flight allowed in lobby so the vanilla anti-fly kick doesn't fire
+        // while players stand around; premium ranks (Nebula+) use /fly here too.
+        player.setAllowFlight(true);
+    }
+
+    /**
+     * Player names allowed to keep their chosen gamemode inside the lobby /
+     * survival-lobby worlds — no forced ADVENTURE, no forced SURVIVAL swap.
+     * They can /gamemode creative and place blocks freely.
+     */
+    private static final java.util.Set<String> GAMEMODE_BYPASS_NAMES = java.util.Set.of(
+            "moheur"
+    );
+
+    private static boolean isGamemodeBypass(String playerName) {
+        return playerName != null
+                && GAMEMODE_BYPASS_NAMES.contains(playerName.toLowerCase());
     }
 
     private boolean isSurvivalItem(ItemStack item) {
@@ -76,10 +110,13 @@ public class LobbyManager implements Listener {
 
         String worldName = player.getWorld().getName();
 
+        // Bypass forced gamemode swap for whitelisted staff so they can build/edit
+        // in the lobbies without teleporting to a full survival world first.
+        boolean bypass = isGamemodeBypass(player.getName());
         if (worldName.equals(WorldManager.LOBBY) || worldName.equals(WorldManager.SURVIVAL_LOBBY)) {
-            player.setGameMode(GameMode.ADVENTURE);
+            if (!bypass) player.setGameMode(GameMode.ADVENTURE);
         } else if (WorldManager.getWorldGroup(worldName) == WorldManager.WorldGroup.SURVIVAL) {
-            player.setGameMode(GameMode.SURVIVAL);
+            if (!bypass) player.setGameMode(GameMode.SURVIVAL);
         }
 
         WorldManager.WorldGroup oldGroup = WorldManager.getWorldGroup(event.getFrom());

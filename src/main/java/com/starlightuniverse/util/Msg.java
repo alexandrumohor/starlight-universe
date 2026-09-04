@@ -42,4 +42,19 @@ public final class Msg {
     public static Component errorComponent(String message) {
         return prefix().append(Component.text(message, RED));
     }
+
+    // Component-accepting overloads — use when you need to embed styled runs
+    // (e.g. currency icons) that plain-string colors can't express.
+
+    public static void error(Player player, Component body) {
+        player.sendMessage(prefix().append(body.colorIfAbsent(RED)));
+    }
+
+    public static void success(Player player, Component body) {
+        player.sendMessage(prefix().append(body.colorIfAbsent(GREEN)));
+    }
+
+    public static void info(Player player, Component body) {
+        player.sendMessage(prefix().append(body.colorIfAbsent(YELLOW)));
+    }
 }

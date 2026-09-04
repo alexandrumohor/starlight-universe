@@ -1,5 +1,6 @@
 package com.starlightuniverse.premium;
 
+import com.starlightuniverse.border.BorderManager;
 import com.starlightuniverse.economy.EconomyManager;
 import com.starlightuniverse.home.HomeManager;
 import com.starlightuniverse.util.Msg;
@@ -40,7 +41,7 @@ public final class PremiumCommands {
 
     private PremiumCommands() {}
 
-    public static List<Command> create(PremiumManager pm) {
+    public static List<Command> create(PremiumManager pm, BorderManager borderManager) {
         List<Command> cmds = new ArrayList<>();
 
         // ==================== METEOR (level >= 1) ====================
@@ -329,8 +330,10 @@ public final class PremiumCommands {
             } else if (rank.canFlyLobby()) {
                 if (group == WorldManager.WorldGroup.LOBBY) {
                     pm.toggleFly(p);
+                } else if (group == WorldManager.WorldGroup.SURVIVAL && borderManager.isInBorder(p.getLocation())) {
+                    pm.toggleFly(p);
                 } else {
-                    Msg.error(p, "You can only fly in the lobby!");
+                    Msg.error(p, "You can only fly in the lobby or inside fly zones!");
                 }
             } else {
                 Msg.error(p, "You need Nebula rank or higher to fly!");

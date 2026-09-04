@@ -26,18 +26,17 @@ public class BenefitListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        mgr.loadPlayer(player);
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (player.isOnline()) event.joinMessage(mgr.buildJoinMessage(player));
-        }, 20L);
+        // Login broadcasts are disabled server-wide — the vanilla / benefit
+        // join message is nulled out here.
+        event.joinMessage(null);
+        mgr.loadPlayer(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        event.quitMessage(mgr.buildQuitMessage(player));
-        mgr.unloadPlayer(player);
+        // Logout broadcasts are also disabled server-wide.
+        event.quitMessage(null);
+        mgr.unloadPlayer(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

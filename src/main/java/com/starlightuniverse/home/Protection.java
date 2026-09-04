@@ -5,48 +5,45 @@ public class Protection {
     private final int id;
     private final String owner;
     private final String world;
-    private final int centerX;
-    private final int centerZ;
-    private int radius;
+    private final int minX;
+    private final int minZ;
+    private final int maxX;
+    private final int maxZ;
 
-    public Protection(int id, String owner, String world, int centerX, int centerZ, int radius) {
+    public Protection(int id, String owner, String world, int minX, int minZ, int maxX, int maxZ) {
         this.id = id;
         this.owner = owner;
         this.world = world;
-        this.centerX = centerX;
-        this.centerZ = centerZ;
-        this.radius = radius;
+        this.minX = minX;
+        this.minZ = minZ;
+        this.maxX = maxX;
+        this.maxZ = maxZ;
     }
 
     public int getId() { return id; }
     public String getOwner() { return owner; }
     public String getWorld() { return world; }
-    public int getCenterX() { return centerX; }
-    public int getCenterZ() { return centerZ; }
-    public int getRadius() { return radius; }
-    public void setRadius(int radius) { this.radius = radius; }
+    public int getMinX() { return minX; }
+    public int getMaxX() { return maxX; }
+    public int getMinZ() { return minZ; }
+    public int getMaxZ() { return maxZ; }
 
-    public int getMinX() { return centerX - radius; }
-    public int getMaxX() { return centerX + radius; }
-    public int getMinZ() { return centerZ - radius; }
-    public int getMaxZ() { return centerZ + radius; }
+    public int getArea() {
+        return (maxX - minX + 1) * (maxZ - minZ + 1);
+    }
+
+    public int getWidth() { return maxX - minX + 1; }
+    public int getLength() { return maxZ - minZ + 1; }
 
     public boolean contains(String world, int x, int z) {
         return this.world.equals(world)
-                && x >= getMinX() && x <= getMaxX()
-                && z >= getMinZ() && z <= getMaxZ();
+                && x >= minX && x <= maxX
+                && z >= minZ && z <= maxZ;
     }
 
     public boolean overlaps(Protection other) {
         if (!this.world.equals(other.world)) return false;
-        return this.getMinX() <= other.getMaxX() && this.getMaxX() >= other.getMinX()
-                && this.getMinZ() <= other.getMaxZ() && this.getMaxZ() >= other.getMinZ();
-    }
-
-    public int getSizeLevel() {
-        for (int i = 0; i < HomeManager.EXPAND_RADII.length; i++) {
-            if (radius <= HomeManager.EXPAND_RADII[i]) return i;
-        }
-        return HomeManager.EXPAND_RADII.length - 1;
+        return this.minX <= other.maxX && this.maxX >= other.minX
+                && this.minZ <= other.maxZ && this.maxZ >= other.minZ;
     }
 }

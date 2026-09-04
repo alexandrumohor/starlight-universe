@@ -219,7 +219,7 @@ public class MinigameManager {
                 .append(Component.text(game.getPrimaryAnswer(), WHITE));
 
         Component rewardLine = Component.text("  Reward: ", GRAY)
-                .append(Component.text("+$" + EconomyManager.format(money), GREEN));
+                .append(Component.text("+" + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(money), GREEN));
         if (gems > 0) {
             rewardLine = rewardLine.append(Component.text(" +◆" + gems, CYAN));
         }

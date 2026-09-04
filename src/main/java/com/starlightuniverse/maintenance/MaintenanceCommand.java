@@ -91,4 +91,17 @@ public class MaintenanceCommand extends Command {
         p.sendMessage(Component.text("  /maintenance stop — cancel a countdown or lift the barrier", GRAY));
         p.sendMessage(Component.text("  /maintenance status — show current state", GRAY));
     }
+
+    @Override
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
+        if (args.length == 1) {
+            return List.of("start", "stop", "status").stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase())).toList();
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("start")) {
+            return List.of("10", "30", "60", "300").stream()
+                    .filter(s -> s.startsWith(args[1])).toList();
+        }
+        return List.of();
+    }
 }

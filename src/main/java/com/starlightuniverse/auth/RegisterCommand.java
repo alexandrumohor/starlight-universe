@@ -46,23 +46,45 @@ public class RegisterCommand extends Command {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             AuthManager.RegisterResult result = authManager.register(username, password, confirm, ip);
 
+            if (result == AuthManager.RegisterResult.SUCCESS) {
+                // Save premium UUID so future logins can auto-authenticate via Mojang.
+                AuthManager.MojangProfile mojang = authManager.checkMojangPremium(username);
+                if (mojang != null) {
+                    authManager.setPremiumUuid(username, mojang.id());
+                }
+            }
+
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (!player.isOnline()) return;
                 switch (result) {
                     case SUCCESS -> {
                         authManager.setAuthenticated(player.getUniqueId());
+                        player.setHealth(player.getMaxHealth());
+                        player.setFoodLevel(20);
+                        player.setSaturation(20f);
+                        player.setFireTicks(0);
+                        com.starlightuniverse.world.LobbyManager.ensureInLobby(player);
+                        var headMgr = StarlightUniverse.getInstance().getPlayerHeadPackManager();
+                        if (headMgr != null) headMgr.sendHeadOverlayAfterAuth(player);
+                        var np = StarlightUniverse.getInstance().getNameplateManager();
+                        if (np != null) {
+                            Bukkit.getScheduler().runTaskLater(StarlightUniverse.getInstance(), () -> {
+                                if (!player.isOnline()) return;
+                                np.spawnFor(player);
+                                for (Player other : player.getWorld().getPlayers()) {
+                                    if (other.equals(player)) continue;
+                                    np.remount(other);
+                                }
+                            }, 10L);
+                        }
                         Msg.success(player, "Account registered successfully! You are now logged in.");
                         StarlightUniverse.getInstance().getLobbyManager().giveSurvivalItem(player);
-                        if (StarlightUniverse.getInstance().getPremiumManager() != null) {
-                            StarlightUniverse.getInstance().getPremiumManager().grantTrial(username);
-                            Msg.info(player, "You received a 3-day Meteor trial! Check /premium for perks.");
-                        }
                         com.starlightuniverse.announce.WelcomeMessage.send(player);
                     }
                     case PASSWORD_TOO_SHORT -> Msg.error(player, "Password must be at least 3 characters!");
                     case PASSWORD_MISMATCH -> Msg.error(player, "Passwords do not match!");
                     case ALREADY_REGISTERED -> Msg.error(player, "Account already exists! Use /login <password>");
-                    case TOO_MANY_ACCOUNTS -> Msg.error(player, "Maximum 2 accounts per IP address!");
+                    case TOO_MANY_ACCOUNTS -> Msg.error(player, "Maximum 3 accounts allowed per IP address!");
                     case ERROR -> Msg.error(player, "Registration failed! Please try again.");
                 }
             });

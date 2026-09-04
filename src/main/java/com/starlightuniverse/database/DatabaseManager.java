@@ -49,10 +49,22 @@ public class DatabaseManager {
         String username = config.getString("username", "starlight");
         String password = config.getString("password", "starlight");
 
+        // Best-effort: try to create the DB if the user has permission.
+        // If they don't (which is the common case for a locked-down plugin user),
+        // we swallow the error and rely on the DB already existing — the actual
+        // pool creation below will produce a clear error if it truly doesn't.
+        try {
+            ensureDatabaseExists(host, port, username, password, database);
+        } catch (SQLException e) {
+            plugin.getLogger().info("[SU] Skipping DB auto-create ("
+                    + e.getMessage() + "). Will try to connect to existing DB '" + database + "'.");
+        }
+
         try {
             HikariConfig hikari = new HikariConfig();
             hikari.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database
-                    + "?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true&characterEncoding=utf8mb4");
+                    + "?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true"
+                    + "&useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci");
             hikari.setUsername(username);
             hikari.setPassword(password);
             hikari.setMaximumPoolSize(10);
@@ -81,6 +93,20 @@ public class DatabaseManager {
                 dataSource.close();
             }
             return false;
+        }
+    }
+
+    private void ensureDatabaseExists(String host, int port, String user, String pass, String database)
+            throws SQLException {
+        // Server-only URL (no database specified) so we can CREATE DATABASE if missing.
+        String serverUrl = "jdbc:mysql://" + host + ":" + port + "/"
+                + "?useSSL=false&allowPublicKeyRetrieval=true&autoReconnect=true"
+                + "&useUnicode=true&characterEncoding=UTF-8";
+        try (Connection conn = java.sql.DriverManager.getConnection(serverUrl, user, pass);
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("CREATE DATABASE IF NOT EXISTS `" + database
+                    + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            plugin.getLogger().info("[SU] Database '" + database + "' verified/created.");
         }
     }
 
@@ -299,9 +325,10 @@ public class DatabaseManager {
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         owner_username VARCHAR(16) NOT NULL,
                         world VARCHAR(64) NOT NULL,
-                        center_x INT NOT NULL,
-                        center_z INT NOT NULL,
-                        radius INT NOT NULL DEFAULT 25,
+                        min_x INT NOT NULL,
+                        min_z INT NOT NULL,
+                        max_x INT NOT NULL,
+                        max_z INT NOT NULL,
                         created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                         INDEX idx_owner (owner_username),
                         INDEX idx_world (world)
@@ -337,6 +364,19 @@ public class DatabaseManager {
                         protection_id INT NOT NULL,
                         golem_uuid VARCHAR(36) NOT NULL,
                         FOREIGN KEY (protection_id) REFERENCES su_protections(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_borders (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        world VARCHAR(64) NOT NULL,
+                        min_x INT NOT NULL,
+                        min_y INT NOT NULL,
+                        min_z INT NOT NULL,
+                        max_x INT NOT NULL,
+                        max_y INT NOT NULL,
+                        max_z INT NOT NULL
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
@@ -573,6 +613,47 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_pending_messages (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        username VARCHAR(16) NOT NULL,
+                        message TEXT NOT NULL,
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        INDEX idx_username (username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_votes (
+                        username VARCHAR(16) NOT NULL,
+                        link_id INT NOT NULL,
+                        last_vote DATETIME NOT NULL,
+                        PRIMARY KEY (username, link_id),
+                        INDEX idx_username (username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_buffs (
+                        username VARCHAR(16) NOT NULL,
+                        buff_type VARCHAR(32) NOT NULL,
+                        expire_time DATETIME NOT NULL,
+                        PRIMARY KEY (username, buff_type),
+                        INDEX idx_username (username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_boosters (
+                        username VARCHAR(16) NOT NULL,
+                        booster_type VARCHAR(32) NOT NULL,
+                        multiplier DOUBLE NOT NULL,
+                        expire_time DATETIME NOT NULL,
+                        PRIMARY KEY (username, booster_type),
+                        INDEX idx_username (username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }
@@ -618,6 +699,19 @@ public class DatabaseManager {
             try { stmt.execute("ALTER TABLE su_pwarp_bans ADD COLUMN pwarp_id INT NOT NULL DEFAULT 0"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE su_pwarp_bans DROP INDEX uk_pwarp_ban"); } catch (SQLException ignored) {}
             try { stmt.execute("ALTER TABLE su_pwarp_bans ADD UNIQUE KEY uk_pwarp_ban_v2 (owner_username, banned_username, pwarp_id)"); } catch (SQLException ignored) {}
+
+            // Protection refactor: center+radius → rectangle (min/max corners) + block budget
+            try { stmt.execute("ALTER TABLE su_protections ADD COLUMN min_x INT NOT NULL DEFAULT 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_protections ADD COLUMN min_z INT NOT NULL DEFAULT 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_protections ADD COLUMN max_x INT NOT NULL DEFAULT 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_protections ADD COLUMN max_z INT NOT NULL DEFAULT 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("UPDATE su_protections SET min_x = center_x - radius, max_x = center_x + radius, min_z = center_z - radius, max_z = center_z + radius WHERE min_x = 0 AND max_x = 0"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_protections DROP COLUMN center_x"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_protections DROP COLUMN center_z"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_protections DROP COLUMN radius"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_players ADD COLUMN protection_blocks INT NOT NULL DEFAULT 1000"); } catch (SQLException ignored) {}
+            try { stmt.execute("ALTER TABLE su_players ADD COLUMN daily_blocks_date DATE DEFAULT NULL"); } catch (SQLException ignored) {}
+
             plugin.getLogger().info("[SU] Database migrations applied.");
         } catch (SQLException e) {
             plugin.getLogger().warning("[SU] Migration check failed: " + e.getMessage());

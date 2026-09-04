@@ -3,19 +3,17 @@ package com.starlightuniverse.shop;
 import org.bukkit.Material;
 
 public enum ShopCategory {
-    BUILDING("Building", Material.BRICKS, 0xFF8C00),
-    DECORATION("Decoration", Material.FLOWER_POT, 0xFF55FF),
-    REDSTONE("Redstone", Material.REDSTONE, 0xFF0000),
-    TRANSPORT("Transport", Material.MINECART, 0xFFFF55),
+    STONE_BLOCKS("Stone Blocks", Material.STONE_BRICKS, 0xAAAAAA),
+    WOOD_BLOCKS("Wood Blocks", Material.OAK_LOG, 0xA0522D),
+    NATURAL_BLOCKS("Natural Blocks", Material.GRASS_BLOCK, 0x55FF55),
+    MINERALS("Minerals", Material.DIAMOND, 0x55FFFF),
+    FARMING("Farming", Material.WHEAT, 0xFFFF55),
+    SPAWNERS("Spawners", Material.SPAWNER, 0xFF5555),
+    MOB_DROPS("Mob Drops", Material.BONE, 0xAAAAAA),
     FOOD("Food", Material.COOKED_BEEF, 0xFFAA00),
-    TOOLS("Tools", Material.DIAMOND_PICKAXE, 0x55FFFF),
-    WEAPONS("Weapons", Material.DIAMOND_SWORD, 0xFF5555),
-    ARMOR("Armor", Material.DIAMOND_CHESTPLATE, 0x5555FF),
-    BREWING("Brewing", Material.BREWING_STAND, 0xAA00AA),
-    MATERIALS("Materials", Material.IRON_INGOT, 0xAAAAAA),
-    DYES("Dyes", Material.RED_DYE, 0x55FF55),
-    SPAWN_EGGS("Spawn Eggs", Material.ZOMBIE_SPAWN_EGG, 0x00AA00),
-    MISC("Misc", Material.ENDER_PEARL, 0xFFD700);
+    DECORATION("Decoration", Material.FLOWER_POT, 0xFF55FF),
+    MISCELLANEOUS("Miscellaneous", Material.ENDER_PEARL, 0xFFD700),
+    SAPLINGS("Saplings", Material.OAK_SAPLING, 0x55FF55);
 
     private final String displayName;
     private final Material icon;

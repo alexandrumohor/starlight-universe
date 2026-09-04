@@ -6,43 +6,71 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RtpManager {
 
-    public static final int OVERWORLD_RADIUS = 37_500;   // world 75k x 75k
-    public static final int NETHER_RADIUS = 25_000;      // world 50k x 50k
-    public static final int END_RADIUS = 25_000;         // world 50k x 50k
-    public static final int RESOURCE_RADIUS = 5_000;     // resource 10k x 10k
+    public static final int OVERWORLD_RADIUS = 37_500;
+    public static final int NETHER_RADIUS = 25_000;
+    public static final int END_RADIUS = 25_000;
+    public static final int RESOURCE_RADIUS = 5_000;
 
     public static final long COOLDOWN_MS = 3_000L;
-    public static final int MAX_ATTEMPTS = 30;
+    private static final int MAX_SEARCH_TICKS = 100;
+    private static final int CHECKS_PER_TICK = 5;
+    private static final int SAFE_RADIUS = 5;
+    private static final int Y_TOLERANCE = 3;
 
     private static final TextColor GOLD = TextColor.color(0xFFD700);
     private static final TextColor GREEN = TextColor.color(0x55FF55);
     private static final TextColor RED = TextColor.color(0xFF5555);
     private static final TextColor GRAY = TextColor.color(0xAAAAAA);
     private static final TextColor YELLOW = TextColor.color(0xFFFF55);
-    private static final TextColor CYAN = TextColor.color(0x55FFFF);
+
+    private static final Set<Material> DANGEROUS_SURFACE = Set.of(
+            Material.LAVA, Material.WATER, Material.CACTUS, Material.MAGMA_BLOCK,
+            Material.SWEET_BERRY_BUSH, Material.CAMPFIRE, Material.SOUL_CAMPFIRE,
+            Material.POWDER_SNOW, Material.POINTED_DRIPSTONE, Material.WITHER_ROSE,
+            Material.FIRE, Material.SOUL_FIRE
+    );
+
+    private static final Set<Material> DANGEROUS_BODY = Set.of(
+            Material.LAVA, Material.WATER, Material.FIRE, Material.SOUL_FIRE,
+            Material.SWEET_BERRY_BUSH, Material.COBWEB, Material.POWDER_SNOW,
+            Material.WITHER_ROSE
+    );
+
+    private static final Set<Biome> OCEAN_BIOMES = Set.of(
+            Biome.OCEAN, Biome.DEEP_OCEAN, Biome.WARM_OCEAN,
+            Biome.LUKEWARM_OCEAN, Biome.COLD_OCEAN, Biome.FROZEN_OCEAN,
+            Biome.DEEP_LUKEWARM_OCEAN, Biome.DEEP_COLD_OCEAN, Biome.DEEP_FROZEN_OCEAN
+    );
 
     public enum RtpWorld {
-        OVERWORLD(WorldManager.OVERWORLD, "Overworld", "#55FF55", Material.GRASS_BLOCK, OVERWORLD_RADIUS, false),
-        NETHER(WorldManager.WORLD_NETHER, "Nether", "#FF5555", Material.NETHERRACK, NETHER_RADIUS, false),
-        END(WorldManager.WORLD_THE_END, "The End", "#AA00AA", Material.END_STONE, END_RADIUS, false),
-        RESOURCE_OVERWORLD(WorldManager.RESOURCE_OVERWORLD, "Resource Overworld", "#55FFFF", Material.OAK_LOG, RESOURCE_RADIUS, true),
-        RESOURCE_NETHER(WorldManager.RESOURCE_NETHER, "Resource Nether", "#FFAA00", Material.NETHER_BRICKS, RESOURCE_RADIUS, true),
-        RESOURCE_END(WorldManager.RESOURCE_END, "Resource End", "#AAAAAA", Material.CHORUS_FRUIT, RESOURCE_RADIUS, true);
+        OVERWORLD(WorldManager.OVERWORLD, "Overworld", "#55FF55", Material.GRASS_BLOCK, OVERWORLD_RADIUS, false, Kind.SURFACE),
+        NETHER(WorldManager.WORLD_NETHER, "Nether", "#FF5555", Material.NETHERRACK, NETHER_RADIUS, false, Kind.NETHER),
+        END(WorldManager.WORLD_THE_END, "The End", "#AA00AA", Material.END_STONE, END_RADIUS, false, Kind.END),
+        RESOURCE_OVERWORLD(WorldManager.RESOURCE_OVERWORLD, "Resource Overworld", "#55FFFF", Material.OAK_LOG, RESOURCE_RADIUS, true, Kind.SURFACE),
+        RESOURCE_NETHER(WorldManager.RESOURCE_NETHER, "Resource Nether", "#FFAA00", Material.NETHER_BRICKS, RESOURCE_RADIUS, true, Kind.NETHER),
+        RESOURCE_END(WorldManager.RESOURCE_END, "Resource End", "#AAAAAA", Material.CHORUS_FRUIT, RESOURCE_RADIUS, true, Kind.END);
+
+        public enum Kind { SURFACE, NETHER, END }
 
         public final String worldName;
         public final String display;
@@ -50,14 +78,16 @@ public class RtpManager {
         public final Material icon;
         public final int radius;
         public final boolean resource;
+        public final Kind kind;
 
-        RtpWorld(String worldName, String display, String hex, Material icon, int radius, boolean resource) {
+        RtpWorld(String worldName, String display, String hex, Material icon, int radius, boolean resource, Kind kind) {
             this.worldName = worldName;
             this.display = display;
             this.color = TextColor.fromHexString(hex);
             this.icon = icon;
             this.radius = radius;
             this.resource = resource;
+            this.kind = kind;
         }
 
         public static RtpWorld byKey(String key) {
@@ -72,8 +102,8 @@ public class RtpManager {
     private final WorldManager worldManager;
 
     private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
+    private final Set<UUID> searching = ConcurrentHashMap.newKeySet();
     private final Set<RtpWorld> lockedWorlds = ConcurrentHashMap.newKeySet();
-    private final Random random = new Random();
 
     public RtpManager(JavaPlugin plugin, WorldManager worldManager) {
         this.plugin = plugin;
@@ -97,18 +127,25 @@ public class RtpManager {
         worldManager.setServerData("rtp_lock_" + r.name(), locked ? "1" : "0");
     }
 
+    public void clearCooldown(UUID uuid) {
+        cooldowns.remove(uuid);
+        searching.remove(uuid);
+    }
+
+    // ===== GUI =====
+
     public void openGui(Player player) {
         RtpHolder holder = new RtpHolder();
-        Inventory inv = Bukkit.createInventory(holder, 27,
+        Inventory inv = Bukkit.createInventory(holder, 36,
                 Component.text("Random Teleport", GOLD).decoration(TextDecoration.ITALIC, false));
         holder.setInventory(inv);
 
         RtpWorld[] worlds = RtpWorld.values();
-        int[] slots = {10, 12, 14, 20, 21, 23};
+        int[] slots = {11, 13, 15, 20, 22, 24};
 
         for (int i = 0; i < worlds.length; i++) {
             RtpWorld r = worlds[i];
-            World w = Bukkit.getWorld(r.worldName);
+            World w = WorldManager.findWorld(r.worldName);
             int players = w == null ? 0 : w.getPlayers().size();
             boolean locked = isLocked(r);
 
@@ -122,8 +159,7 @@ public class RtpManager {
                     .append(Component.text(locked ? "LOCKED" : "OPEN", locked ? RED : GREEN))
                     .decoration(TextDecoration.ITALIC, false));
             lore.add(Component.text("Players there: " + players, GRAY).decoration(TextDecoration.ITALIC, false));
-            lore.add(Component.text("Border: X " + (-r.radius) + " → " + r.radius, GRAY).decoration(TextDecoration.ITALIC, false));
-            lore.add(Component.text("Border: Z " + (-r.radius) + " → " + r.radius, GRAY).decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text("Border: " + formatBorderSize(r.radius), GRAY).decoration(TextDecoration.ITALIC, false));
             if (r.resource) {
                 lore.add(Component.text("Next Reset: " + nextResourceResetDisplay(), YELLOW)
                         .decoration(TextDecoration.ITALIC, false));
@@ -144,9 +180,17 @@ public class RtpManager {
         ItemMeta closeMeta = close.getItemMeta();
         closeMeta.displayName(Component.text("Close", RED).decoration(TextDecoration.ITALIC, false));
         close.setItemMeta(closeMeta);
-        inv.setItem(26, close);
+        inv.setItem(31, close);
 
         player.openInventory(inv);
+    }
+
+    private String formatBorderSize(int radius) {
+        int size = radius * 2;
+        String s = size >= 1000 && size % 1000 == 0
+                ? (size / 1000) + "k"
+                : String.valueOf(size);
+        return s + " x " + s;
     }
 
     private String nextResourceResetDisplay() {
@@ -159,15 +203,17 @@ public class RtpManager {
 
     public RtpWorld getWorldFromSlot(int slot) {
         return switch (slot) {
-            case 10 -> RtpWorld.OVERWORLD;
-            case 12 -> RtpWorld.NETHER;
-            case 14 -> RtpWorld.END;
+            case 11 -> RtpWorld.OVERWORLD;
+            case 13 -> RtpWorld.NETHER;
+            case 15 -> RtpWorld.END;
             case 20 -> RtpWorld.RESOURCE_OVERWORLD;
-            case 21 -> RtpWorld.RESOURCE_NETHER;
-            case 23 -> RtpWorld.RESOURCE_END;
+            case 22 -> RtpWorld.RESOURCE_NETHER;
+            case 24 -> RtpWorld.RESOURCE_END;
             default -> null;
         };
     }
+
+    // ===== Teleport =====
 
     public void teleport(Player player, RtpWorld r) {
         if (isLocked(r)) {
@@ -176,6 +222,12 @@ public class RtpManager {
         }
 
         UUID uuid = player.getUniqueId();
+
+        if (searching.contains(uuid)) {
+            Msg.error(player, "You are already searching for a safe location!");
+            return;
+        }
+
         long now = System.currentTimeMillis();
         Long last = cooldowns.get(uuid);
         if (last != null && now - last < COOLDOWN_MS) {
@@ -184,97 +236,200 @@ public class RtpManager {
             return;
         }
 
-        World world = Bukkit.getWorld(r.worldName);
+        World world = WorldManager.findWorld(r.worldName);
         if (world == null) {
             Msg.error(player, "World not loaded: " + r.display);
             return;
         }
 
-        cooldowns.put(uuid, now);
+        player.closeInventory();
+        searching.add(uuid);
         Msg.info(player, "Searching for a safe location in " + r.display + "...");
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Location safe = findSafeLocationAsync(world, r);
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (!player.isOnline()) return;
-                if (safe == null) {
-                    Msg.error(player, "Could not find a safe location. Please try again!");
-                    cooldowns.remove(uuid);
-                    return;
+        new BukkitRunnable() {
+            final Random random = new Random();
+            int ticks = 0;
+
+            @Override
+            public void run() {
+                try {
+                    if (!player.isOnline()) {
+                        searching.remove(uuid);
+                        cancel();
+                        return;
+                    }
+
+                    if (ticks >= MAX_SEARCH_TICKS) {
+                        searching.remove(uuid);
+                        Msg.error(player, "Could not find a safe location. Please try again!");
+                        cancel();
+                        return;
+                    }
+
+                    for (int i = 0; i < CHECKS_PER_TICK; i++) {
+                        Location safe = switch (r.kind) {
+                            case SURFACE -> trySurfaceLocation(world, r, random);
+                            case NETHER -> tryNetherLocation(world, r, random);
+                            case END -> tryEndLocation(world, r, random);
+                        };
+                        if (safe != null) {
+                            searching.remove(uuid);
+                            cancel();
+                            cooldowns.put(uuid, System.currentTimeMillis());
+                            doTeleport(player, safe, r);
+                            return;
+                        }
+                    }
+
+                    ticks++;
+                } catch (Exception e) {
+                    searching.remove(uuid);
+                    cancel();
+                    plugin.getComponentLogger().error("RTP search error for {}", player.getName(), e);
                 }
-                player.teleport(safe);
-                Msg.success(player, "Teleported to " + r.display + " at (" +
-                        safe.getBlockX() + ", " + safe.getBlockY() + ", " + safe.getBlockZ() + ")");
-                player.playSound(safe, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
-            });
-        });
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
     }
 
-    private Location findSafeLocationAsync(World world, RtpWorld r) {
-        for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-            int x = random.nextInt(r.radius * 2 + 1) - r.radius;
-            int z = random.nextInt(r.radius * 2 + 1) - r.radius;
+    private void doTeleport(Player player, Location safe, RtpWorld r) {
+        for (Entity passenger : new ArrayList<>(player.getPassengers())) {
+            if (passenger instanceof TextDisplay) {
+                player.removePassenger(passenger);
+                passenger.remove();
+            }
+        }
+        if (player.isInsideVehicle()) player.leaveVehicle();
 
-            Location loc = findSafeYSync(world, x, z, r);
-            if (loc != null) return loc;
+        boolean success = player.teleport(safe, PlayerTeleportEvent.TeleportCause.COMMAND);
+        if (success) {
+            Msg.success(player, "Teleported to " + r.display + " at (" +
+                    safe.getBlockX() + ", " + safe.getBlockY() + ", " + safe.getBlockZ() + ")");
+            player.playSound(safe, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+        } else {
+            Msg.error(player, "Teleport was cancelled by another plugin!");
+            cooldowns.remove(player.getUniqueId());
+        }
+    }
+
+    // ===== Safe-location search =====
+
+    private Location trySurfaceLocation(World world, RtpWorld r, Random random) {
+        int x = random.nextInt(r.radius * 2 + 1) - r.radius;
+        int z = random.nextInt(r.radius * 2 + 1) - r.radius;
+
+        int highestY = world.getHighestBlockYAt(x, z);
+        if (highestY < world.getMinHeight() + 5) return null;
+        if (OCEAN_BIOMES.contains(world.getBiome(x, highestY, z))) return null;
+
+        Location result = checkSafeSpot(world, x, highestY, z, random);
+        if (result == null) return null;
+        if (!hasOpenSkyAbove(world, x, highestY + 1, z)) return null;
+        if (!hasSafeArea(world, x, highestY + 1, z)) return null;
+        return result;
+    }
+
+    /**
+     * True only if every block between {@code startY} and the world ceiling is
+     * air / passable. Guarantees the spawn is at the true surface, not inside
+     * a cave with a stone ceiling overhead.
+     */
+    private boolean hasOpenSkyAbove(World world, int x, int startY, int z) {
+        int top = world.getMaxHeight() - 1;
+        for (int y = startY; y <= top; y++) {
+            Material t = world.getBlockAt(x, y, z).getType();
+            if (t.isSolid()) return false;
+        }
+        return true;
+    }
+
+    private Location tryNetherLocation(World world, RtpWorld r, Random random) {
+        int x = random.nextInt(r.radius * 2 + 1) - r.radius;
+        int z = random.nextInt(r.radius * 2 + 1) - r.radius;
+
+        for (int y = 100; y >= 32; y--) {
+            Block floor = world.getBlockAt(x, y, z);
+            Block feet = world.getBlockAt(x, y + 1, z);
+            Block head = world.getBlockAt(x, y + 2, z);
+
+            if (!floor.getType().isSolid()) continue;
+            if (DANGEROUS_SURFACE.contains(floor.getType())) continue;
+            if (!feet.isPassable() || DANGEROUS_BODY.contains(feet.getType())) continue;
+            if (!head.isPassable() || DANGEROUS_BODY.contains(head.getType())) continue;
+
+            if (!hasSafeArea(world, x, y + 1, z)) continue;
+
+            return new Location(world, x + 0.5, y + 1, z + 0.5,
+                    random.nextFloat() * 360 - 180, 0);
         }
         return null;
     }
 
-    private Location findSafeYSync(World world, int x, int z, RtpWorld r) {
-        try {
-            world.getChunkAt(x >> 4, z >> 4).load(true);
-        } catch (Exception ignored) {
-            return null;
-        }
+    private Location tryEndLocation(World world, RtpWorld r, Random random) {
+        int x = random.nextInt(r.radius * 2 + 1) - r.radius;
+        int z = random.nextInt(r.radius * 2 + 1) - r.radius;
 
-        World.Environment env = world.getEnvironment();
-        int startY, endY;
+        int highestY = world.getHighestBlockYAt(x, z);
+        if (highestY < 5) return null;
 
-        if (env == World.Environment.NETHER) {
-            startY = 100;
-            endY = 32;
-            for (int y = startY; y > endY; y--) {
-                if (isSafeSpot(world, x, y, z)) {
-                    return centerLoc(world, x, y, z);
-                }
-            }
-            return null;
-        } else if (env == World.Environment.THE_END) {
-            int top = world.getHighestBlockYAt(x, z);
-            if (top < 0) return null;
-            if (isSafeSpot(world, x, top + 1, z)) return centerLoc(world, x, top + 1, z);
-            return null;
-        } else {
-            int top = world.getHighestBlockYAt(x, z);
-            if (top < world.getMinHeight() + 5) return null;
-            if (isSafeSpot(world, x, top + 1, z)) return centerLoc(world, x, top + 1, z);
-            return null;
-        }
+        Location result = checkSafeSpot(world, x, highestY, z, random);
+        if (result != null && hasSafeArea(world, x, highestY + 1, z)) return result;
+        return null;
     }
 
-    private boolean isSafeSpot(World world, int x, int y, int z) {
-        if (y <= world.getMinHeight() || y >= world.getMaxHeight() - 2) return false;
-        Block below = world.getBlockAt(x, y - 1, z);
-        Block feet = world.getBlockAt(x, y, z);
-        Block head = world.getBlockAt(x, y + 1, z);
+    private Location checkSafeSpot(World world, int x, int y, int z, Random random) {
+        Block surface = world.getBlockAt(x, y, z);
+        Block feet = world.getBlockAt(x, y + 1, z);
+        Block head = world.getBlockAt(x, y + 2, z);
 
-        Material bt = below.getType();
-        if (bt == Material.LAVA || bt == Material.WATER || bt == Material.FIRE
-                || bt == Material.MAGMA_BLOCK || bt == Material.CAMPFIRE
-                || bt == Material.SOUL_CAMPFIRE || bt == Material.CACTUS
-                || bt == Material.SWEET_BERRY_BUSH || bt == Material.POWDER_SNOW) return false;
-        if (!below.getType().isSolid()) return false;
-        if (!feet.isEmpty() && feet.getType() != Material.CAVE_AIR) return false;
-        if (!head.isEmpty() && head.getType() != Material.CAVE_AIR) return false;
+        if (!surface.getType().isSolid()) return null;
+        if (DANGEROUS_SURFACE.contains(surface.getType())) return null;
+        if (!feet.isPassable() || DANGEROUS_BODY.contains(feet.getType())) return null;
+        if (!head.isPassable() || DANGEROUS_BODY.contains(head.getType())) return null;
+
+        return new Location(world, x + 0.5, y + 1, z + 0.5,
+                random.nextFloat() * 360 - 180, 0);
+    }
+
+    /**
+     * For every column in a diamond of radius {@link #SAFE_RADIUS} around (cx, cz):
+     *  - a solid, non-dangerous ground block must exist within ±{@link #Y_TOLERANCE}
+     *    of (cy − 1). No ground = a cliff, edge, or void drop.
+     *  - no lava / fire / magma / other hazard within the same vertical range.
+     *  - no lava / fire in the 2-block body space above the ground.
+     * This rules out platform edges (End cities), void slopes, lava pools,
+     * cliffs, and nether ledges even when the exact spawn block looks fine.
+     */
+    private boolean hasSafeArea(World world, int cx, int cy, int cz) {
+        int groundY = cy - 1;
+        int minY = Math.max(world.getMinHeight(), groundY - Y_TOLERANCE);
+        int maxY = Math.min(world.getMaxHeight() - 1, groundY + Y_TOLERANCE);
+
+        for (int dx = -SAFE_RADIUS; dx <= SAFE_RADIUS; dx++) {
+            for (int dz = -SAFE_RADIUS; dz <= SAFE_RADIUS; dz++) {
+                if (Math.abs(dx) + Math.abs(dz) > SAFE_RADIUS) continue;
+                int x = cx + dx;
+                int z = cz + dz;
+
+                boolean groundFound = false;
+                for (int y = minY; y <= maxY; y++) {
+                    Material t = world.getBlockAt(x, y, z).getType();
+                    if (isHazard(t)) return false;
+                    if (t.isSolid() && !DANGEROUS_SURFACE.contains(t)) groundFound = true;
+                }
+                if (!groundFound) return false;
+
+                int bodyTop = Math.min(world.getMaxHeight() - 1, cy + 1);
+                for (int y = cy; y <= bodyTop; y++) {
+                    Material t = world.getBlockAt(x, y, z).getType();
+                    if (t == Material.LAVA || t == Material.FIRE || t == Material.SOUL_FIRE) return false;
+                }
+            }
+        }
         return true;
     }
 
-    private Location centerLoc(World world, int x, int y, int z) {
-        return new Location(world, x + 0.5, y, z + 0.5);
-    }
-
-    public void clearCooldown(UUID uuid) {
-        cooldowns.remove(uuid);
+    private boolean isHazard(Material t) {
+        return t == Material.LAVA || t == Material.FIRE || t == Material.SOUL_FIRE
+                || t == Material.MAGMA_BLOCK;
     }
 }

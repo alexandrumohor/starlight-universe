@@ -79,7 +79,7 @@ public final class InspectCommands {
                             rank == AdminRank.NONE ? "None" : rank.getDisplayName(), rank.getColor())));
                     player.sendMessage(Component.text("Premium: ", GRAY).append(Component.text(
                             AdminRank.premiumName(info.premiumLevel()), CYAN)));
-                    player.sendMessage(Component.text("Money: $" + EconomyManager.format(info.money()) +
+                    player.sendMessage(Component.text("Money: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(info.money()) +
                             "  Gems: " + EconomyManager.format(info.gems()) +
                             "  Stars: " + EconomyManager.format(info.stars()), GREEN));
                     player.sendMessage(Component.text("Level: " + info.level() +

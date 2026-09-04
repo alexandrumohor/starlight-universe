@@ -59,6 +59,11 @@ public final class BenefitCommands {
                 Msg.success(p, "Prefix set to [" + text + "]!");
                 return true;
             }
+            @Override public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) return List.of("clear").stream()
+                        .filter(x -> x.startsWith(args[0].toLowerCase())).toList();
+                return List.of();
+            }
         });
 
         cmds.add(new Command("namecolor") {
@@ -78,6 +83,12 @@ public final class BenefitCommands {
                 if (!hex.startsWith("#")) hex = "#" + hex;
                 mgr.purchaseNameColor(p, hex.toUpperCase());
                 return true;
+            }
+            @Override public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) return List.of("#FF0000", "#FFAA00", "#FFFF00",
+                        "#55FF55", "#55FFFF", "#5555FF", "#AA00AA", "#FF55FF", "clear").stream()
+                        .filter(x -> x.toLowerCase().startsWith(args[0].toLowerCase())).toList();
+                return List.of();
             }
         });
 
@@ -99,6 +110,12 @@ public final class BenefitCommands {
                 mgr.purchaseChatColor(p, hex.toUpperCase());
                 return true;
             }
+            @Override public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) return List.of("#FF0000", "#FFAA00", "#FFFF00",
+                        "#55FF55", "#55FFFF", "#5555FF", "#AA00AA", "#FF55FF", "clear").stream()
+                        .filter(x -> x.toLowerCase().startsWith(args[0].toLowerCase())).toList();
+                return List.of();
+            }
         });
 
         cmds.add(new Command("joinmsg") {
@@ -115,6 +132,11 @@ public final class BenefitCommands {
                 if (msg.length() > 80) { Msg.error(p, "Max 80 chars."); return true; }
                 mgr.setJoinMsg(p, msg);
                 return true;
+            }
+            @Override public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) return List.of("clear").stream()
+                        .filter(x -> x.startsWith(args[0].toLowerCase())).toList();
+                return List.of();
             }
         });
 
@@ -133,6 +155,11 @@ public final class BenefitCommands {
                 mgr.setQuitMsg(p, msg);
                 return true;
             }
+            @Override public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) return List.of("clear").stream()
+                        .filter(x -> x.startsWith(args[0].toLowerCase())).toList();
+                return List.of();
+            }
         });
 
         cmds.add(new Command("glow") {
@@ -150,6 +177,16 @@ public final class BenefitCommands {
                 mgr.activateGlow(p, g);
                 Msg.success(p, "Glow set to " + g.getDisplayName() + ".");
                 return true;
+            }
+            @Override public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) {
+                    List<String> out = new ArrayList<>();
+                    for (BodyGlow g : BodyGlow.values()) out.add(g.getKey());
+                    out.add("off");
+                    String pfx = args[0].toLowerCase();
+                    return out.stream().filter(x -> x.startsWith(pfx)).toList();
+                }
+                return List.of();
             }
         });
 
@@ -177,6 +214,16 @@ public final class BenefitCommands {
                 mgr.activateKillEffect(p, fx);
                 Msg.success(p, "Kill effect set to " + fx.getDisplayName() + ".");
                 return true;
+            }
+            @Override public List<String> tabComplete(CommandSender s, String a, String[] args) {
+                if (args.length == 1) {
+                    List<String> out = new ArrayList<>();
+                    for (KillEffect fx : KillEffect.values()) out.add(fx.getKey());
+                    out.add("off");
+                    String pfx = args[0].toLowerCase();
+                    return out.stream().filter(x -> x.startsWith(pfx)).toList();
+                }
+                return List.of();
             }
         });
 

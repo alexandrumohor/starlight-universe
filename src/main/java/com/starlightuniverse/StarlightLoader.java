@@ -16,7 +16,7 @@ public class StarlightLoader implements PluginLoader {
         resolver.addDependency(new Dependency(new DefaultArtifact("com.mysql:mysql-connector-j:8.4.0"), null));
         resolver.addDependency(new Dependency(new DefaultArtifact("org.mindrot:jbcrypt:0.4"), null));
         resolver.addRepository(new RemoteRepository.Builder(
-                "central", "default", "https://repo.maven.apache.org/maven2/"
+                "central", "default", MavenLibraryResolver.MAVEN_CENTRAL_DEFAULT_MIRROR
         ).build());
         classpathBuilder.addLibrary(resolver);
     }

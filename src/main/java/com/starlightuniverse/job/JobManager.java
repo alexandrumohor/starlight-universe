@@ -165,6 +165,12 @@ public class JobManager {
         this.hotTimeManager = mgr;
     }
 
+    private com.starlightuniverse.booster.BoosterManager boosterManager;
+
+    public void setBoosterManager(com.starlightuniverse.booster.BoosterManager mgr) {
+        this.boosterManager = mgr;
+    }
+
     public void initialize() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             placedBlocks.clear();
@@ -253,19 +259,24 @@ public class JobManager {
         long[] data = jobs.computeIfAbsent(job, k -> new long[]{1, 0});
 
         double hotMoneyMult = hotTimeManager != null ? hotTimeManager.getMoneyMultiplier() : 1.0;
+        double moneyBoost = boosterManager != null
+                ? boosterManager.getMultiplier(uuid, com.starlightuniverse.booster.BoosterType.MONEY_JOB) : 1.0;
+        double xpBoost = boosterManager != null
+                ? boosterManager.getMultiplier(uuid, com.starlightuniverse.booster.BoosterType.XP_JOB) : 1.0;
 
         int level = (int) data[0];
         if (level >= MAX_LEVEL) {
-            double money = baseMoney * getMultiplier(level) * hotMoneyMult;
+            double money = baseMoney * getMultiplier(level) * hotMoneyMult * moneyBoost;
             if (money > 0) economy.addMoney(uuid, money);
             return;
         }
 
         double multiplier = getMultiplier(level);
-        double money = baseMoney * multiplier * hotMoneyMult;
+        double money = baseMoney * multiplier * hotMoneyMult * moneyBoost;
         if (money > 0) economy.addMoney(uuid, money);
 
-        data[1] += baseXp;
+        int boostedXp = (int) Math.ceil(baseXp * xpBoost);
+        data[1] += boostedXp;
 
         while (data[0] < MAX_LEVEL && data[1] >= xpForLevel((int) data[0])) {
             data[1] -= xpForLevel((int) data[0]);

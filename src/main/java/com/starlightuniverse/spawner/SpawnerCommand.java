@@ -50,4 +50,25 @@ public class SpawnerCommand extends Command {
         spawnerManager.openShopGui(player);
         return true;
     }
+
+    @Override
+    public java.util.List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
+        if (!sender.isOp() && !sender.hasPermission("su.admin")) return java.util.List.of();
+        if (args.length == 1) {
+            return java.util.List.of("give").stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase())).toList();
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
+            String pfx = args[1].toUpperCase();
+            return java.util.stream.Stream.of(VirtualSpawnerType.values())
+                    .map(Enum::name).filter(n -> n.startsWith(pfx)).toList();
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
+            return java.util.List.of("1", "2", "3");
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("give")) {
+            return java.util.List.of("1", "16", "32", "64");
+        }
+        return java.util.List.of();
+    }
 }

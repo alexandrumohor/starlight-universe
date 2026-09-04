@@ -233,7 +233,7 @@ public class TeamManager {
             return;
         }
         if (!economy.removeMoney(uuid, CREATE_COST)) {
-            Msg.error(player, "You need $" + EconomyManager.format(CREATE_COST) + " to create a team!");
+            Msg.error(player, "You need " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(CREATE_COST) + " to create a team!");
             return;
         }
         String username = player.getName().toLowerCase();
@@ -271,7 +271,7 @@ public class TeamManager {
                 team.getMembers().put(username, TeamRank.LEADER);
                 teamCache.put(teamId, team);
                 playerTeamCache.put(uuid, teamId);
-                Msg.success(player, "Team '" + name + "' created! Cost: $" + EconomyManager.format(CREATE_COST));
+                Msg.success(player, "Team '" + name + "' created! Cost: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(CREATE_COST));
                 broadcastServer(player.getName() + " created team " + name + "!");
             });
         });
@@ -597,7 +597,7 @@ public class TeamManager {
         if (!newName.matches("[a-zA-Z0-9_]+")) { Msg.error(player, "Invalid name!"); return; }
         if (getTeamByName(newName) != null) { Msg.error(player, "Name already taken!"); return; }
         if (!economy.removeMoney(player.getUniqueId(), RENAME_COST)) {
-            Msg.error(player, "You need $" + EconomyManager.format(RENAME_COST) + " to rename!"); return;
+            Msg.error(player, "You need " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(RENAME_COST) + " to rename!"); return;
         }
         String oldName = team.getName();
         team.setName(newName);

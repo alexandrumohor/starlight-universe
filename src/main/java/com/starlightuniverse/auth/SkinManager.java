@@ -35,7 +35,7 @@ public class SkinManager {
             if (cachedSkins.isEmpty()) {
                 fetchFromMojangProfiles();
             }
-            plugin.getLogger().info("[SU] Cached " + cachedSkins.size() + " random skins for cracked players.");
+            plugin.getLogger().info("[SU] Cached " + cachedSkins.size() + " fallback skins.");
         });
     }
 
@@ -87,8 +87,8 @@ public class SkinManager {
                 "ec561538f3fd461daff5086b22154bce",
                 "b876ec32e396476ba1158438d83c67d4",
                 "f7c77d999f154a66a87dc4a51ef30d19",
-                "1e18d5ff643d45c8b50943b8461571c4",
-                "d4be680798b14e748af38b6dfb6c3076",
+                "61699b2ed3274a019f1e0ea8c3f06bc6",
+                "2f3665ccc1a249679c8bc1c0f34a9c8f",
                 "7125ba8b1c864508b92bb5c042ccfe2b",
                 "c06f89064c8a49119c29ea1dbd1aab82",
                 "4566e69fc90748ee8d71d7ba5aa00d20"
@@ -118,18 +118,36 @@ public class SkinManager {
             if (response.statusCode() == 200) {
                 String body = response.body();
                 int valueIdx = body.indexOf("\"value\"");
-                if (valueIdx == -1) return null;
+                if (valueIdx == -1) {
+                    plugin.getLogger().warning("[SU] Mojang skin fetch for " + cleanUuid + " has no 'value' field.");
+                    return null;
+                }
                 String value = extractQuotedValue(body, valueIdx);
 
                 int sigIdx = body.indexOf("\"signature\"");
-                if (sigIdx == -1) return null;
+                if (sigIdx == -1) {
+                    plugin.getLogger().warning("[SU] Mojang skin fetch for " + cleanUuid + " has no 'signature' field.");
+                    return null;
+                }
                 String signature = extractQuotedValue(body, sigIdx);
 
                 if (value != null && signature != null) {
+                    plugin.getLogger().info("[SU] Fetched Mojang skin for " + cleanUuid
+                            + " (value len=" + value.length() + ").");
                     return new SkinData(value, signature);
                 }
+                plugin.getLogger().warning("[SU] Mojang skin fetch for " + cleanUuid + " parsed empty value/signature.");
+            } else if (response.statusCode() == 204) {
+                // Account was deleted / migrated — quietly skip, not an error.
+                plugin.getLogger().info("[SU] Skin UUID " + cleanUuid + " no longer exists (HTTP 204).");
+            } else {
+                plugin.getLogger().warning("[SU] Mojang skin fetch for " + cleanUuid
+                        + " returned HTTP " + response.statusCode());
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            plugin.getLogger().warning("[SU] Mojang skin fetch threw: " + e.getClass().getSimpleName()
+                    + ": " + e.getMessage());
+        }
         return null;
     }
 
@@ -139,7 +157,12 @@ public class SkinManager {
     }
 
     public void applySkin(Player player, SkinData skin) {
-        if (skin == null || !player.isOnline()) return;
+        if (skin == null) {
+            plugin.getLogger().warning("[SU] applySkin called with null skin for "
+                    + (player != null ? player.getName() : "?"));
+            return;
+        }
+        if (!player.isOnline()) return;
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (!player.isOnline()) return;
@@ -148,6 +171,7 @@ public class SkinManager {
             profile.removeProperty("textures");
             profile.setProperty(new ProfileProperty("textures", skin.value(), skin.signature()));
             player.setPlayerProfile(profile);
+            plugin.getLogger().info("[SU] applySkin for " + player.getName() + " done.");
 
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!online.equals(player)) {

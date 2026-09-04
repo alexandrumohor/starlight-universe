@@ -60,18 +60,27 @@ public class GiveMoneyCommand extends Command {
 
         if (target != null && target.isOnline()) {
             economyManager.addMoney(target.getUniqueId(), amount);
-            sender.sendMessage(Component.text("[SU] ", TextColor.color(0xFFD700))
-                    .append(Component.text("Gave $" + EconomyManager.format(amount) + " to " + target.getName(), GREEN)));
+            sender.sendMessage(Msg.prefix()
+                    .append(Component.text("Gave ", GREEN))
+                    .append(EconomyManager.moneyText(amount))
+                    .append(Component.text(" to " + target.getName(), GREEN)));
             target.sendMessage(Msg.prefix()
                     .append(Component.text("You received ", GREEN))
-                    .append(Component.text("$" + EconomyManager.format(amount), GOLD)));
+                    .append(EconomyManager.moneyText(amount)));
         } else {
             double finalAmount = amount;
             economyManager.giveOffline(targetName, "money", amount).thenAccept(success -> {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     if (success) {
-                        sender.sendMessage(Component.text("[SU] ", TextColor.color(0xFFD700))
-                                .append(Component.text("Gave $" + EconomyManager.format(finalAmount) + " to " + targetName + " (offline)", GREEN)));
+                        sender.sendMessage(Msg.prefix()
+                                .append(Component.text("Gave ", GREEN))
+                                .append(EconomyManager.moneyText(finalAmount))
+                                .append(Component.text(" to " + targetName + " (offline)", GREEN)));
+                        com.starlightuniverse.StarlightUniverse.getInstance().getPendingMessageManager()
+                                .enqueue(targetName, Msg.prefix()
+                                        .append(Component.text("You received ", GREEN))
+                                        .append(EconomyManager.moneyText(finalAmount))
+                                        .append(Component.text(" (while you were offline)", TextColor.color(0xAAAAAA))));
                     } else {
                         sender.sendMessage(Component.text("[SU] Player not found!", TextColor.color(0xFF5555)));
                     }

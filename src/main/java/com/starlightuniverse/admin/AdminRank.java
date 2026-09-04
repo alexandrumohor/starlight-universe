@@ -47,7 +47,7 @@ public enum AdminRank {
         return null;
     }
 
-    public static final String[] PREMIUM_NAMES = {"None", "Meteor", "Comet", "Nebula", "Supernova", "Galaxy"};
+    public static final String[] PREMIUM_NAMES = {"None", "Meteor", "Comet", "Nebula", "Supernova", "Galaxy", "Universe"};
 
     public static String premiumName(int level) {
         if (level < 0 || level >= PREMIUM_NAMES.length) return "Unknown";

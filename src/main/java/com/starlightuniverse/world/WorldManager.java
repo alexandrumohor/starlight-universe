@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -65,13 +66,77 @@ public class WorldManager implements Listener {
     }
 
     public static WorldGroup getWorldGroup(String worldName) {
-        if (LOBBY_WORLDS.contains(worldName)) return WorldGroup.LOBBY;
-        if (SURVIVAL_WORLDS.contains(worldName)) return WorldGroup.SURVIVAL;
+        String stripped = canonicalWorldName(stripNamespace(worldName));
+        if (LOBBY_WORLDS.contains(stripped)) return WorldGroup.LOBBY;
+        if (SURVIVAL_WORLDS.contains(stripped)) return WorldGroup.SURVIVAL;
         return WorldGroup.UNKNOWN;
     }
 
+    private static String canonicalWorldName(String name) {
+        return switch (name) {
+            case "world" -> OVERWORLD;
+            case "world_nether", "the_nether", "nether" -> WORLD_NETHER;
+            case "world_the_end", "the_end", "end" -> WORLD_THE_END;
+            default -> name;
+        };
+    }
+
+    /**
+     * Paper 26.2 stores worlds under {@code world/dimensions/<namespace>/<name>/},
+     * exposing them via the API as e.g. {@code minecraft:lobby}. This finds a world
+     * by short name regardless of whether it was registered with a namespace prefix.
+     */
+    public static World findWorld(String shortName) {
+        World w = Bukkit.getWorld(shortName);
+        if (w != null) return w;
+        try {
+            w = Bukkit.getWorld(org.bukkit.NamespacedKey.minecraft(shortName));
+            if (w != null) return w;
+        } catch (Throwable ignored) {}
+        w = Bukkit.getWorld("minecraft:" + shortName);
+        if (w != null) return w;
+        // Aliases for the vanilla main-world names (Paper's key is minecraft:overworld etc.)
+        String alias = switch (shortName) {
+            case "overworld" -> "world";
+            case "world_the_nether", "the_nether", "nether" -> "world_nether";
+            case "world_the_end", "the_end", "end" -> "world_the_end";
+            default -> null;
+        };
+        if (alias != null) {
+            w = Bukkit.getWorld(alias);
+            if (w != null) return w;
+        }
+        for (World world : Bukkit.getWorlds()) {
+            String n = world.getName();
+            if (n.equals(shortName) || n.equals("minecraft:" + shortName) || n.endsWith(":" + shortName)) {
+                return world;
+            }
+            try {
+                if (world.getKey().getKey().equals(shortName)) return world;
+            } catch (Throwable ignored) {}
+        }
+        return null;
+    }
+
+    private static String stripNamespace(String name) {
+        if (name == null) return "";
+        int colon = name.indexOf(':');
+        return colon >= 0 ? name.substring(colon + 1) : name;
+    }
+
     public void initialize() {
-        if (Bukkit.getWorld(WORLD_DRAGON) == null) {
+        // Paper 26.2 stores worlds under <primary-world>/dimensions/<ns>/<name>/,
+        // but does NOT auto-load them unless a datapack registers them. We must
+        // trigger the load explicitly via a NamespacedKey WorldCreator.
+        loadDimensionIfExists("lobby", World.Environment.NORMAL);
+        loadDimensionIfExists("survivallobby", World.Environment.NORMAL);
+
+        // Resource worlds — created by plugin (reset on 1st of month).
+        ensureWorld(RESOURCE_OVERWORLD, World.Environment.NORMAL);
+        ensureWorld(RESOURCE_NETHER, World.Environment.NETHER);
+        ensureWorld(RESOURCE_END, World.Environment.THE_END);
+
+        if (findWorld(WORLD_DRAGON) == null) {
             createDragonWorld();
         }
 
@@ -89,8 +154,57 @@ public class WorldManager implements Listener {
         scheduleResourceWorldCheck();
     }
 
+    private void ensureWorld(String name, World.Environment env) {
+        if (findWorld(name) != null) return;
+        try {
+            WorldCreator creator = new WorldCreator(name);
+            creator.environment(env);
+            creator.generateStructures(true);
+            World world = Bukkit.createWorld(creator);
+            if (world != null) {
+                plugin.getLogger().info("[SU] World '" + name + "' (" + env + ") loaded/created.");
+            } else {
+                plugin.getLogger().warning("[SU] Failed to create world '" + name + "'.");
+            }
+        } catch (IllegalArgumentException e) {
+            plugin.getLogger().warning("[SU] Skipping world '" + name + "': " + e.getMessage());
+        }
+    }
+
+    /**
+     * Loads an existing dimension from Paper's new layout
+     * ({@code <primary-world>/dimensions/minecraft/<name>/}) via a NamespacedKey
+     * WorldCreator. Skips if the folder isn't present so we never overwrite
+     * a hand-configured world with a blank one.
+     */
+    private void loadDimensionIfExists(String name, World.Environment env) {
+        if (findWorld(name) != null) return;
+
+        File primaryWorldDir = new File(Bukkit.getWorldContainer(),
+                Bukkit.getWorlds().getFirst().getName());
+        File dimFolder = new File(primaryWorldDir, "dimensions/minecraft/" + name);
+        if (!dimFolder.isDirectory() || !new File(dimFolder, "region").isDirectory()) {
+            plugin.getLogger().info("[SU] Dimension '" + name
+                    + "' not present at " + dimFolder.getPath() + " — skipping load.");
+            return;
+        }
+        try {
+            WorldCreator creator = new WorldCreator(
+                    org.bukkit.NamespacedKey.minecraft(name));
+            creator.environment(env);
+            World w = Bukkit.createWorld(creator);
+            if (w != null) {
+                plugin.getLogger().info("[SU] Dimension 'minecraft:" + name + "' loaded.");
+            } else {
+                plugin.getLogger().warning("[SU] createWorld returned null for 'minecraft:" + name + "'.");
+            }
+        } catch (Throwable t) {
+            plugin.getLogger().warning("[SU] Failed to load 'minecraft:" + name + "': " + t.getMessage());
+        }
+    }
+
     private void configureWorlds() {
-        World lobby = Bukkit.getWorld(LOBBY);
+        World lobby = findWorld(LOBBY);
         if (lobby != null) {
             lobby.setPVP(false);
             lobby.setSpawnFlags(false, false);
@@ -112,7 +226,7 @@ public class WorldManager implements Listener {
             lobby.setDifficulty(Difficulty.PEACEFUL);
         }
 
-        World survivalLobby = Bukkit.getWorld(SURVIVAL_LOBBY);
+        World survivalLobby = findWorld(SURVIVAL_LOBBY);
         if (survivalLobby != null) {
             survivalLobby.setPVP(false);
             survivalLobby.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
@@ -120,7 +234,7 @@ public class WorldManager implements Listener {
 
         for (String name : new String[]{OVERWORLD, WORLD_NETHER, WORLD_THE_END,
                 RESOURCE_OVERWORLD, RESOURCE_NETHER, RESOURCE_END, WORLD_DRAGON}) {
-            World w = Bukkit.getWorld(name);
+            World w = findWorld(name);
             if (w != null) {
                 w.setPVP(true);
             }
@@ -135,7 +249,7 @@ public class WorldManager implements Listener {
     }
 
     private void applyWorldBorder(String worldName, double size) {
-        World w = Bukkit.getWorld(worldName);
+        World w = findWorld(worldName);
         if (w == null) return;
         w.getWorldBorder().setCenter(0, 0);
         w.getWorldBorder().setSize(size);
@@ -190,8 +304,8 @@ public class WorldManager implements Listener {
     private void startDragonReset() {
         dragonLocked = true;
 
-        World dragon = Bukkit.getWorld(WORLD_DRAGON);
-        World lobby = Bukkit.getWorld(LOBBY);
+        World dragon = findWorld(WORLD_DRAGON);
+        World lobby = findWorld(LOBBY);
         if (dragon != null && lobby != null) {
             for (Player p : dragon.getPlayers()) {
                 p.teleport(lobby.getSpawnLocation());
@@ -214,9 +328,9 @@ public class WorldManager implements Listener {
     }
 
     private void performDragonReset() {
-        World dragon = Bukkit.getWorld(WORLD_DRAGON);
+        World dragon = findWorld(WORLD_DRAGON);
         if (dragon != null) {
-            World lobby = Bukkit.getWorld(LOBBY);
+            World lobby = findWorld(LOBBY);
             for (Player p : dragon.getPlayers()) {
                 if (lobby != null) p.teleport(lobby.getSpawnLocation());
             }
@@ -247,6 +361,34 @@ public class WorldManager implements Listener {
                 && event.getCause() == PlayerTeleportEvent.TeleportCause.END_GATEWAY) {
             event.setCancelled(true);
             Msg.error(event.getPlayer(), "End Cities are not accessible from this world!");
+        }
+    }
+
+    /**
+     * When a player dies in any survival world without a valid bed / respawn
+     * anchor, redirect them to the survival lobby's spawn instead of the
+     * default overworld world spawn. Bed and anchor spawns are respected.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onRespawn(PlayerRespawnEvent event) {
+        if (event.isBedSpawn() || event.isAnchorSpawn()) return;
+        WorldGroup deathGroup = getWorldGroup(event.getPlayer().getWorld());
+        if (deathGroup != WorldGroup.SURVIVAL) return;
+        World survivalLobby = findWorld(SURVIVAL_LOBBY);
+        if (survivalLobby == null) return;
+        event.setRespawnLocation(survivalLobby.getSpawnLocation());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onTeleportMonitor(PlayerTeleportEvent event) {
+        if (event.isCancelled() || event.getTo() == null || event.getTo().getWorld() == null) return;
+        WorldGroup fromGroup = getWorldGroup(event.getFrom().getWorld());
+        WorldGroup toGroup = getWorldGroup(event.getTo().getWorld());
+        // When a player leaves the auth lobby into a survival world, drop the
+        // forced-midnight client-time override so they see the destination's
+        // actual day/night cycle.
+        if (fromGroup == WorldGroup.LOBBY && toGroup != WorldGroup.LOBBY) {
+            event.getPlayer().resetPlayerTime();
         }
     }
 
@@ -293,10 +435,10 @@ public class WorldManager implements Listener {
         String[] names = {RESOURCE_OVERWORLD, RESOURCE_NETHER, RESOURCE_END};
         World.Environment[] envs = {World.Environment.NORMAL, World.Environment.NETHER, World.Environment.THE_END};
 
-        World lobby = Bukkit.getWorld(LOBBY);
+        World lobby = findWorld(LOBBY);
 
         for (int i = 0; i < names.length; i++) {
-            World world = Bukkit.getWorld(names[i]);
+            World world = findWorld(names[i]);
             if (world != null) {
                 if (lobby != null) {
                     for (Player p : world.getPlayers()) {

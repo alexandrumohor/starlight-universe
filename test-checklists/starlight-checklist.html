@@ -2107,6 +2107,226 @@
     <label><input type="checkbox" id="p28_shutdown_db_pool"> Also on /stop, console shows "[SU] Database connection pool closed." — no HikariCP leaked-connection warnings.</label>
     <label><input type="checkbox" id="p28_shutdown_no_error"> No red exceptions during shutdown (job save, skill save, inventory save, team save, crate save, home save, order save, auction save, log flush all complete cleanly).</label>
 
+    <h3>Scoreboard (sidebar) — appearance</h3>
+    <label><input type="checkbox" id="p28_sb_shows_after_login"> After you /login (or /register), the sidebar scoreboard "Starlight Universe" appears on the right side of the screen within ~1 second.</label>
+    <label><input type="checkbox" id="p28_sb_title_color"> The title "Starlight Universe" is in a warm gold/pale-yellow color (nether-star-ish, roughly #FFF5A0).</label>
+    <label><input type="checkbox" id="p28_sb_no_score_numbers"> None of the lines show a red number on the right — the vanilla score column is hidden.</label>
+    <label><input type="checkbox" id="p28_sb_line_order"> Lines appear in this exact order top→bottom: Name, Admin Level, Premium Level, Team, (blank), Money, Gems, Stars, EXP, (blank), PVP Kills, PVM Kills, Deaths.</label>
+
+    <h3>Scoreboard — icons (require resource pack)</h3>
+    <label><input type="checkbox" id="p28_sb_icon_name"> A small silhouette icon renders at the start of the Name line (not a purple/black square).</label>
+    <label><input type="checkbox" id="p28_sb_icon_admin"> A shield icon renders at the start of the Admin Level line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_premium"> A crown icon renders at the start of the Premium Level line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_team"> A two-figures icon renders at the start of the Team line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_money"> A yellow "$" icon renders at the start of the Money line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_gems"> A violet diamond icon renders at the start of the Gems line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_stars"> A nether-star icon renders at the start of the Stars line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_exp"> A green XP orb icon renders at the start of the EXP line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_pvp"> A crossed-swords icon renders at the start of the PVP Kills line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_pvm"> A zombie-with-mini-swords icon renders at the start of the PVM Kills line.</label>
+    <label><input type="checkbox" id="p28_sb_icon_deaths"> A skull icon renders at the start of the Deaths line.</label>
+
+    <h3>Scoreboard — labels &amp; empty values</h3>
+    <label><input type="checkbox" id="p28_sb_labels_white"> Every label (Name:, Admin Level:, Team:, Money:, etc.) is in white.</label>
+    <label><input type="checkbox" id="p28_sb_name_value"> Your name shows in white by default, or in the hex color you bought via /namecolor if you have one.</label>
+    <label><input type="checkbox" id="p28_sb_admin_empty_for_none"> If you have no admin rank, "Admin Level:" shows nothing after the colon (empty string, no "None").</label>
+    <label><input type="checkbox" id="p28_sb_premium_empty_for_none"> If you have no premium rank, "Premium Level:" shows nothing after the colon.</label>
+    <label><input type="checkbox" id="p28_sb_team_empty_for_none"> If you are in no team, "Team:" shows nothing after the colon.</label>
+
+    <h3>Scoreboard — rank &amp; team values</h3>
+    <label><input type="checkbox" id="p28_sb_admin_owner"> After /setadmin yourself Owner, the Admin Level line shows "Owner" in red (#FF0000).</label>
+    <label><input type="checkbox" id="p28_sb_admin_helper"> With Helper, the line shows "Helper" in orange (#FF6600).</label>
+    <label><input type="checkbox" id="p28_sb_premium_galaxy"> After /setpremium yourself Galaxy, the Premium Level line shows "Galaxy" in Galaxy's color.</label>
+    <label><input type="checkbox" id="p28_sb_team_with_rank"> After joining a team, "Team:" shows the team name and your rank in parentheses (e.g. "Stardust (Leader)"), colored with the team's first color.</label>
+
+    <h3>Scoreboard — currencies &amp; EXP live update</h3>
+    <label><input type="checkbox" id="p28_sb_money_value"> Money value shows in yellow (#FFFF00) with commas ("1,500"), not "1500.0".</label>
+    <label><input type="checkbox" id="p28_sb_gems_value"> Gems value shows in violet (#9900CC).</label>
+    <label><input type="checkbox" id="p28_sb_stars_value"> Stars value shows in the pale gold nether-star color.</label>
+    <label><input type="checkbox" id="p28_sb_exp_value"> EXP value shows in the vanilla-XP-bar green (#55FF55).</label>
+    <label><input type="checkbox" id="p28_sb_money_live"> After /givemoney &lt;you&gt; 1000, the Money line updates on the scoreboard within ~1 second, no need to reconnect.</label>
+    <label><input type="checkbox" id="p28_sb_gems_live"> After /givegems &lt;you&gt; 50, the Gems line updates within ~1 second.</label>
+
+    <h3>Scoreboard — kills / deaths tracking</h3>
+    <label><input type="checkbox" id="p28_sb_pvp_kill_natural"> Kill another player in the natural survival world (not arena) — your PVP Kills count goes up by 1 on the scoreboard within ~2 seconds.</label>
+    <label><input type="checkbox" id="p28_sb_pvm_kill_natural"> Kill a mob (zombie, cow, anything) in the survival world — your PVM Kills count goes up by 1.</label>
+    <label><input type="checkbox" id="p28_sb_deaths_natural"> Die in the natural world (fall damage, mob, /kill) — your Deaths count goes up by 1.</label>
+    <label><input type="checkbox" id="p28_sb_pvp_orange"> PVP Kills value renders in orange (#FF944D).</label>
+    <label><input type="checkbox" id="p28_sb_pvm_pink"> PVM Kills value renders in pink (#FF8080).</label>
+    <label><input type="checkbox" id="p28_sb_deaths_red"> Deaths value renders in red (#FF0000).</label>
+
+    <h3>Scoreboard — player head (per-player skin overlay)</h3>
+    <label><input type="checkbox" id="p28_sb_head_visible"> To the RIGHT of your name on the Name line, a small pixel-art player head icon renders (not a purple/black square).</label>
+    <label><input type="checkbox" id="p28_sb_head_is_your_skin"> The head shown IS your actual skin's face (front of head layer 1 + hat layer 2) — matches what you see in F5 third-person view.</label>
+    <label><input type="checkbox" id="p28_sb_head_other_player"> When another player joins, the head next to THEIR name on THEIR own scoreboard is THEIR skin (each player sees their own head, not a shared placeholder).</label>
+    <label><input type="checkbox" id="p28_sb_head_pack_line"> On startup, console shows "[SU] Head pack server started on port 25567".</label>
+    <label><input type="checkbox" id="p28_sb_head_no_skin_fallback"> A cracked player with no skin (or Mojang API failure) sees a plain Steve-ish silhouette head, not an empty spot or an error.</label>
+    <label><input type="checkbox" id="p28_sb_head_join_prompt"> On first join, the client prompts to download TWO packs stacked (main + head overlay), or one prompt covering both — no error about the second pack.</label>
+    <label><input type="checkbox" id="p28_sb_head_reconnect_same"> After a reconnect, the head still shows correctly (cached per-player pack is reused).</label>
+
+    <h3>Scoreboard — lifecycle</h3>
+    <label><input type="checkbox" id="p28_sb_hidden_before_auth"> While at the login/register screen (before you log in), NO Starlight scoreboard is visible.</label>
+    <label><input type="checkbox" id="p28_sb_hidden_after_quit"> After you /quit, another player logging in shortly after sees only their own scoreboard, not stale data from you.</label>
+    <label><input type="checkbox" id="p28_sb_survives_world_switch"> Teleporting between lobby, survival, resource, and nether keeps the scoreboard visible with the same values.</label>
+    <label><input type="checkbox" id="p28_sb_cleared_on_shutdown"> After /stop and restart, reconnecting rebuilds the scoreboard from DB — money, gems, stars, kills and deaths match what they were before the restart.</label>
+
+    <h2>Session 27 Aug — Vote, Vouchers, Buffs, Crate Rewrite, Star Shop Rewrite</h2>
+
+    <h3>Vote system</h3>
+    <label><input type="checkbox" id="s27_vote_gui_opens"> Type /vote — a GUI opens showing vote links as clickable items.</label>
+    <label><input type="checkbox" id="s27_vote_link_click"> Click a vote link item in the GUI — a chat message appears with the link you should visit.</label>
+    <label><input type="checkbox" id="s27_awardvote_op"> As an op, run /awardvote YourName 1 — you get a green confirmation message saying the vote was awarded.</label>
+    <label><input type="checkbox" id="s27_awardvote_rewards"> After /awardvote, check your balance — you should receive vote reward money and a Star Crate key.</label>
+    <label><input type="checkbox" id="s27_awardvote_noperm"> As a non-op player, run /awardvote — you get a red "No permission" error.</label>
+    <label><input type="checkbox" id="s27_vote_db_persists"> After voting, restart the server. Run /vote — the GUI still shows your last vote time correctly.</label>
+
+    <h3>Voucher items — Fly Voucher</h3>
+    <label><input type="checkbox" id="s27_fly_voucher_item"> Get a Fly Voucher (from a crate or /starshop). It appears in your inventory with a name and lore showing flight time.</label>
+    <label><input type="checkbox" id="s27_fly_voucher_use"> Right-click the Fly Voucher — you start flying and a message shows how long you have.</label>
+    <label><input type="checkbox" id="s27_fly_voucher_timer"> After the flight time expires, you stop flying and get a message saying flight ended.</label>
+    <label><input type="checkbox" id="s27_fly_voucher_consumed"> After using the Fly Voucher, it is consumed from your inventory (1 less in the stack).</label>
+    <label><input type="checkbox" id="s27_votefly_cmd"> Type /votefly — if you have earned a fly voucher from voting, it activates.</label>
+
+    <h3>Voucher items — Booster</h3>
+    <label><input type="checkbox" id="s27_booster_item"> Get a Booster item. It shows the multiplier and duration in its lore.</label>
+    <label><input type="checkbox" id="s27_booster_use"> Right-click the Booster — a server-wide message announces the booster is active.</label>
+    <label><input type="checkbox" id="s27_booster_effect"> While a booster is active, earn money from a job — the payout is multiplied.</label>
+    <label><input type="checkbox" id="s27_booster_expires"> After the booster duration ends, payouts return to normal.</label>
+
+    <h3>Voucher items — Protection Token</h3>
+    <label><input type="checkbox" id="s27_prot_token_item"> Get a Protection Token. Its lore shows the protection radius it grants.</label>
+    <label><input type="checkbox" id="s27_prot_token_use"> Right-click the Protection Token — your home protection radius increases by the token amount.</label>
+    <label><input type="checkbox" id="s27_prot_token_consumed"> After using the token, it is consumed from your inventory.</label>
+
+    <h3>Voucher items — Random Gear Ticket</h3>
+    <label><input type="checkbox" id="s27_gear_ticket_item"> Get a Random Gear Ticket from a crate. Its name and lore show which tier of gear it gives.</label>
+    <label><input type="checkbox" id="s27_gear_ticket_use"> Right-click the Gear Ticket — you receive a full set of armor + weapon matching the tier (e.g. Gold Set for Star, Netherite God for Universe).</label>
+    <label><input type="checkbox" id="s27_gear_ticket_enchants"> The gear pieces come pre-enchanted. Netherite tier has the strongest enchantments.</label>
+    <label><input type="checkbox" id="s27_gear_ticket_consumed"> After using the Gear Ticket, it is consumed from your inventory.</label>
+
+    <h3>Buff system (13 buffs)</h3>
+    <label><input type="checkbox" id="s27_buff_buy_starshop"> Open /starshop, go to Server Buffs. Buy any buff (e.g. XP 5x) — it costs 100 Stars and activates.</label>
+    <label><input type="checkbox" id="s27_buff_active_message"> After buying a buff, you see a confirmation message saying the buff is now active for 12 hours.</label>
+    <label><input type="checkbox" id="s27_buff_xp_5x"> Activate XP 5x buff. Kill a mob — the XP drop should be noticeably larger than normal.</label>
+    <label><input type="checkbox" id="s27_buff_money_5x"> Activate Money 5x buff. Complete a job action — the payout should be 5 times normal.</label>
+    <label><input type="checkbox" id="s27_buff_ore_loot"> Activate Ore Loot 5x buff. Mine a diamond ore — you get 5x the normal drops.</label>
+    <label><input type="checkbox" id="s27_buff_crop_loot"> Activate Crop Loot 5x buff. Harvest a wheat crop — you get 5x the normal drops.</label>
+    <label><input type="checkbox" id="s27_buff_tree_loot"> Activate Tree Loot 5x buff. Chop a log — you get 5x the normal drops.</label>
+    <label><input type="checkbox" id="s27_buff_block_loot"> Activate Block Loot 5x buff. Mine any normal block — you get 5x the normal drops.</label>
+    <label><input type="checkbox" id="s27_buff_night_vision"> Activate Night Vision buff. Check your potion effects — you have permanent Night Vision.</label>
+    <label><input type="checkbox" id="s27_buff_jump_boost"> Activate Jump Boost buff. Try jumping — you jump higher than normal (Jump Boost II).</label>
+    <label><input type="checkbox" id="s27_buff_speed"> Activate Speed buff. Walk around — you move faster than normal (Speed II).</label>
+    <label><input type="checkbox" id="s27_buff_extra_chunks"> Activate Extra Chunks buff. Look around — your render distance should be further than before.</label>
+    <label><input type="checkbox" id="s27_buff_mob_loot"> Activate Mob Loot 5x buff. Kill a cow — you get 5x the normal drops.</label>
+    <label><input type="checkbox" id="s27_buff_persists_restart"> Activate a buff, restart the server. After logging back in, the buff is still active with time remaining.</label>
+    <label><input type="checkbox" id="s27_buff_expires"> Wait for a buff to expire (or set a short test duration). The buff effects stop and you get a message.</label>
+
+    <h3>Crate reward tables — 5 tiers</h3>
+    <label><input type="checkbox" id="s27_crate_star_opens"> Place a Star Crate with /spawncrate star. Use a Star Key on it — the reward animation plays and you get a reward.</label>
+    <label><input type="checkbox" id="s27_crate_cosmic_opens"> Same with Cosmic Crate — opens and gives a reward.</label>
+    <label><input type="checkbox" id="s27_crate_galaxy_opens"> Same with Galaxy Crate — opens and gives a reward.</label>
+    <label><input type="checkbox" id="s27_crate_celestial_opens"> Place a Celestial Crate with /spawncrate celestial — it spawns. Use a Celestial Key — reward animation plays.</label>
+    <label><input type="checkbox" id="s27_crate_universe_opens"> Place a Universe Crate with /spawncrate universe — it spawns. Use a Universe Key — reward animation plays.</label>
+    <label><input type="checkbox" id="s27_crate_givekey_all"> /givekey YourName star 1, then cosmic, galaxy, celestial, universe — all 5 key types appear in your inventory.</label>
+    <label><input type="checkbox" id="s27_crate_reward_variety"> Open 5+ Star Crates — you should see a variety of rewards (money, XP, items, not always the same one).</label>
+    <label><input type="checkbox" id="s27_crate_universe_big_rewards"> Open a Universe Crate — rewards should be high-tier ($750k+, 100k+ XP, netherite gear tickets, etc.).</label>
+    <label><input type="checkbox" id="s27_crate_buykey_redirect"> Type /buykey — you get a message saying "Use /starshop to buy crate keys!"</label>
+
+    <h3>Star Shop — 5 categories</h3>
+    <label><input type="checkbox" id="s27_starshop_opens"> Type /starshop — a GUI opens with 5 category items in a row.</label>
+    <label><input type="checkbox" id="s27_starshop_ranks"> Click the Ranks category — you see all premium ranks with their Star prices (all 100 Stars each).</label>
+    <label><input type="checkbox" id="s27_starshop_buy_rank"> Buy a rank from the Ranks page — your rank changes and Stars are deducted.</label>
+    <label><input type="checkbox" id="s27_starshop_rank_upgrade"> Click the Rank Upgrade category — you see the next rank above yours. Buy it — you only pay the difference.</label>
+    <label><input type="checkbox" id="s27_starshop_crate_keys"> Click the Crate Keys category — you see keys for Cosmic, Galaxy, Celestial, Universe with different quantities and prices.</label>
+    <label><input type="checkbox" id="s27_starshop_buy_key"> Buy a Cosmic Key pack from the shop — the keys appear in your inventory and Stars are deducted.</label>
+    <label><input type="checkbox" id="s27_starshop_protection"> Click the Protection Packages category — you see 7 protection sizes. Buy one — your home protection radius increases.</label>
+    <label><input type="checkbox" id="s27_starshop_buffs"> Click the Server Buffs category — you see all 13 buff types. Buy one — the buff activates.</label>
+    <label><input type="checkbox" id="s27_starshop_not_enough_stars"> Try buying something with not enough Stars — you get an error message and nothing happens.</label>
+
+    <h2>Border Shovel — Fly Zones</h2>
+
+    <h3>Getting the Border Shovel</h3>
+    <label><input type="checkbox" id="bs_give_self"> As OP, type /givebordershovel YourName — a netherite shovel called "Border Shovel" (gold bold text) appears in your inventory.</label>
+    <label><input type="checkbox" id="bs_give_other"> Type /givebordershovel AnotherPlayer — that player gets the shovel, you see a confirmation, they see an info message.</label>
+    <label><input type="checkbox" id="bs_give_noop"> As a non-OP player, type /givebordershovel — you get a "Only operators" error.</label>
+    <label><input type="checkbox" id="bs_give_noargs"> As OP, type /givebordershovel with no arguments — you see the usage message.</label>
+
+    <h3>Creating a fly zone</h3>
+    <label><input type="checkbox" id="bs_corner_a"> Hold the Border Shovel and right-click a block — you see "Corner A set at X, Y, Z. Right-click the opposite corner."</label>
+    <label><input type="checkbox" id="bs_corner_b"> Right-click a second block at a different Y level — you see "Fly border #N created! WxHxD blocks."</label>
+    <label><input type="checkbox" id="bs_3d_zone"> The created zone is 3D — it uses both Y coordinates (one from corner A, one from corner B) to define the vertical range.</label>
+    <label><input type="checkbox" id="bs_no_block_limit"> The shovel has no block limit — you can make the fly zone as large as you want.</label>
+
+    <h3>Managing borders</h3>
+    <label><input type="checkbox" id="bs_list"> Type /bordershovel list — you see all defined fly borders with their ID, world, and coordinates.</label>
+    <label><input type="checkbox" id="bs_list_empty"> With no borders, /bordershovel list says "No fly borders defined."</label>
+    <label><input type="checkbox" id="bs_delete"> Type /bordershovel delete 1 — the border is removed and you see a confirmation.</label>
+    <label><input type="checkbox" id="bs_delete_invalid"> Type /bordershovel delete 999 — you get "No border with ID #999 found!"</label>
+
+    <h3>Fly integration</h3>
+    <label><input type="checkbox" id="bs_fly_in_border"> Set your premium rank to 3 (Nebula). Go to survival, stand inside a fly border. Type /fly — flight enables.</label>
+    <label><input type="checkbox" id="bs_fly_leave_border"> While flying inside a border, walk/fly outside the border's 3D area — flight auto-disables with "Flight disabled in this area."</label>
+    <label><input type="checkbox" id="bs_fly_outside_border"> Stand outside any border in survival with rank 3. Type /fly — you get "You can only fly in the lobby or inside fly zones!"</label>
+    <label><input type="checkbox" id="bs_fly_lobby_unaffected"> In the lobby with rank 3, /fly still works regardless of borders.</label>
+    <label><input type="checkbox" id="bs_fly_rank5_unaffected"> Set rank to 5 (Galaxy). In survival, /fly works everywhere — borders don't restrict rank 5+.</label>
+
+    <h2>Crate Overhaul — Pasul 1: Crate Values + Ore Pack + Stars + Spawners</h2>
+
+    <h3>Star Crate</h3>
+    <label><input type="checkbox" id="co1_star_money"> Open a Star Crate — check that money rewards fall between $1,000 and $5,000 (not a fixed amount).</label>
+    <label><input type="checkbox" id="co1_star_xp"> Open a Star Crate — XP reward is between 250 and 1,000 XP.</label>
+    <label><input type="checkbox" id="co1_star_fly"> Open a Star Crate — Fly Voucher says "10 min" and works.</label>
+    <label><input type="checkbox" id="co1_star_protection"> Open a Star Crate — Protection Token says "+50 Blocks".</label>
+    <label><input type="checkbox" id="co1_star_booster"> Open a Star Crate — Booster multiplier is between 1.5x and 2.0x.</label>
+    <label><input type="checkbox" id="co1_star_enchant"> Open a Star Crate — Enchant book says "Stardust Enchant Book" with Common rarity.</label>
+    <label><input type="checkbox" id="co1_star_gear"> Open a Star Crate — Gear Ticket says "Star Gear Ticket" with Common rarity.</label>
+    <label><input type="checkbox" id="co1_star_ukey"> Open a Star Crate — Universe Key can drop (rare).</label>
+    <label><input type="checkbox" id="co1_star_preview"> Right-click the Star Crate without a key — preview shows all rewards with correct names and chances.</label>
+
+    <h3>Cosmic Crate</h3>
+    <label><input type="checkbox" id="co1_cosmic_money"> Open a Cosmic Crate — money reward between $5,000 and $10,000.</label>
+    <label><input type="checkbox" id="co1_cosmic_xp"> Open a Cosmic Crate — XP reward between 1,000 and 1,500.</label>
+    <label><input type="checkbox" id="co1_cosmic_fly"> Fly Voucher says "30 min".</label>
+    <label><input type="checkbox" id="co1_cosmic_protection"> Protection Token says "+100 Blocks".</label>
+    <label><input type="checkbox" id="co1_cosmic_booster"> Booster multiplier between 2.0x and 2.5x.</label>
+    <label><input type="checkbox" id="co1_cosmic_enchant"> Enchant book says "Starlight Enchant Book" with Uncommon rarity.</label>
+    <label><input type="checkbox" id="co1_cosmic_gear"> Gear Ticket says "Cosmic Gear Ticket" with Uncommon rarity.</label>
+    <label><input type="checkbox" id="co1_cosmic_ukey"> Universe Key can drop (epic rarity).</label>
+
+    <h3>Galaxy Crate</h3>
+    <label><input type="checkbox" id="co1_galaxy_money"> Open a Galaxy Crate — money reward between $15,000 and $25,000.</label>
+    <label><input type="checkbox" id="co1_galaxy_xp"> XP reward between 2,000 and 4,000.</label>
+    <label><input type="checkbox" id="co1_galaxy_fly"> Fly Voucher says "45 min".</label>
+    <label><input type="checkbox" id="co1_galaxy_protection"> Protection Token says "+150 Blocks".</label>
+    <label><input type="checkbox" id="co1_galaxy_booster"> Booster multiplier between 2.5x and 3.0x.</label>
+    <label><input type="checkbox" id="co1_galaxy_ore"> Ore Pack reward gives 15x of a random ore (coal, iron, copper, gold, lapis, redstone, diamond, emerald, amethyst, or quartz).</label>
+    <label><input type="checkbox" id="co1_galaxy_enchant"> Enchant book says "Starborn Enchant Book" with Rare rarity.</label>
+    <label><input type="checkbox" id="co1_galaxy_gear"> Gear Ticket says "Galaxy Gear Ticket" with Rare rarity.</label>
+
+    <h3>Celestial Crate</h3>
+    <label><input type="checkbox" id="co1_celestial_money"> Open a Celestial Crate — money reward between $30,000 and $50,000.</label>
+    <label><input type="checkbox" id="co1_celestial_xp"> XP reward between 5,000 and 10,000.</label>
+    <label><input type="checkbox" id="co1_celestial_fly"> Fly Voucher says "1h".</label>
+    <label><input type="checkbox" id="co1_celestial_protection"> Protection Token says "+250 Blocks".</label>
+    <label><input type="checkbox" id="co1_celestial_booster"> Booster multiplier between 3.0x and 3.5x.</label>
+    <label><input type="checkbox" id="co1_celestial_ore"> Ore Pack gives 32x of a random ore.</label>
+    <label><input type="checkbox" id="co1_celestial_vspawner"> Random Virtual Spawner drops — you get a spawner item (from the virtual spawner list) in your inventory.</label>
+    <label><input type="checkbox" id="co1_celestial_enchant"> Enchant book says "Stellar Enchant Book" with Epic rarity.</label>
+    <label><input type="checkbox" id="co1_celestial_gear"> Gear Ticket says "Celestial Gear Ticket" with Epic rarity.</label>
+
+    <h3>Universe Crate</h3>
+    <label><input type="checkbox" id="co1_universe_money"> Open a Universe Crate — money reward between $75,000 and $100,000.</label>
+    <label><input type="checkbox" id="co1_universe_xp"> XP reward between 10,000 and 20,000.</label>
+    <label><input type="checkbox" id="co1_universe_fly"> Fly Voucher says "2h".</label>
+    <label><input type="checkbox" id="co1_universe_protection"> Protection Token says "+500 Blocks".</label>
+    <label><input type="checkbox" id="co1_universe_booster"> Booster multiplier between 4.0x and 5.0x.</label>
+    <label><input type="checkbox" id="co1_universe_ore"> Ore Pack gives 64x of a random ore.</label>
+    <label><input type="checkbox" id="co1_universe_stars"> Stars Pack reward gives 10 stars — check /stars balance goes up by 10.</label>
+    <label><input type="checkbox" id="co1_universe_pspawner"> Random Mob Spawner drops — you get a vanilla mob spawner item (Zombie, Skeleton, Spider, Creeper, Enderman, Blaze, Iron Golem, Witch, Guardian, or Piglin). Place it and verify it spawns the correct mob.</label>
+    <label><input type="checkbox" id="co1_universe_enchant"> Enchant book says "Celestial Enchant Book" with Legendary rarity.</label>
+    <label><input type="checkbox" id="co1_universe_gear"> Gear Ticket says "Universe Gear Ticket" with Legendary rarity.</label>
+    <label><input type="checkbox" id="co1_universe_broadcast"> Get a Legendary reward — all other players see a broadcast message about it.</label>
+
     <script>
         function updateProgress() {
             var boxes = document.querySelectorAll('input[type="checkbox"]');
@@ -2130,6 +2350,56 @@
             document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
                 cb.addEventListener('change', updateProgress);
             });
+        })();
+    </script>
+
+    <h2>Crate Overhaul — Pasul 2: Booster Refactor (5 tipuri)</h2>
+    <div class="phase-section">
+
+    <h3>BoosterType Enum (5 types)</h3>
+    <label><input type="checkbox" id="co2_type_name"> Open a crate that gives a booster — check that the item name shows a specific booster type (e.g. "Vanilla XP Booster 2.0x" or "Job Money Booster 1.5x").</label>
+    <label><input type="checkbox" id="co2_type_random"> Open multiple crates — confirm the booster type is random each time (you should see different types).</label>
+    <label><input type="checkbox" id="co2_type_lore"> Check the booster item lore shows the description (e.g. "Boosts all vanilla XP gains").</label>
+
+    <h3>Booster Activation</h3>
+    <label><input type="checkbox" id="co2_activate"> Right-click a booster item — confirm you get the activation message with the type name, multiplier, and duration.</label>
+    <label><input type="checkbox" id="co2_weaker_reject"> Try to activate a weaker booster of the same type while a stronger one is active — confirm you get an error.</label>
+    <label><input type="checkbox" id="co2_multi_type"> Activate two different booster types — confirm both are active at the same time.</label>
+    <label><input type="checkbox" id="co2_expire"> Wait for a booster to expire (or use a short-duration test one) — confirm you get the expiration message.</label>
+
+    <h3>Booster Persistence (DB)</h3>
+    <label><input type="checkbox" id="co2_persist_relog"> Activate a booster, disconnect, reconnect — confirm the booster is still active after relog.</label>
+    <label><input type="checkbox" id="co2_persist_db"> Check the database table su_boosters has your active booster entries.</label>
+
+    <h3>Integration — Job Money Booster (MONEY_JOB)</h3>
+    <label><input type="checkbox" id="co2_money_job_on"> Activate a Job Money Booster, mine some ores — confirm you earn more money than normal from jobs.</label>
+    <label><input type="checkbox" id="co2_money_job_off"> Deactivate (let it expire), mine again — confirm money returns to normal.</label>
+
+    <h3>Integration — Job XP Booster (XP_JOB)</h3>
+    <label><input type="checkbox" id="co2_xp_job"> Activate a Job XP Booster, do job actions — confirm your job levels up faster.</label>
+
+    <h3>Integration — Vanilla XP Booster (XP_VANILLA)</h3>
+    <label><input type="checkbox" id="co2_xp_vanilla"> Activate a Vanilla XP Booster, kill a mob or mine with XP — confirm you get more XP orbs than usual.</label>
+
+    <h3>Integration — Auction House Booster (AH_MULTIPLIER)</h3>
+    <label><input type="checkbox" id="co2_ah_seller"> Activate an AH Booster, have someone buy your listing — confirm you receive boosted money.</label>
+    <label><input type="checkbox" id="co2_ah_buyer"> Confirm the buyer pays the normal price (not boosted).</label>
+
+    <h3>Admin Command</h3>
+    <label><input type="checkbox" id="co2_agive_typed"> Use /agive &lt;player&gt; booster 3.0 15 MONEY_JOB — confirm you get a "Job Money Booster 3.0x (15 min)" item.</label>
+    <label><input type="checkbox" id="co2_agive_default"> Use /agive &lt;player&gt; booster 2.0 10 — confirm it defaults to Vanilla XP Booster.</label>
+
+    <h3>Old Booster Backwards Compatibility</h3>
+    <label><input type="checkbox" id="co2_old_compat"> If you had old booster items in inventory from before the update, right-click them — confirm they still activate (mapped to XP_VANILLA or MONEY_JOB).</label>
+
+    </div>
+
+    <script>
+        (function() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
+                cb.addEventListener('change', updateProgress);
+            });
+            updateProgress();
         })();
     </script>
 </body>

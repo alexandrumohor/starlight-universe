@@ -46,6 +46,7 @@ public class HomeListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        homeManager.cancelSelection(player.getUniqueId());
         homeManager.unloadPlayer(player.getName());
         homeManager.endAddMemberMode(player.getUniqueId());
     }
@@ -62,7 +63,12 @@ public class HomeListener implements Listener {
         if (block == null) return;
 
         event.setCancelled(true);
-        homeManager.createProtection(player, block.getLocation());
+
+        if (!homeManager.hasCornerA(player.getUniqueId())) {
+            homeManager.setCornerA(player, block.getLocation());
+        } else {
+            homeManager.tryCreateProtection(player, block.getLocation());
+        }
     }
 
     // ==================== BLOCK PROTECTION ====================
@@ -77,6 +83,11 @@ public class HomeListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
+        if (!homeManager.canPlaceInHomeSpawnColumn(event.getPlayer(), event.getBlock().getLocation())) {
+            Msg.error(event.getPlayer(), "You cannot place a block over a home spawn!");
+            event.setCancelled(true);
+            return;
+        }
         if (!homeManager.canBuild(event.getPlayer(), event.getBlock().getLocation())) {
             Msg.error(event.getPlayer(), "You can't place blocks in this protected area!");
             event.setCancelled(true);
@@ -518,16 +529,20 @@ public class HomeListener implements Listener {
 
     private void handleExpandClick(InventoryClickEvent event, Player player, HomeHolder holder) {
         int slot = event.getRawSlot();
-        int protId = holder.getProtectionId();
-        String currency = switch (slot) {
-            case 1 -> "money";
-            case 4 -> "gems";
-            case 7 -> "stars";
-            default -> null;
+        int index = switch (slot) {
+            case 10 -> 0;
+            case 12 -> 1;
+            case 14 -> 2;
+            case 16 -> 3;
+            default -> -1;
         };
-        if (currency != null) {
+        if (index >= 0) {
             player.closeInventory();
-            homeManager.expandProtection(player, protId, currency);
+            homeManager.purchaseBlocks(player, index);
+        }
+        if (slot == 22) {
+            player.closeInventory();
+            homeManager.openProtectGui(player);
         }
     }
 

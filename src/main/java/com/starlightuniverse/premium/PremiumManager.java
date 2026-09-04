@@ -255,7 +255,7 @@ public class PremiumManager {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     if (player.isOnline()) {
                         economy.addMoney(uuid, bonus);
-                        Msg.success(player, "Daily bonus: $" + EconomyManager.format(bonus) + "!");
+                        Msg.success(player, "Daily bonus: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(bonus) + "!");
                     }
                 });
             }
@@ -472,10 +472,10 @@ public class PremiumManager {
         int currentLevel = adminManager.getPremiumLevel(player.getUniqueId());
 
         PremiumRank[] ranks = {PremiumRank.METEOR, PremiumRank.COMET, PremiumRank.NEBULA,
-                PremiumRank.SUPERNOVA, PremiumRank.GALAXY};
+                PremiumRank.SUPERNOVA, PremiumRank.GALAXY, PremiumRank.UNIVERSE};
         Material[] icons = {Material.IRON_INGOT, Material.DIAMOND, Material.AMETHYST_SHARD,
-                Material.GOLD_INGOT, Material.NETHER_STAR};
-        int[] slots = {2, 4, 6, 10, 14};
+                Material.GOLD_INGOT, Material.NETHER_STAR, Material.END_CRYSTAL};
+        int[] slots = {1, 3, 5, 7, 10, 16};
 
         for (int i = 0; i < ranks.length; i++) {
             PremiumRank rank = ranks[i];
@@ -493,14 +493,15 @@ public class PremiumManager {
                         " Gems", CYAN).decoration(TextDecoration.ITALIC, false));
             }
             lore.add(Component.empty());
-            lore.add(Component.text("Homes: " + rank.getMaxHomes() + " | Protect: " +
-                    rank.getMaxProtectionRadius(), GRAY).decoration(TextDecoration.ITALIC, false));
+            String homesStr = rank.getMaxHomes() < 0 ? "Unlimited" : String.valueOf(rank.getMaxHomes());
+            lore.add(Component.text("Homes: " + homesStr + " | Blocks: " +
+                    String.format("%,d", rank.getMaxProtectionBlocks()), GRAY).decoration(TextDecoration.ITALIC, false));
             lore.add(Component.text("Keep XP: " + rank.getKeepXpPercent() + "% | Cooldown: " +
                     rank.getCooldownSeconds() + "s", GRAY).decoration(TextDecoration.ITALIC, false));
             lore.add(Component.text("XP Boost: " + rank.getXpBoost() + "x | Mob Money: +" +
                     rank.getMobKillMoneyBonus() + "%", GRAY).decoration(TextDecoration.ITALIC, false));
             if (rank.getDailyBonus() > 0)
-                lore.add(Component.text("Daily: $" + EconomyManager.format(rank.getDailyBonus()), GRAY)
+                lore.add(Component.text("Daily: " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(rank.getDailyBonus()), GRAY)
                         .decoration(TextDecoration.ITALIC, false));
             if (rank.getMonthlyStars() > 0)
                 lore.add(Component.text("Monthly: " + EconomyManager.STARS_ICON + rank.getMonthlyStars(), GRAY)

@@ -84,4 +84,18 @@ public class AntiCheatCommand extends Command {
         }
         return true;
     }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, String alias, String[] args) {
+        if (args.length == 1) {
+            return List.of("check", "history", "clear").stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase())).toList();
+        }
+        if (args.length == 2) {
+            String pfx = args[1].toLowerCase();
+            return Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                    .filter(n -> n.toLowerCase().startsWith(pfx)).toList();
+        }
+        return List.of();
+    }
 }

@@ -1,5 +1,6 @@
 package com.starlightuniverse.nameplate;
 
+import com.starlightuniverse.StarlightUniverse;
 import com.starlightuniverse.admin.AdminManager;
 import com.starlightuniverse.admin.AdminRank;
 import com.starlightuniverse.benefit.BenefitManager;
@@ -42,15 +43,29 @@ public class NameplateManager {
     private static final TextColor PURPLE = TextColor.color(0xAA00AA);
     private static final TextColor WHITE = TextColor.color(0xFFFFFF);
 
-    private static final float VIEW_RANGE = 0.5f;
+    // Spec colors for currency + kills/deaths line
+    private static final TextColor MONEY_COLOR  = TextColor.color(0xFFFF00);
+    private static final TextColor GEMS_COLOR   = TextColor.color(0x9900CC);
+    private static final TextColor STARS_COLOR  = TextColor.color(0xFFF5A0);
+    private static final TextColor PVP_COLOR    = TextColor.color(0xFF944D);
+    private static final TextColor PVM_COLOR    = TextColor.color(0xFF8080);
+    private static final TextColor DEATHS_COLOR = TextColor.color(0xFF0000);
+
+    private static final float VIEW_RANGE = 1.5f;
     private static final long BUBBLE_DURATION_MS = 8000L;
-    private static final long UPDATE_TICKS = 4L;
+    private static final long UPDATE_TICKS = 1L;
     private static final int SIMPLE_MODE_NEARBY = 30;
     private static final double NEARBY_RADIUS_SQ = 48 * 48;
 
-    private static final double TEAM_OFFSET_Y = 2.30;
-    private static final double BUBBLE_OFFSET_Y = 2.65;
-    private static final double CURRENCY_OFFSET_Y = 0.30;
+    // Compact 4-line stack just above the head. Vanilla nametag is suppressed.
+    // Order top → bottom:  Team → Name+prefix → Currency → Bubble
+    // Values are Transformation.translation Y — display is a player passenger,
+    // Bukkit adds a ~1.62 wu "seat" offset on top of these. Text scale is 0.65
+    // (smaller than the default 0.9), so line gaps of ~0.22 wu keep the stack tight.
+    private static final float TEAM_OFFSET_Y     = 0.70f;
+    private static final float NAME_OFFSET_Y     = 0.54f;
+    private static final float CURRENCY_OFFSET_Y = 0.38f;
+    private static final float BUBBLE_OFFSET_Y   = 0.22f;
 
     private final JavaPlugin plugin;
     private final ChatManager chatManager;
@@ -87,52 +102,164 @@ public class NameplateManager {
 
     public void spawnFor(Player player) {
         UUID uuid = player.getUniqueId();
-        removeFor(player);
-
         Location base = player.getLocation();
         World world = base.getWorld();
         if (world == null) return;
 
+        // Idempotent: if displays already exist in the same world, skip full
+        // respawn (which would flash a fresh set on screen). Just re-mount.
+        Nameplate existing = plates.get(uuid);
+        if (existing != null
+                && existing.teamDisplay != null && existing.teamDisplay.isValid()
+                && existing.nameDisplay != null && existing.nameDisplay.isValid()
+                && existing.bubbleDisplay != null && existing.bubbleDisplay.isValid()
+                && existing.currencyDisplay != null && existing.currencyDisplay.isValid()
+                && world.equals(existing.teamDisplay.getWorld())) {
+            ensureMounted(player, existing.teamDisplay);
+            ensureMounted(player, existing.nameDisplay);
+            ensureMounted(player, existing.bubbleDisplay);
+            ensureMounted(player, existing.currencyDisplay);
+            updateTextDisplays(player, existing);
+            return;
+        }
+
+        removeFor(player);
+
         TextDisplay teamDisp = spawnDisplay(world, base, TEAM_OFFSET_Y);
+        TextDisplay nameDisp = spawnDisplay(world, base, NAME_OFFSET_Y);
         TextDisplay bubbleDisp = spawnDisplay(world, base, BUBBLE_OFFSET_Y);
         TextDisplay currencyDisp = spawnDisplay(world, base, CURRENCY_OFFSET_Y);
 
         Nameplate np = new Nameplate();
         np.teamDisplay = teamDisp;
+        np.nameDisplay = nameDisp;
         np.bubbleDisplay = bubbleDisp;
         np.currencyDisplay = currencyDisp;
         plates.put(uuid, np);
+
+        // Mount all four displays as passengers so they follow the player 1:1
+        // with zero lag. Y position lives in each display's Transformation.translation.
+        mount(player, teamDisp);
+        mount(player, nameDisp);
+        mount(player, bubbleDisp);
+        mount(player, currencyDisp);
 
         ensureNameplateTeam(player);
         refreshTeamPrefix(player);
         updateTextDisplays(player, np);
     }
 
-    private TextDisplay spawnDisplay(World world, Location loc, double yOffset) {
-        Location spawn = loc.clone().add(0, yOffset, 0);
-        return world.spawn(spawn, TextDisplay.class, td -> {
-            td.setBillboard(Display.Billboard.CENTER);
-            td.setViewRange(VIEW_RANGE);
-            td.setSeeThrough(true);
-            td.setPersistent(false);
-            td.setInvulnerable(true);
-            td.setShadowed(false);
-            td.setDefaultBackground(false);
-            td.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
-            td.setAlignment(TextDisplay.TextAlignment.CENTER);
-            td.setTransformation(new Transformation(
-                    new Vector3f(0f, 0f, 0f),
+    private TextDisplay spawnDisplay(World world, Location loc, float yOffset) {
+        // Pre-mount render height = spawn.y + translation.y.
+        // Post-mount render height = vehicle.y + seat(1.62) + translation.y.
+        // Spawning at player.y + 1.62 makes both equal → no visible fall on mount.
+        Location spawnLoc = loc.clone().add(0, 1.62, 0);
+        TextDisplay td = world.spawn(spawnLoc, TextDisplay.class, d -> {
+            d.setBillboard(Display.Billboard.CENTER);
+            d.setViewRange(VIEW_RANGE);
+            d.setSeeThrough(true);
+            d.setBrightness(new Display.Brightness(15, 15));
+            d.setPersistent(false);
+            d.setInvulnerable(true);
+            d.setShadowed(false);
+            d.setDefaultBackground(false);
+            d.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
+            d.setAlignment(TextDisplay.TextAlignment.CENTER);
+            d.setLineWidth(2000);
+            // Zero-out ALL interpolation knobs so any position change is instant.
+            d.setInterpolationDuration(0);
+            d.setInterpolationDelay(0);
+            d.setTeleportDuration(0);
+            // Set the translation transformation immediately (before spawn packet
+            // reaches clients — the consumer runs pre-broadcast).
+            d.setTransformation(new Transformation(
+                    new Vector3f(0f, yOffset, 0f),
                     new AxisAngle4f(0f, 0f, 0f, 1f),
-                    new Vector3f(0.9f, 0.9f, 0.9f),
+                    new Vector3f(0.49f, 0.49f, 0.49f),
                     new AxisAngle4f(0f, 0f, 0f, 1f)));
-            td.text(Component.empty());
+            d.text(Component.empty());
         });
+        // Re-assert zero interpolation after spawn just to be safe — some Paper
+        // versions apply a 1-tick default interpolation window on entity creation.
+        td.setInterpolationDuration(0);
+        td.setInterpolationDelay(0);
+        td.setTeleportDuration(0);
+        return td;
+    }
+
+    private void mount(Player player, TextDisplay td) {
+        if (td == null || !td.isValid()) return;
+        try {
+            boolean ok = player.addPassenger(td);
+            if (!ok) {
+                plugin.getLogger().warning("[SU][nameplate] addPassenger returned false for "
+                        + player.getName() + " — display will float free at spawn position.");
+            }
+            td.setInterpolationDuration(0);
+            td.setInterpolationDelay(0);
+            td.setTeleportDuration(0);
+        } catch (Throwable t) {
+            plugin.getLogger().warning("[SU][nameplate] addPassenger threw for "
+                    + player.getName() + ": " + t.getMessage());
+        }
+    }
+
+    private void ensureMounted(Player player, TextDisplay td) {
+        if (td == null || !td.isValid()) return;
+        if (!player.getPassengers().contains(td)) {
+            try { player.addPassenger(td); } catch (Throwable ignored) {}
+        }
+    }
+
+    /**
+     * Prefer passenger mount, but fall back to manual teleport if it can't
+     * attach. Guarantees the text always follows the player, no matter what.
+     */
+    private void followOrTeleport(Player player, TextDisplay td, float yOffset) {
+        if (td == null || !td.isValid()) return;
+        if (player.getPassengers().contains(td)) return;
+        try { player.addPassenger(td); } catch (Throwable ignored) {}
+        if (!player.getPassengers().contains(td)) {
+            // Mount failed — manually teleport display to just above the player.
+            // 1.62 wu matches the seat offset the passenger version would use.
+            org.bukkit.Location target = player.getLocation().add(0, 1.62 + yOffset, 0);
+            target.setYaw(0f);
+            target.setPitch(0f);
+            if (!td.getWorld().equals(player.getWorld())
+                    || td.getLocation().distanceSquared(target) > 0.001) {
+                td.teleport(target);
+            }
+        }
+    }
+
+    /**
+     * Force-remount the four displays as passengers of the player. This
+     * triggers Minecraft's SetPassengers packet to every client that tracks
+     * the player, so a newly-joined observer whose entity tracker missed the
+     * original mount will now receive fresh passenger data and render the
+     * nameplate.
+     */
+    public void remount(Player player) {
+        Nameplate np = plates.get(player.getUniqueId());
+        if (np == null) return;
+        for (TextDisplay td : new TextDisplay[]{np.teamDisplay, np.nameDisplay,
+                np.currencyDisplay, np.bubbleDisplay}) {
+            if (td == null || !td.isValid()) continue;
+            try {
+                player.removePassenger(td);
+                player.addPassenger(td);
+                td.setInterpolationDuration(0);
+                td.setInterpolationDelay(0);
+                td.setTeleportDuration(0);
+            } catch (Throwable ignored) {}
+        }
     }
 
     public void removeFor(Player player) {
         Nameplate np = plates.remove(player.getUniqueId());
         if (np != null) {
             if (np.teamDisplay != null && np.teamDisplay.isValid()) np.teamDisplay.remove();
+            if (np.nameDisplay != null && np.nameDisplay.isValid()) np.nameDisplay.remove();
             if (np.bubbleDisplay != null && np.bubbleDisplay.isValid()) np.bubbleDisplay.remove();
             if (np.currencyDisplay != null && np.currencyDisplay.isValid()) np.currencyDisplay.remove();
         }
@@ -200,6 +327,8 @@ public class NameplateManager {
         if (team == null) {
             team = sb.registerNewTeam(name);
         }
+        // Hide vanilla name tag — our TextDisplay handles the name row.
+        team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
         for (Team t : sb.getTeams()) {
             if (t == team) continue;
             if (t.hasEntry(player.getName())) t.removeEntry(player.getName());
@@ -237,9 +366,13 @@ public class NameplateManager {
         int nearby = countNearbyPlayers(player);
         boolean simple = nearby >= SIMPLE_MODE_NEARBY;
 
-        moveDisplay(np.teamDisplay, base, TEAM_OFFSET_Y);
-        moveDisplay(np.bubbleDisplay, base, BUBBLE_OFFSET_Y);
-        moveDisplay(np.currencyDisplay, base, CURRENCY_OFFSET_Y);
+        // Passenger keeps them glued to the player — just re-mount if detached
+        // (world change, respawn, etc.). If passenger add keeps failing, fall
+        // back to manual per-tick teleport so text still follows the player.
+        followOrTeleport(player, np.teamDisplay, TEAM_OFFSET_Y);
+        followOrTeleport(player, np.nameDisplay, NAME_OFFSET_Y);
+        followOrTeleport(player, np.bubbleDisplay, BUBBLE_OFFSET_Y);
+        followOrTeleport(player, np.currencyDisplay, CURRENCY_OFFSET_Y);
 
         Component teamText;
         if (simple) {
@@ -247,21 +380,55 @@ public class NameplateManager {
         } else {
             com.starlightuniverse.team.Team team = teamManager.getPlayerTeam(player.getUniqueId());
             if (team != null) {
-                teamText = Component.text("[", GRAY)
+                TextColor bracketColor = WHITE;
+                try {
+                    if (team.getColors() != null && !team.getColors().isEmpty()) {
+                        TextColor c = TextColor.fromHexString(team.getColors().get(0));
+                        if (c != null) bracketColor = c;
+                    }
+                } catch (Exception ignored) {}
+                com.starlightuniverse.team.TeamRank rank = team.getMemberRank(player.getName());
+                Component rankSuffix = rank != null
+                        ? Component.text(" - " + rank.getDisplayName(), bracketColor)
+                        : Component.empty();
+                teamText = Component.text("[", bracketColor)
                         .append(teamManager.buildGradientName(team.getName(), team.getColors()))
-                        .append(Component.text("]", GRAY));
+                        .append(rankSuffix)
+                        .append(Component.text("]", bracketColor));
             } else {
                 teamText = Component.empty();
             }
         }
         if (np.teamDisplay.isValid()) np.teamDisplay.text(teamText);
 
+        // Name line: [Admin] [Premium/Tag] PlayerName. Visually center the NAME (not the
+        // whole line) so it sits under the team block regardless of how wide the prefix is.
+        // We shift the visual center by padding the right side with as many pixels of
+        // spacing font glyphs as the prefix is wide (measured in default-font pixels).
+        Component nameText;
+        if (simple) {
+            nameText = Component.text(player.getName(), WHITE);
+        } else {
+            Component prefix = buildInlinePrefix(player);
+            String prefixPlain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+                    .plainText().serialize(prefix);
+            TextColor nameColor = resolveNameColor(player);
+            int prefixPixels = textPixelWidth(prefixPlain);
+            String pad = positiveSpacing(prefixPixels);
+            nameText = Component.text()
+                    .append(prefix)
+                    .append(Component.text(player.getName(), nameColor))
+                    .append(Component.text(pad, WHITE))
+                    .build();
+        }
+        if (np.nameDisplay.isValid()) np.nameDisplay.text(nameText);
+
         long now = System.currentTimeMillis();
         Component bubbleText;
         if (np.bubbleMessage != null && now < np.bubbleExpireMs) {
             String msg = np.bubbleMessage;
             if (msg.length() > 60) msg = msg.substring(0, 57) + "...";
-            bubbleText = Component.text("< " + msg + " >", WHITE);
+            bubbleText = Component.text(msg, WHITE);
         } else {
             bubbleText = Component.empty();
             np.bubbleMessage = null;
@@ -276,19 +443,80 @@ public class NameplateManager {
             int money = (int) economy.getMoney(uuid);
             int gems = (int) economy.getGems(uuid);
             int stars = (int) economy.getStars(uuid);
-            int kills = 0;
-            int deaths = 0;
-            currencyText = Component.text("$" + EconomyManager.format(money), GREEN)
-                    .append(Component.text(" | ", GRAY))
-                    .append(Component.text(EconomyManager.GEMS_ICON + EconomyManager.format(gems), CYAN))
-                    .append(Component.text(" | ", GRAY))
-                    .append(Component.text(EconomyManager.STARS_ICON + EconomyManager.format(stars), YELLOW))
-                    .append(Component.text(" | ", GRAY))
-                    .append(Component.text("⚔" + kills, RED))
-                    .append(Component.text(" | ", GRAY))
-                    .append(Component.text("☠" + deaths, PURPLE));
+            int[] stats = readStats(uuid);
+            int pvpKills = stats[0];
+            int pvmKills = stats[1];
+            int deaths = stats[2];
+
+            currencyText = Component.text()
+                    .append(icon(com.starlightuniverse.scoreboard.ScoreboardManager.ICON_MONEY))
+                    .append(Component.text(EconomyManager.format(money), MONEY_COLOR))
+                    .append(sep())
+                    .append(icon(com.starlightuniverse.scoreboard.ScoreboardManager.ICON_GEMS))
+                    .append(Component.text(EconomyManager.format(gems), GEMS_COLOR))
+                    .append(sep())
+                    .append(icon(com.starlightuniverse.scoreboard.ScoreboardManager.ICON_STARS))
+                    .append(Component.text(EconomyManager.format(stars), STARS_COLOR))
+                    .append(sep())
+                    .append(icon(com.starlightuniverse.scoreboard.ScoreboardManager.ICON_PVP))
+                    .append(Component.text(String.valueOf(pvpKills), PVP_COLOR))
+                    .append(sep())
+                    .append(icon(com.starlightuniverse.scoreboard.ScoreboardManager.ICON_PVM))
+                    .append(Component.text(String.valueOf(pvmKills), PVM_COLOR))
+                    .append(sep())
+                    .append(icon(com.starlightuniverse.scoreboard.ScoreboardManager.ICON_DEATHS))
+                    .append(Component.text(String.valueOf(deaths), DEATHS_COLOR))
+                    .build();
         }
         if (np.currencyDisplay.isValid()) np.currencyDisplay.text(currencyText);
+    }
+
+    private static Component icon(String glyph) {
+        return Component.text(glyph, WHITE);
+    }
+
+    private static Component sep() {
+        return Component.text(" | ", GRAY);
+    }
+
+    private static int textPixelWidth(String s) {
+        int w = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if ("!.,;:'|iIl".indexOf(c) >= 0) w += 2;
+            else if (c == ' ') w += 4;
+            else if ("()[]{}\"tf".indexOf(c) >= 0) w += 4;
+            else if ("MW@~".indexOf(c) >= 0) w += 7;
+            else w += 6;
+        }
+        return w;
+    }
+
+    // Positive spacing glyphs defined in resourcepack/assets/minecraft/font/default.json
+    private static String positiveSpacing(int pixels) {
+        // Greedy decompose using widths 128, 64, 32, 16, 8, 4, 2, 1 → chars  … 
+        int[] widths = {128, 64, 32, 16, 8, 4, 2, 1};
+        char[] chars = {'', '', '', '', '', '', '', ''};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < widths.length && pixels > 0; i++) {
+            while (pixels >= widths[i]) { sb.append(chars[i]); pixels -= widths[i]; }
+        }
+        return sb.toString();
+    }
+
+    private TextColor resolveNameColor(Player player) {
+        String hex = chatManager.getNameColor(player.getUniqueId());
+        if (hex != null) {
+            TextColor c = TextColor.fromHexString(hex);
+            if (c != null) return c;
+        }
+        return WHITE;
+    }
+
+    private int[] readStats(UUID uuid) {
+        var sbMgr = StarlightUniverse.getInstance().getScoreboardManager();
+        if (sbMgr != null) return sbMgr.getStatsFor(uuid);
+        return new int[]{0, 0, 0};
     }
 
     private void moveDisplay(TextDisplay td, Location base, double yOffset) {
@@ -319,6 +547,7 @@ public class NameplateManager {
 
     private static class Nameplate {
         TextDisplay teamDisplay;
+        TextDisplay nameDisplay;
         TextDisplay bubbleDisplay;
         TextDisplay currencyDisplay;
         String bubbleMessage;

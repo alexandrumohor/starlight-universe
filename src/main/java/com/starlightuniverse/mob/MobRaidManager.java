@@ -401,7 +401,7 @@ public class MobRaidManager {
                 .append(Component.text(" has appeared at the arena center!", GRAY));
         Component smithLine2 = Msg.prefix()
                 .append(Component.text("Right-click him to fully repair ALL your gear for ", GRAY))
-                .append(Component.text("$" + EconomyManager.format(REPAIR_COST), GREEN, TextDecoration.BOLD))
+                .append(Component.text(EconomyManager.MONEY_ICON + " $" + EconomyManager.format(REPAIR_COST), GREEN, TextDecoration.BOLD))
                 .append(Component.text(".", GRAY));
         Component smithLine3 = Msg.prefix()
                 .append(Component.text("He disappears when the next wave starts — use him before then!", YELLOW));
@@ -441,7 +441,7 @@ public class MobRaidManager {
             if (p != null && p.isOnline()) {
                 Component line = Msg.prefix()
                         .append(Component.text("Wave " + wave + " reward: ", GRAY))
-                        .append(Component.text("$" + EconomyManager.format(money), GREEN))
+                        .append(Component.text(EconomyManager.MONEY_ICON + " $" + EconomyManager.format(money), GREEN))
                         .append(Component.text("  ◆" + gems, CYAN));
                 if (stars > 0) {
                     line = line.append(Component.text("  ★" + stars, PURPLE));
@@ -601,7 +601,7 @@ public class MobRaidManager {
 
     public void tryRepairAll(Player player) {
         if (!economy.hasMoney(player.getUniqueId(), REPAIR_COST)) {
-            Msg.error(player, "Repair costs $" + EconomyManager.format(REPAIR_COST) + " — insufficient funds.");
+            Msg.error(player, "Repair costs " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(REPAIR_COST) + " — insufficient funds.");
             return;
         }
         boolean anyRepaired = false;
@@ -630,7 +630,7 @@ public class MobRaidManager {
             return;
         }
         economy.removeMoney(player.getUniqueId(), REPAIR_COST);
-        Msg.success(player, "All gear repaired for $" + EconomyManager.format(REPAIR_COST) + "!");
+        Msg.success(player, "All gear repaired for " + EconomyManager.MONEY_ICON + " $" + EconomyManager.format(REPAIR_COST) + "!");
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 1.0f);
     }
 

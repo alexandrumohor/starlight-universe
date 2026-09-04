@@ -4,6 +4,7 @@ import com.starlightuniverse.admin.AdminManager;
 import com.starlightuniverse.economy.EconomyManager;
 import com.starlightuniverse.util.Msg;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -282,7 +283,8 @@ public class PWarpListener implements Listener {
                 } else {
                     double delta = event.isShiftClick() ? 1_000 : 100;
                     pm.setEntryCost(w, cost + delta);
-                    Msg.info(player, "Entry cost: $" + EconomyManager.format(w.getEntryCost()));
+                    Msg.info(player, Component.text("Entry cost: ")
+                            .append(EconomyManager.moneyText(w.getEntryCost())));
                 }
             }
             case 40 -> {
