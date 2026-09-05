@@ -2544,6 +2544,64 @@
     <label><input type="checkbox" id="co5_crate_universe_buff"> Open Universe Crates until you win a Random Buff. Confirm it activates with a 1-hour duration message.</label>
     <label><input type="checkbox" id="co5_crate_universe_tool"> Open Universe Crates until you win a Random Universe Tool. Confirm you receive one of the 4 tools (Pickaxe, Axe, Shovel, or Hoe) in your inventory.</label>
 
+    <!-- ===== Crate Overhaul Step 6 — ChestShop Core ===== -->
+    <h2>Crate Overhaul Step 6 — ChestShop Core</h2>
+
+    <h3>Shop Creation</h3>
+    <label><input type="checkbox" id="co6_create_basic"> Put some diamonds in a chest. Type <code>/chestshop create 100 BUY</code>. Confirm you see "Right-click on the desired chest to create the shop."</label>
+    <label><input type="checkbox" id="co6_create_click"> Right-click on the chest. Confirm a sign appears on one face of the chest showing the item name, stock count, price ($100 each), and your username.</label>
+    <label><input type="checkbox" id="co6_create_sound"> Confirm you hear a level-up sound and see a success message with the item name and price.</label>
+    <label><input type="checkbox" id="co6_create_empty"> Try <code>/chestshop create 50 BUY</code> then right-click an empty chest. Confirm you get an error saying the chest is empty.</label>
+    <label><input type="checkbox" id="co6_create_duplicate"> Try creating a second shop on the same chest. Confirm you get an error saying it already has a shop.</label>
+    <label><input type="checkbox" id="co6_create_sell"> Put some cobblestone in a chest. Type <code>/chestshop create 10 SELL</code>, right-click the chest. Confirm sign shows [SELL] instead of [BUY].</label>
+
+    <h3>Sign Display</h3>
+    <label><input type="checkbox" id="co6_sign_short_name"> Create a shop with a short item name (e.g., Diamond). Confirm the sign line 1 shows "Diamond" in gold without scrolling.</label>
+    <label><input type="checkbox" id="co6_sign_long_name"> Create a shop with a long item name (e.g., Enchanted Golden Apple). Confirm the sign line 1 scrolls the text every half second (marquee animation).</label>
+    <label><input type="checkbox" id="co6_sign_stock"> Confirm the sign line 2 shows the correct stock count of matching items in the chest.</label>
+    <label><input type="checkbox" id="co6_sign_price"> Confirm the sign line 3 shows the price formatted with commas (e.g., "$1,000 each") in green.</label>
+    <label><input type="checkbox" id="co6_sign_owner"> Confirm the sign line 4 shows the shop owner's username in cyan.</label>
+
+    <h3>Double Chest Support</h3>
+    <label><input type="checkbox" id="co6_double_create"> Place a double chest, put items in it. Create a shop on it. Confirm signs appear on both chest halves (if there's space).</label>
+    <label><input type="checkbox" id="co6_double_stock"> Confirm the stock count includes items from both halves of the double chest.</label>
+
+    <h3>Buying from a BUY Shop</h3>
+    <label><input type="checkbox" id="co6_buy_click_sign"> Right-click the shop sign (not the chest) as a different player. Confirm you see "Type the amount you want to buy in chat (or 'cancel'):".</label>
+    <label><input type="checkbox" id="co6_buy_type_amount"> Type a number in chat (e.g., 5). Confirm you receive 5 items and the correct amount of money is deducted.</label>
+    <label><input type="checkbox" id="co6_buy_stock_update"> After buying, check the sign. Confirm the stock count has decreased by the amount you bought.</label>
+    <label><input type="checkbox" id="co6_buy_no_money"> Try to buy more items than you can afford. Confirm you get an error showing how much you need vs. how much you have.</label>
+    <label><input type="checkbox" id="co6_buy_no_stock"> Try to buy more items than are in the chest. Confirm you get an error showing available stock.</label>
+    <label><input type="checkbox" id="co6_buy_cancel"> Right-click a sign, then type "cancel" in chat. Confirm the transaction is cancelled with a message.</label>
+    <label><input type="checkbox" id="co6_buy_out_of_stock"> Buy all items from a shop until the chest is empty. Confirm the sign shows "OUT OF STOCK" on line 2.</label>
+    <label><input type="checkbox" id="co6_buy_owner_notify"> Buy from a shop while the owner is online. Confirm the owner sees a notification with the buyer's name, amount, and total price.</label>
+
+    <h3>Selling to a SELL Shop</h3>
+    <label><input type="checkbox" id="co6_sell_click_sign"> Right-click a SELL shop sign as a different player. Confirm you see "Type the amount you want to sell in chat (or 'cancel'):".</label>
+    <label><input type="checkbox" id="co6_sell_type_amount"> Type a number in chat. Confirm items are removed from your inventory and money is added to your balance.</label>
+    <label><input type="checkbox" id="co6_sell_stock_update"> After selling, check the sign. Confirm stock count has increased.</label>
+    <label><input type="checkbox" id="co6_sell_no_items"> Try to sell more items than you have. Confirm you get an error showing your count.</label>
+    <label><input type="checkbox" id="co6_sell_no_funds"> Try to sell to a shop whose bank is empty. Confirm you get an error about insufficient shop funds.</label>
+    <label><input type="checkbox" id="co6_sell_chest_full"> Try selling to a shop whose chest is completely full. Confirm you get an error about no space.</label>
+
+    <h3>Shop Bank</h3>
+    <label><input type="checkbox" id="co6_bank_buy_accumulates"> After someone buys from your BUY shop, confirm the money goes to the shop's bank — NOT directly to your balance.</label>
+    <label><input type="checkbox" id="co6_bank_sell_deducts"> After someone sells to your SELL shop, confirm the money is deducted from the shop bank to pay them.</label>
+
+    <h3>Protection</h3>
+    <label><input type="checkbox" id="co6_protect_chest_break"> Try to break a shop chest. Confirm it is blocked with "You cannot break a shop chest!" message.</label>
+    <label><input type="checkbox" id="co6_protect_sign_break"> Try to break a shop sign. Confirm it is blocked with "You cannot break a shop sign!" message.</label>
+    <label><input type="checkbox" id="co6_protect_chest_open"> As a non-owner, try to right-click (open) the shop chest. Confirm the chest does NOT open.</label>
+    <label><input type="checkbox" id="co6_protect_owner_open"> As the shop owner, right-click the shop chest. Confirm you CAN open it to restock.</label>
+    <label><input type="checkbox" id="co6_protect_own_shop"> Right-click your own shop sign. Confirm you see "This is your own shop." instead of a buy/sell prompt.</label>
+
+    <h3>Edge Cases</h3>
+    <label><input type="checkbox" id="co6_invalid_price"> Type <code>/chestshop create -10 BUY</code>. Confirm you get an error that the price must be greater than 0.</label>
+    <label><input type="checkbox" id="co6_invalid_type"> Type <code>/chestshop create 100 TRADE</code>. Confirm you get an error about invalid shop type.</label>
+    <label><input type="checkbox" id="co6_invalid_amount"> Start a buy, type "abc" in chat. Confirm you get an "Invalid number" error.</label>
+    <label><input type="checkbox" id="co6_tab_complete"> Type <code>/chestshop </code> and press Tab. Confirm "create" appears. Type <code>/chestshop create 100 </code> and Tab. Confirm "BUY" and "SELL" appear.</label>
+    <label><input type="checkbox" id="co6_alias"> Type <code>/cs create 100 BUY</code>. Confirm the alias works the same as /chestshop.</label>
+
     </div>
 
     <script>

@@ -654,6 +654,34 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_chestshops (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        owner_username VARCHAR(16) NOT NULL,
+                        world VARCHAR(64) NOT NULL,
+                        x INT NOT NULL,
+                        y INT NOT NULL,
+                        z INT NOT NULL,
+                        item_type VARCHAR(64) NOT NULL,
+                        item_data MEDIUMTEXT NOT NULL,
+                        price DOUBLE NOT NULL,
+                        shop_type VARCHAR(4) NOT NULL,
+                        shop_name VARCHAR(64) DEFAULT '',
+                        created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE KEY uk_location (world, x, y, z),
+                        INDEX idx_owner (owner_username),
+                        INDEX idx_item (item_type)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_chestshop_bank (
+                        shop_id INT NOT NULL PRIMARY KEY,
+                        balance DOUBLE DEFAULT 0,
+                        FOREIGN KEY (shop_id) REFERENCES su_chestshops(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

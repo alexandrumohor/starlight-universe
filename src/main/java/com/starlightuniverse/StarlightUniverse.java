@@ -12,6 +12,7 @@ import com.starlightuniverse.auth.*;
 import com.starlightuniverse.benefit.*;
 import com.starlightuniverse.boss.*;
 import com.starlightuniverse.chat.*;
+import com.starlightuniverse.chestshop.*;
 import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.diag.*;
@@ -103,6 +104,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private BuffManager buffManager;
     private UniverseToolManager universeToolManager;
     private BoosterManager boosterManager;
+    private ChestShopManager chestShopManager;
     private DiagnosticsService diagnosticsService;
     private ScoreboardManager scoreboardManager;
     private BorderManager borderManager;
@@ -271,6 +273,11 @@ public final class StarlightUniverse extends JavaPlugin {
 
         boosterManager = new BoosterManager(this, databaseManager);
         boosterManager.start();
+
+        chestShopManager = new ChestShopManager(this, databaseManager, economyManager);
+        chestShopManager.initialize();
+        Bukkit.getPluginManager().registerEvents(new ChestShopListener(this, chestShopManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new ChestShopCommand(chestShopManager));
 
         voucherManager = new VoucherManager(this, economyManager, homeManager, crateManager);
         voucherManager.setBoosterManager(boosterManager);
@@ -509,6 +516,10 @@ public final class StarlightUniverse extends JavaPlugin {
             jobManager.shutdown();
         }
 
+        if (chestShopManager != null) {
+            chestShopManager.shutdown();
+        }
+
         if (boosterManager != null) {
             boosterManager.shutdown();
         }
@@ -741,5 +752,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public BorderManager getBorderManager() {
         return borderManager;
+    }
+
+    public ChestShopManager getChestShopManager() {
+        return chestShopManager;
     }
 }
