@@ -4,6 +4,7 @@ import com.starlightuniverse.admin.AdminManager;
 import com.starlightuniverse.booster.BoosterType;
 import com.starlightuniverse.buff.BuffManager;
 import com.starlightuniverse.buff.BuffType;
+import com.starlightuniverse.cosmetic.PetManager;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.EconomyManager;
 import com.starlightuniverse.spawner.SpawnerManager;
@@ -77,6 +78,7 @@ public class CrateManager {
     private SpawnerManager spawnerManager;
     private BuffManager buffManager;
     private UniverseToolManager universeToolManager;
+    private PetManager petManager;
 
     public CrateManager(JavaPlugin plugin, DatabaseManager db, EconomyManager economy, AdminManager adminManager) {
         this.plugin = plugin;
@@ -99,6 +101,10 @@ public class CrateManager {
 
     public void setUniverseToolManager(UniverseToolManager universeToolManager) {
         this.universeToolManager = universeToolManager;
+    }
+
+    public void setPetManager(PetManager petManager) {
+        this.petManager = petManager;
     }
 
     public void initialize() {
@@ -464,6 +470,7 @@ public class CrateManager {
         r.add(gearTicket("Celestial Gear Ticket", CrateType.CELESTIAL, "Epic", EPIC_COLOR, 5));
         r.add(enchantProtectionScroll("Enchant Protection Scroll", "Epic", EPIC_COLOR, 3));
         r.add(randomBuff("Random Buff (30 min)", 30 * 60 * 1000L, "Epic", EPIC_COLOR, 3));
+        r.add(petScroll("Pet Scroll", "Epic", EPIC_COLOR, 2));
         r.add(bonusKeys("2 Celestial Keys", CrateType.CELESTIAL, 2, "Epic", EPIC_COLOR, 2));
         return r;
     }
@@ -483,6 +490,7 @@ public class CrateManager {
         r.add(enchantProtectionScroll("Enchant Protection Scroll", "Legendary", LEGENDARY_COLOR, 2));
         r.add(randomBuff("Random Buff (1h)", 60 * 60 * 1000L, "Legendary", LEGENDARY_COLOR, 2));
         r.add(randomUniverseTool("Random Universe Tool", "Legendary", LEGENDARY_COLOR, 1));
+        r.add(petScroll("Pet Scroll", "Legendary", LEGENDARY_COLOR, 1.5));
         r.add(bonusKeys("2 Universe Keys", CrateType.UNIVERSE, 2, "Legendary", LEGENDARY_COLOR, 1));
         return r;
     }
@@ -599,6 +607,12 @@ public class CrateManager {
         NamespacedKey model = NamespacedKey.fromString("starlight:universe_pickaxe");
         return new CrateReward(name, Material.NETHERITE_PICKAXE, 1, rarity, color, weight,
                 p -> giveItem(p, universeToolManager.createRandomTool()), model);
+    }
+
+    private CrateReward petScroll(String name, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:pet_scroll");
+        return new CrateReward(name, Material.PAPER, 1, rarity, color, weight,
+                p -> giveItem(p, petManager.createPetScroll()), model);
     }
 
     private CrateReward randomPhysicalSpawner(String name, String rarity, TextColor color, double weight) {

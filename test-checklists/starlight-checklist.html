@@ -2663,6 +2663,55 @@
 
     </div>
 
+    <div class="phase-section">
+    <h2>Crate Overhaul — Pasul 8: Cosmetics — Pets</h2>
+
+    <h3>Pet Scroll Item</h3>
+    <label><input type="checkbox" id="co8_scroll_give"> Give yourself a Pet Scroll (via crate or admin command). Confirm it shows as a Paper item with cyan "Pet Scroll" name, enchant glint, and lore saying "Right-click to open the pet menu".</label>
+    <label><input type="checkbox" id="co8_scroll_click"> Right-click the Pet Scroll. Confirm a GUI opens titled "Choose a Pet (Scroll)" with all 15 pet types as icons.</label>
+
+    <h3>Pet Selection (Scroll Mode)</h3>
+    <label><input type="checkbox" id="co8_select_pet"> Click any pet (e.g. Wolf) in the scroll GUI. Confirm the scroll is consumed from your hand, you get a success message "You unlocked Wolf for 14 days!", and a baby wolf spawns next to you.</label>
+    <label><input type="checkbox" id="co8_select_named"> Check the spawned pet has a custom name like "YourName's Wolf" in the pet type's color.</label>
+    <label><input type="checkbox" id="co8_select_already_owned"> Use another Pet Scroll, click the same pet you already own. Confirm you get an error "You already own this pet!" and the scroll is NOT consumed.</label>
+    <label><input type="checkbox" id="co8_select_different"> Use another Pet Scroll, click a different pet. Confirm the old pet despawns, the new one spawns, and the scroll is consumed.</label>
+
+    <h3>Pet Follow Behavior</h3>
+    <label><input type="checkbox" id="co8_follow_walk"> Walk away from your pet. Confirm it follows you when you're more than ~3 blocks away.</label>
+    <label><input type="checkbox" id="co8_follow_teleport"> Run far away (12+ blocks). Confirm the pet teleports to you instead of slowly walking.</label>
+    <label><input type="checkbox" id="co8_follow_world"> Switch worlds (e.g. go to lobby and back). Confirm the pet teleports to the correct world with you.</label>
+
+    <h3>Pet Invincibility</h3>
+    <label><input type="checkbox" id="co8_invincible_hit"> Try to hit the pet. Confirm no damage is dealt.</label>
+    <label><input type="checkbox" id="co8_invincible_interact"> Right-click the pet. Confirm nothing special happens (no GUI, no sitting, etc.).</label>
+    <label><input type="checkbox" id="co8_invincible_mob"> Let a hostile mob near the pet. Confirm the pet is not targeted and takes no damage.</label>
+
+    <h3>/pet Command</h3>
+    <label><input type="checkbox" id="co8_cmd_open"> Type <code>/pet</code>. Confirm a "Choose Your Pet" GUI opens showing all 15 pets.</label>
+    <label><input type="checkbox" id="co8_cmd_owned"> Owned pets should show green "OWNED" with time remaining and "Click to activate".</label>
+    <label><input type="checkbox" id="co8_cmd_active"> The currently active pet should show green "ACTIVE" with enchant glint and "Click to deactivate".</label>
+    <label><input type="checkbox" id="co8_cmd_unowned"> Pets you don't own should show gray with "NOT OWNED" and "Use a Pet Scroll to unlock!".</label>
+    <label><input type="checkbox" id="co8_cmd_activate"> Click an owned but inactive pet. Confirm it activates (old pet despawns, new one spawns).</label>
+    <label><input type="checkbox" id="co8_cmd_deactivate"> Click the currently active pet. Confirm it despawns and you get "Wolf pet deactivated."</label>
+
+    <h3>Login/Logout Persistence</h3>
+    <label><input type="checkbox" id="co8_persist_logout"> With an active pet, log out. Confirm the pet entity disappears.</label>
+    <label><input type="checkbox" id="co8_persist_login"> Log back in. Confirm the same pet reappears after a couple seconds, still following you.</label>
+    <label><input type="checkbox" id="co8_persist_owned"> After re-login, type <code>/pet</code>. Confirm all your owned pets still show with correct remaining time.</label>
+
+    <h3>One Pet at a Time</h3>
+    <label><input type="checkbox" id="co8_one_at_time"> Activate one pet, then activate another via /pet. Confirm only the new pet is visible — the old one fully despawns.</label>
+
+    <h3>Pet as Crate Reward</h3>
+    <label><input type="checkbox" id="co8_crate_celestial"> Open the Celestial Crate preview. Confirm "Pet Scroll" appears as an Epic reward.</label>
+    <label><input type="checkbox" id="co8_crate_universe"> Open the Universe Crate preview. Confirm "Pet Scroll" appears as a Legendary reward.</label>
+    <label><input type="checkbox" id="co8_crate_roll"> Open crates until you get a Pet Scroll. Confirm it arrives in your inventory as a proper Pet Scroll item.</label>
+
+    <h3>Baby Size</h3>
+    <label><input type="checkbox" id="co8_baby_size"> Spawn pets that support baby form (Wolf, Cat, Fox, etc.). Confirm they appear as babies (smaller than normal).</label>
+
+    </div>
+
     <script>
         (function() {
             document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {

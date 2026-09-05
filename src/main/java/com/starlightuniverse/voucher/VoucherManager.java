@@ -2,6 +2,7 @@ package com.starlightuniverse.voucher;
 
 import com.starlightuniverse.booster.BoosterManager;
 import com.starlightuniverse.booster.BoosterType;
+import com.starlightuniverse.cosmetic.PetManager;
 import com.starlightuniverse.crate.CrateManager;
 import com.starlightuniverse.crate.CrateType;
 import com.starlightuniverse.economy.EconomyManager;
@@ -47,6 +48,7 @@ public class VoucherManager {
 
     private BoosterManager boosterManager;
     private EnchantRemoverListener enchantRemoverListener;
+    private PetManager petManager;
 
     public VoucherManager(JavaPlugin plugin, EconomyManager economy, HomeManager homeManager, CrateManager crateManager) {
         this.plugin = plugin;
@@ -61,6 +63,10 @@ public class VoucherManager {
 
     public void setEnchantRemoverListener(EnchantRemoverListener listener) {
         this.enchantRemoverListener = listener;
+    }
+
+    public void setPetManager(PetManager petManager) {
+        this.petManager = petManager;
     }
 
     public void start() {
@@ -641,6 +647,11 @@ public class VoucherManager {
     }
 
     public void handleRightClick(Player player, ItemStack item) {
+        if (petManager != null && petManager.isPetScroll(item)) {
+            petManager.openScrollPetMenu(player);
+            return;
+        }
+
         String type = getVoucherType(item);
         if (type == null) return;
         switch (type) {

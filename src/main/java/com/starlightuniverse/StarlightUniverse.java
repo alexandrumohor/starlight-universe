@@ -13,6 +13,7 @@ import com.starlightuniverse.benefit.*;
 import com.starlightuniverse.boss.*;
 import com.starlightuniverse.chat.*;
 import com.starlightuniverse.chestshop.*;
+import com.starlightuniverse.cosmetic.*;
 import com.starlightuniverse.crate.*;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.diag.*;
@@ -105,6 +106,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private UniverseToolManager universeToolManager;
     private BoosterManager boosterManager;
     private ChestShopManager chestShopManager;
+    private PetManager petManager;
     private DiagnosticsService diagnosticsService;
     private ScoreboardManager scoreboardManager;
     private BorderManager borderManager;
@@ -279,10 +281,15 @@ public final class StarlightUniverse extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ChestShopListener(this, chestShopManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new ChestShopCommand(chestShopManager));
 
+        petManager = new PetManager(this, databaseManager);
+        petManager.start();
+
         voucherManager = new VoucherManager(this, economyManager, homeManager, crateManager);
         voucherManager.setBoosterManager(boosterManager);
+        voucherManager.setPetManager(petManager);
         voucherManager.start();
         crateManager.setVoucherManager(voucherManager);
+        crateManager.setPetManager(petManager);
 
         EnchantRemoverListener enchantRemoverListener = new EnchantRemoverListener(this, voucherManager, enchantManager);
         voucherManager.setEnchantRemoverListener(enchantRemoverListener);
@@ -305,6 +312,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
         crateManager.setBuffManager(buffManager);
         crateManager.setUniverseToolManager(universeToolManager);
+
+        Bukkit.getPluginManager().registerEvents(new CosmeticListener(this, petManager), this);
+        Bukkit.getCommandMap().register("starlightuniverse", new PetCommand(petManager));
 
         starShopManager = new StarShopManager(this, economyManager, crateManager,
                 premiumManager, voucherManager, buffManager);
@@ -514,6 +524,10 @@ public final class StarlightUniverse extends JavaPlugin {
 
         if (jobManager != null) {
             jobManager.shutdown();
+        }
+
+        if (petManager != null) {
+            petManager.shutdown();
         }
 
         if (chestShopManager != null) {
@@ -756,5 +770,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public ChestShopManager getChestShopManager() {
         return chestShopManager;
+    }
+
+    public PetManager getPetManager() {
+        return petManager;
     }
 }
