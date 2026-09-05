@@ -19,11 +19,13 @@ public class CosmeticListener implements Listener {
     private final JavaPlugin plugin;
     private final PetManager petManager;
     private final TrailManager trailManager;
+    private final DisguiseManager disguiseManager;
 
-    public CosmeticListener(JavaPlugin plugin, PetManager petManager, TrailManager trailManager) {
+    public CosmeticListener(JavaPlugin plugin, PetManager petManager, TrailManager trailManager, DisguiseManager disguiseManager) {
         this.plugin = plugin;
         this.petManager = petManager;
         this.trailManager = trailManager;
+        this.disguiseManager = disguiseManager;
     }
 
     @EventHandler
@@ -31,12 +33,15 @@ public class CosmeticListener implements Listener {
         Player player = event.getPlayer();
         petManager.loadPets(player.getUniqueId(), player.getName());
         trailManager.loadTrails(player.getUniqueId(), player.getName());
+        disguiseManager.loadDisguises(player.getUniqueId(), player.getName());
+        disguiseManager.onPlayerJoin(player);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         petManager.onPlayerQuit(event.getPlayer().getUniqueId());
         trailManager.onPlayerQuit(event.getPlayer().getUniqueId());
+        disguiseManager.onPlayerQuit(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -58,33 +63,42 @@ public class CosmeticListener implements Listener {
             if (event.getCurrentItem() == null) return;
             if (event.getClickedInventory() != event.getView().getTopInventory()) return;
             trailManager.handleMenuClick(player, event.getSlot(), trailHolder.isScrollMode());
+            return;
+        }
+
+        if (holder instanceof DisguiseHolder disguiseHolder) {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+            if (event.getCurrentItem() == null) return;
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            disguiseManager.handleMenuClick(player, event.getSlot(), disguiseHolder.isScrollMode());
         }
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void onPetDamage(EntityDamageEvent event) {
-        if (petManager.isPetEntity(event.getEntity())) {
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (petManager.isPetEntity(event.getEntity()) || disguiseManager.isDisguiseEntity(event.getEntity())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPetTarget(EntityTargetEvent event) {
-        if (petManager.isPetEntity(event.getEntity())) {
+        if (petManager.isPetEntity(event.getEntity()) || disguiseManager.isDisguiseEntity(event.getEntity())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onPetInteract(PlayerInteractEntityEvent event) {
-        if (petManager.isPetEntity(event.getRightClicked())) {
+        if (petManager.isPetEntity(event.getRightClicked()) || disguiseManager.isDisguiseEntity(event.getRightClicked())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void onPetHit(EntityDamageByEntityEvent event) {
-        if (petManager.isPetEntity(event.getEntity())) {
+    public void onEntityHit(EntityDamageByEntityEvent event) {
+        if (petManager.isPetEntity(event.getEntity()) || disguiseManager.isDisguiseEntity(event.getEntity())) {
             event.setCancelled(true);
         }
     }

@@ -4,6 +4,7 @@ import com.starlightuniverse.admin.AdminManager;
 import com.starlightuniverse.booster.BoosterType;
 import com.starlightuniverse.buff.BuffManager;
 import com.starlightuniverse.buff.BuffType;
+import com.starlightuniverse.cosmetic.DisguiseManager;
 import com.starlightuniverse.cosmetic.PetManager;
 import com.starlightuniverse.cosmetic.TrailManager;
 import com.starlightuniverse.database.DatabaseManager;
@@ -81,6 +82,7 @@ public class CrateManager {
     private UniverseToolManager universeToolManager;
     private PetManager petManager;
     private TrailManager trailManager;
+    private DisguiseManager disguiseManager;
 
     public CrateManager(JavaPlugin plugin, DatabaseManager db, EconomyManager economy, AdminManager adminManager) {
         this.plugin = plugin;
@@ -111,6 +113,10 @@ public class CrateManager {
 
     public void setTrailManager(TrailManager trailManager) {
         this.trailManager = trailManager;
+    }
+
+    public void setDisguiseManager(DisguiseManager disguiseManager) {
+        this.disguiseManager = disguiseManager;
     }
 
     public void initialize() {
@@ -444,6 +450,7 @@ public class CrateManager {
         r.add(boosterRange("Booster 2.0-2.5x", 2.0, 2.5, 15, "Uncommon", UNCOMMON_COLOR, 6));
         r.add(enchantBook("Starlight Enchant Book", enchants_starlight(), "Uncommon", UNCOMMON_COLOR, 8));
         r.add(gearTicket("Cosmic Gear Ticket", CrateType.COSMIC, "Uncommon", UNCOMMON_COLOR, 8));
+        r.add(randomCosmeticScroll("Random Cosmetic Scroll", "Uncommon", UNCOMMON_COLOR, 5));
         r.add(bonusKeys("2 Cosmic Keys", CrateType.COSMIC, 2, "Rare", RARE_COLOR, 4));
         r.add(bonusKeys("1 Universe Key", CrateType.UNIVERSE, 1, "Epic", EPIC_COLOR, 1.5));
         return r;
@@ -478,6 +485,7 @@ public class CrateManager {
         r.add(randomBuff("Random Buff (30 min)", 30 * 60 * 1000L, "Epic", EPIC_COLOR, 3));
         r.add(petScroll("Pet Scroll", "Epic", EPIC_COLOR, 2));
         r.add(trailScroll("Trail Scroll", "Epic", EPIC_COLOR, 2));
+        r.add(disguiseScroll("Disguise Scroll", "Epic", EPIC_COLOR, 2));
         r.add(bonusKeys("2 Celestial Keys", CrateType.CELESTIAL, 2, "Epic", EPIC_COLOR, 2));
         return r;
     }
@@ -499,6 +507,7 @@ public class CrateManager {
         r.add(randomUniverseTool("Random Universe Tool", "Legendary", LEGENDARY_COLOR, 1));
         r.add(petScroll("Pet Scroll", "Legendary", LEGENDARY_COLOR, 1.5));
         r.add(trailScroll("Trail Scroll", "Legendary", LEGENDARY_COLOR, 1.5));
+        r.add(disguiseScroll("Disguise Scroll", "Legendary", LEGENDARY_COLOR, 1.5));
         r.add(bonusKeys("2 Universe Keys", CrateType.UNIVERSE, 2, "Legendary", LEGENDARY_COLOR, 1));
         return r;
     }
@@ -627,6 +636,24 @@ public class CrateManager {
         NamespacedKey model = NamespacedKey.fromString("starlight:trail_scroll");
         return new CrateReward(name, Material.PAPER, 1, rarity, color, weight,
                 p -> giveItem(p, trailManager.createTrailScroll()), model);
+    }
+
+    private CrateReward disguiseScroll(String name, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:disguise_scroll");
+        return new CrateReward(name, Material.PAPER, 1, rarity, color, weight,
+                p -> giveItem(p, disguiseManager.createDisguiseScroll()), model);
+    }
+
+    private CrateReward randomCosmeticScroll(String name, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:disguise_scroll");
+        return new CrateReward(name, Material.PAPER, 1, rarity, color, weight, p -> {
+            int roll = ThreadLocalRandom.current().nextInt(3);
+            switch (roll) {
+                case 0 -> giveItem(p, petManager.createPetScroll());
+                case 1 -> giveItem(p, trailManager.createTrailScroll());
+                default -> giveItem(p, disguiseManager.createDisguiseScroll());
+            }
+        }, model);
     }
 
     private CrateReward randomPhysicalSpawner(String name, String rarity, TextColor color, double weight) {

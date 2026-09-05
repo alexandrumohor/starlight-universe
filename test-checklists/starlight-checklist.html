@@ -2761,6 +2761,68 @@
 
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="phase-section">
+    <h2>Crate Overhaul — Step 10: Cosmetics — Disguises + Random Cosmetic Reward + Final Wiring</h2>
+
+    <h3>Disguise Scroll Item</h3>
+    <label><input type="checkbox" id="co10_scroll_give"> Open a Celestial or Universe crate (or give yourself one). Confirm you receive a glowing paper item called "Disguise Scroll".</label>
+    <label><input type="checkbox" id="co10_scroll_lore"> Hover over the Disguise Scroll. Confirm the lore says "Right-click to open the disguise menu" and "Transform into a mob for other players for 14 days!"</label>
+
+    <h3>Disguise Selection GUI (Scroll)</h3>
+    <label><input type="checkbox" id="co10_scroll_open"> Hold the Disguise Scroll in your main hand and right-click. Confirm a GUI opens titled "Choose a Disguise (Scroll)".</label>
+    <label><input type="checkbox" id="co10_scroll_all_types"> Confirm you can see all disguise types listed: Chicken, Pig, Cow, Sheep, Creeper, Skeleton, Zombie, Enderman, Spider, Villager, Iron Golem, Snow Golem, Blaze, Witch, Wolf.</label>
+    <label><input type="checkbox" id="co10_scroll_redeem"> Click any disguise in the scroll GUI. Confirm the scroll is consumed (disappears from hand), you get a success message saying the disguise was unlocked for 14 days, and you hear a level-up sound.</label>
+
+    <h3>Disguise Command (/disguise)</h3>
+    <label><input type="checkbox" id="co10_cmd_open"> Type <code>/disguise</code>. Confirm a GUI opens titled "Choose Your Disguise".</label>
+    <label><input type="checkbox" id="co10_cmd_owned"> In the /disguise GUI, confirm the disguise you just unlocked shows as "OWNED" in green with time remaining, and other disguises show as "NOT OWNED" in red.</label>
+
+    <h3>Activating a Disguise</h3>
+    <label><input type="checkbox" id="co10_activate"> Click on your owned disguise in the /disguise GUI. Confirm you get a success message saying the disguise was activated.</label>
+    <label><input type="checkbox" id="co10_mob_visible"> Have another player (or second account) look at you. They should see the mob you chose (e.g. a Creeper) instead of your player model.</label>
+    <label><input type="checkbox" id="co10_name_visible"> The mob entity should have your name floating above it.</label>
+    <label><input type="checkbox" id="co10_self_normal"> You (the disguised player) should still see your own hands and normal player view — the disguise is only for others.</label>
+    <label><input type="checkbox" id="co10_mob_follows"> Walk around. Confirm the disguise mob follows your exact position and rotation in real-time.</label>
+    <label><input type="checkbox" id="co10_active_gui"> Open /disguise again. Confirm the active disguise shows "ACTIVE" in green bold, and says "Click to deactivate".</label>
+
+    <h3>Deactivating a Disguise</h3>
+    <label><input type="checkbox" id="co10_deactivate"> Click on the active disguise in /disguise GUI. Confirm you get a message saying the disguise was deactivated.</label>
+    <label><input type="checkbox" id="co10_player_visible"> After deactivating, other players should see your normal player model again — the mob disappears.</label>
+
+    <h3>Disguise Entity Protection</h3>
+    <label><input type="checkbox" id="co10_no_damage"> Try to hit the disguise mob entity. Confirm it takes no damage and the hit is cancelled.</label>
+    <label><input type="checkbox" id="co10_no_interact"> Try to right-click the disguise mob entity. Confirm nothing happens (interaction cancelled).</label>
+
+    <h3>One Disguise at a Time</h3>
+    <label><input type="checkbox" id="co10_one_at_time"> Activate one disguise, then activate another via /disguise. Confirm only the new disguise mob is visible — the old one fully despawns and your player is re-hidden.</label>
+
+    <h3>World Change / Teleport</h3>
+    <label><input type="checkbox" id="co10_world_change"> While disguised, teleport to a different world. Confirm the disguise mob follows you to the new world.</label>
+
+    <h3>Persistence (Reconnect)</h3>
+    <label><input type="checkbox" id="co10_persist_active"> Activate a disguise, then log out and log back in. Confirm the disguise is still active — other players see the mob, not you.</label>
+    <label><input type="checkbox" id="co10_persist_owned"> After re-login, type <code>/disguise</code>. Confirm all your owned disguises still show with correct remaining time.</label>
+
+    <h3>New Player Joining</h3>
+    <label><input type="checkbox" id="co10_new_join"> While you are disguised, have another player join the server. Confirm they see the disguise mob instead of your player model.</label>
+
+    <h3>Scroll – Already Owned</h3>
+    <label><input type="checkbox" id="co10_already_owned"> Use a Disguise Scroll and try to redeem a disguise you already own. Confirm you get an error message and the scroll is NOT consumed.</label>
+
+    <h3>Disguise as Crate Reward</h3>
+    <label><input type="checkbox" id="co10_crate_celestial"> Open the Celestial Crate preview. Confirm "Disguise Scroll" appears as an Epic reward.</label>
+    <label><input type="checkbox" id="co10_crate_universe"> Open the Universe Crate preview. Confirm "Disguise Scroll" appears as a Legendary reward.</label>
+
+    <h3>Random Cosmetic Scroll (Cosmic Crate)</h3>
+    <label><input type="checkbox" id="co10_cosmic_preview"> Open the Cosmic Crate preview. Confirm "Random Cosmetic Scroll" appears as an Uncommon reward.</label>
+    <label><input type="checkbox" id="co10_cosmic_roll"> Open Cosmic crates until you get a "Random Cosmetic Scroll" reward. Confirm you receive one of: Pet Scroll, Trail Scroll, or Disguise Scroll.</label>
+
+    <h3>Database Table</h3>
+    <label><input type="checkbox" id="co10_db_table"> Check MySQL: table <code>su_cosmetic_disguises</code> exists with columns: username, disguise_type, expires_at, active.</label>
+
+    </div>
+
     <script>
         (function() {
             document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {
