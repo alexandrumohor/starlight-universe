@@ -693,6 +693,17 @@ public class DatabaseManager {
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
                     """);
 
+            stmt.execute("""
+                    CREATE TABLE IF NOT EXISTS su_cosmetic_trails (
+                        username VARCHAR(16) NOT NULL,
+                        trail_type VARCHAR(32) NOT NULL,
+                        expires_at DATETIME NOT NULL,
+                        active TINYINT(1) DEFAULT 0,
+                        PRIMARY KEY (username, trail_type),
+                        INDEX idx_username (username)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+                    """);
+
             plugin.getLogger().info("[SU] Database tables created/verified successfully!");
         }
     }

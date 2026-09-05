@@ -3,6 +3,7 @@ package com.starlightuniverse.voucher;
 import com.starlightuniverse.booster.BoosterManager;
 import com.starlightuniverse.booster.BoosterType;
 import com.starlightuniverse.cosmetic.PetManager;
+import com.starlightuniverse.cosmetic.TrailManager;
 import com.starlightuniverse.crate.CrateManager;
 import com.starlightuniverse.crate.CrateType;
 import com.starlightuniverse.economy.EconomyManager;
@@ -49,6 +50,7 @@ public class VoucherManager {
     private BoosterManager boosterManager;
     private EnchantRemoverListener enchantRemoverListener;
     private PetManager petManager;
+    private TrailManager trailManager;
 
     public VoucherManager(JavaPlugin plugin, EconomyManager economy, HomeManager homeManager, CrateManager crateManager) {
         this.plugin = plugin;
@@ -67,6 +69,10 @@ public class VoucherManager {
 
     public void setPetManager(PetManager petManager) {
         this.petManager = petManager;
+    }
+
+    public void setTrailManager(TrailManager trailManager) {
+        this.trailManager = trailManager;
     }
 
     public void start() {
@@ -649,6 +655,11 @@ public class VoucherManager {
     public void handleRightClick(Player player, ItemStack item) {
         if (petManager != null && petManager.isPetScroll(item)) {
             petManager.openScrollPetMenu(player);
+            return;
+        }
+
+        if (trailManager != null && trailManager.isTrailScroll(item)) {
+            trailManager.openScrollTrailMenu(player);
             return;
         }
 

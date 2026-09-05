@@ -107,6 +107,7 @@ public final class StarlightUniverse extends JavaPlugin {
     private BoosterManager boosterManager;
     private ChestShopManager chestShopManager;
     private PetManager petManager;
+    private TrailManager trailManager;
     private DiagnosticsService diagnosticsService;
     private ScoreboardManager scoreboardManager;
     private BorderManager borderManager;
@@ -284,12 +285,17 @@ public final class StarlightUniverse extends JavaPlugin {
         petManager = new PetManager(this, databaseManager);
         petManager.start();
 
+        trailManager = new TrailManager(this, databaseManager);
+        trailManager.start();
+
         voucherManager = new VoucherManager(this, economyManager, homeManager, crateManager);
         voucherManager.setBoosterManager(boosterManager);
         voucherManager.setPetManager(petManager);
+        voucherManager.setTrailManager(trailManager);
         voucherManager.start();
         crateManager.setVoucherManager(voucherManager);
         crateManager.setPetManager(petManager);
+        crateManager.setTrailManager(trailManager);
 
         EnchantRemoverListener enchantRemoverListener = new EnchantRemoverListener(this, voucherManager, enchantManager);
         voucherManager.setEnchantRemoverListener(enchantRemoverListener);
@@ -313,8 +319,9 @@ public final class StarlightUniverse extends JavaPlugin {
         crateManager.setBuffManager(buffManager);
         crateManager.setUniverseToolManager(universeToolManager);
 
-        Bukkit.getPluginManager().registerEvents(new CosmeticListener(this, petManager), this);
+        Bukkit.getPluginManager().registerEvents(new CosmeticListener(this, petManager, trailManager), this);
         Bukkit.getCommandMap().register("starlightuniverse", new PetCommand(petManager));
+        Bukkit.getCommandMap().register("starlightuniverse", new TrailCommand(trailManager));
 
         starShopManager = new StarShopManager(this, economyManager, crateManager,
                 premiumManager, voucherManager, buffManager);
@@ -524,6 +531,10 @@ public final class StarlightUniverse extends JavaPlugin {
 
         if (jobManager != null) {
             jobManager.shutdown();
+        }
+
+        if (trailManager != null) {
+            trailManager.shutdown();
         }
 
         if (petManager != null) {
@@ -774,5 +785,9 @@ public final class StarlightUniverse extends JavaPlugin {
 
     public PetManager getPetManager() {
         return petManager;
+    }
+
+    public TrailManager getTrailManager() {
+        return trailManager;
     }
 }

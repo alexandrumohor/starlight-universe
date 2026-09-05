@@ -18,34 +18,47 @@ public class CosmeticListener implements Listener {
 
     private final JavaPlugin plugin;
     private final PetManager petManager;
+    private final TrailManager trailManager;
 
-    public CosmeticListener(JavaPlugin plugin, PetManager petManager) {
+    public CosmeticListener(JavaPlugin plugin, PetManager petManager, TrailManager trailManager) {
         this.plugin = plugin;
         this.petManager = petManager;
+        this.trailManager = trailManager;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         petManager.loadPets(player.getUniqueId(), player.getName());
+        trailManager.loadTrails(player.getUniqueId(), player.getName());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         petManager.onPlayerQuit(event.getPlayer().getUniqueId());
+        trailManager.onPlayerQuit(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onInventoryClick(InventoryClickEvent event) {
         InventoryHolder holder = event.getInventory().getHolder();
-        if (!(holder instanceof PetHolder petHolder)) return;
-        event.setCancelled(true);
 
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (event.getCurrentItem() == null) return;
-        if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+        if (holder instanceof PetHolder petHolder) {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+            if (event.getCurrentItem() == null) return;
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            petManager.handleMenuClick(player, event.getSlot(), petHolder.isScrollMode());
+            return;
+        }
 
-        petManager.handleMenuClick(player, event.getSlot(), petHolder.isScrollMode());
+        if (holder instanceof TrailHolder trailHolder) {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+            if (event.getCurrentItem() == null) return;
+            if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+            trailManager.handleMenuClick(player, event.getSlot(), trailHolder.isScrollMode());
+        }
     }
 
     @EventHandler(priority = EventPriority.LOW)

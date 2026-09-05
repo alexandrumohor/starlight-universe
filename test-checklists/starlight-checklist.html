@@ -2712,6 +2712,55 @@
 
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="phase-section">
+    <h2>Crate Overhaul — Step 9: Cosmetics — Trails</h2>
+
+    <h3>Trail Scroll Item</h3>
+    <label><input type="checkbox" id="co9_scroll_give"> Give yourself a Trail Scroll (open a Celestial or Universe crate, or use a give command). Confirm you receive a glowing paper item called "Trail Scroll".</label>
+    <label><input type="checkbox" id="co9_scroll_lore"> Hover over the Trail Scroll. Confirm the lore says "Right-click to open the trail menu" and "Choose a particle trail that follows you for 14 days!"</label>
+
+    <h3>Trail Selection GUI (Scroll)</h3>
+    <label><input type="checkbox" id="co9_scroll_open"> Hold the Trail Scroll in your main hand and right-click. Confirm a GUI opens titled "Choose a Trail (Scroll)".</label>
+    <label><input type="checkbox" id="co9_scroll_all_types"> Confirm you can see all trail types listed: Flame, Heart, Music Note, Enchant, Redstone, Smoke, Portal, Cherry Blossom, Star, Soul, Honey Drip, Snowflake, Wax, Spore Blossom, Trial Spark.</label>
+    <label><input type="checkbox" id="co9_scroll_redeem"> Click any trail in the scroll GUI. Confirm the scroll is consumed (disappears from hand), you get a success message saying the trail was unlocked for 14 days, and you hear a level-up sound.</label>
+
+    <h3>Trail Command (/trail)</h3>
+    <label><input type="checkbox" id="co9_cmd_open"> Type <code>/trail</code>. Confirm a GUI opens titled "Choose Your Trail".</label>
+    <label><input type="checkbox" id="co9_cmd_owned"> In the /trail GUI, confirm the trail you just unlocked shows as "OWNED" in green with time remaining, and other trails show as "NOT OWNED" in red.</label>
+
+    <h3>Activating a Trail</h3>
+    <label><input type="checkbox" id="co9_activate"> Click on your owned trail in the /trail GUI. Confirm you get a success message saying the trail was activated.</label>
+    <label><input type="checkbox" id="co9_particles_move"> Walk around. Confirm particles appear behind you as you move.</label>
+    <label><input type="checkbox" id="co9_particles_stop"> Stand still. Confirm no particles appear when you're not moving.</label>
+    <label><input type="checkbox" id="co9_active_gui"> Open /trail again. Confirm the active trail shows "ACTIVE" in green bold, and says "Click to deactivate".</label>
+
+    <h3>Deactivating a Trail</h3>
+    <label><input type="checkbox" id="co9_deactivate"> Click on the active trail in /trail GUI. Confirm you get a message saying the trail was deactivated.</label>
+    <label><input type="checkbox" id="co9_no_particles"> Walk around after deactivating. Confirm no particles appear.</label>
+
+    <h3>Trail Types (Particle Variety)</h3>
+    <label><input type="checkbox" id="co9_flame"> Unlock and activate Flame trail. Confirm you see fire particles behind you.</label>
+    <label><input type="checkbox" id="co9_heart"> Unlock and activate Heart trail. Confirm you see heart particles.</label>
+    <label><input type="checkbox" id="co9_redstone"> Unlock and activate Redstone trail. Confirm you see red dust particles.</label>
+    <label><input type="checkbox" id="co9_star"> Unlock and activate Star trail. Confirm you see bright end-rod particles.</label>
+
+    <h3>One Trail at a Time</h3>
+    <label><input type="checkbox" id="co9_one_at_time"> Activate one trail, then activate a different owned trail via /trail. Confirm only the new trail's particles appear — the old one stops.</label>
+
+    <h3>Persistence (Reconnect)</h3>
+    <label><input type="checkbox" id="co9_persist_active"> Activate a trail, then log out and log back in. Confirm the trail is still active and particles appear when you move.</label>
+    <label><input type="checkbox" id="co9_persist_owned"> After re-login, type <code>/trail</code>. Confirm all your owned trails still show with correct remaining time.</label>
+
+    <h3>Scroll – Already Owned</h3>
+    <label><input type="checkbox" id="co9_already_owned"> Use a Trail Scroll and try to redeem a trail you already own. Confirm you get an error message and the scroll is NOT consumed.</label>
+
+    <h3>Trail as Crate Reward</h3>
+    <label><input type="checkbox" id="co9_crate_celestial"> Open the Celestial Crate preview. Confirm "Trail Scroll" appears as an Epic reward.</label>
+    <label><input type="checkbox" id="co9_crate_universe"> Open the Universe Crate preview. Confirm "Trail Scroll" appears as a Legendary reward.</label>
+
+    </div>
+
     <script>
         (function() {
             document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {

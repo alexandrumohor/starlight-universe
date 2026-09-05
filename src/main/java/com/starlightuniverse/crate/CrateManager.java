@@ -5,6 +5,7 @@ import com.starlightuniverse.booster.BoosterType;
 import com.starlightuniverse.buff.BuffManager;
 import com.starlightuniverse.buff.BuffType;
 import com.starlightuniverse.cosmetic.PetManager;
+import com.starlightuniverse.cosmetic.TrailManager;
 import com.starlightuniverse.database.DatabaseManager;
 import com.starlightuniverse.economy.EconomyManager;
 import com.starlightuniverse.spawner.SpawnerManager;
@@ -79,6 +80,7 @@ public class CrateManager {
     private BuffManager buffManager;
     private UniverseToolManager universeToolManager;
     private PetManager petManager;
+    private TrailManager trailManager;
 
     public CrateManager(JavaPlugin plugin, DatabaseManager db, EconomyManager economy, AdminManager adminManager) {
         this.plugin = plugin;
@@ -105,6 +107,10 @@ public class CrateManager {
 
     public void setPetManager(PetManager petManager) {
         this.petManager = petManager;
+    }
+
+    public void setTrailManager(TrailManager trailManager) {
+        this.trailManager = trailManager;
     }
 
     public void initialize() {
@@ -471,6 +477,7 @@ public class CrateManager {
         r.add(enchantProtectionScroll("Enchant Protection Scroll", "Epic", EPIC_COLOR, 3));
         r.add(randomBuff("Random Buff (30 min)", 30 * 60 * 1000L, "Epic", EPIC_COLOR, 3));
         r.add(petScroll("Pet Scroll", "Epic", EPIC_COLOR, 2));
+        r.add(trailScroll("Trail Scroll", "Epic", EPIC_COLOR, 2));
         r.add(bonusKeys("2 Celestial Keys", CrateType.CELESTIAL, 2, "Epic", EPIC_COLOR, 2));
         return r;
     }
@@ -491,6 +498,7 @@ public class CrateManager {
         r.add(randomBuff("Random Buff (1h)", 60 * 60 * 1000L, "Legendary", LEGENDARY_COLOR, 2));
         r.add(randomUniverseTool("Random Universe Tool", "Legendary", LEGENDARY_COLOR, 1));
         r.add(petScroll("Pet Scroll", "Legendary", LEGENDARY_COLOR, 1.5));
+        r.add(trailScroll("Trail Scroll", "Legendary", LEGENDARY_COLOR, 1.5));
         r.add(bonusKeys("2 Universe Keys", CrateType.UNIVERSE, 2, "Legendary", LEGENDARY_COLOR, 1));
         return r;
     }
@@ -613,6 +621,12 @@ public class CrateManager {
         NamespacedKey model = NamespacedKey.fromString("starlight:pet_scroll");
         return new CrateReward(name, Material.PAPER, 1, rarity, color, weight,
                 p -> giveItem(p, petManager.createPetScroll()), model);
+    }
+
+    private CrateReward trailScroll(String name, String rarity, TextColor color, double weight) {
+        NamespacedKey model = NamespacedKey.fromString("starlight:trail_scroll");
+        return new CrateReward(name, Material.PAPER, 1, rarity, color, weight,
+                p -> giveItem(p, trailManager.createTrailScroll()), model);
     }
 
     private CrateReward randomPhysicalSpawner(String name, String rarity, TextColor color, double weight) {
