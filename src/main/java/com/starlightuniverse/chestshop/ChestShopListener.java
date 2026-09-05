@@ -4,6 +4,7 @@ import com.starlightuniverse.util.Msg;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +12,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -29,16 +32,31 @@ public class ChestShopListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (event.getHand() != EquipmentSlot.HAND) return;
         Block block = event.getClickedBlock();
         if (block == null) return;
         Player player = event.getPlayer();
 
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK && ChestShopManager.isChest(block.getType())) {
+            if (manager.hasPendingMenu(player.getUniqueId())) {
+                event.setCancelled(true);
+                manager.handleMenuClick(player, block);
+                return;
+            }
+        }
+
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
         if (ChestShopManager.isChest(block.getType())) {
             if (manager.hasPendingCreation(player.getUniqueId())) {
                 event.setCancelled(true);
                 manager.handleChestClick(player, block);
+                return;
+            }
+
+            if (manager.hasPendingItemChange(player.getUniqueId())) {
+                event.setCancelled(true);
+                manager.handleItemChange(player, block);
                 return;
             }
 
@@ -90,17 +108,93 @@ public class ChestShopListener implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) return;
+        if (event.getInventory().getLocation() == null) return;
+
+        Block block = event.getInventory().getLocation().getBlock();
+        if (!ChestShopManager.isChest(block.getType())) return;
+
+        ChestShop shop = manager.getShopAt(block);
+        if (shop == null) return;
+
+        if (shop.getOwnerUsername().equals(player.getName().toLowerCase())) {
+            Material itemMat;
+            try {
+                itemMat = Material.valueOf(shop.getItemType());
+            } catch (IllegalArgumentException e) {
+                return;
+            }
+            int stock = manager.countStock(block, itemMat);
+            manager.updateSignStock(block, shop, stock);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getInventory().getHolder() instanceof ChestShopHolder holder)) return;
+        event.setCancelled(true);
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+
+        switch (holder.getType()) {
+            case MENU -> {
+                ChestShop shop = manager.getShopById(holder.getShopId());
+                if (shop == null) {
+                    player.closeInventory();
+                    return;
+                }
+                manager.handleMenuAction(player, event.getRawSlot(), shop);
+            }
+            case BANK -> manager.handleBankClick(player, event.getRawSlot(), holder);
+            case FIND_ITEM -> {
+                int slot = event.getRawSlot();
+                if (slot == 48) manager.openFindItemGui(player, extractQuery(event), holder.getPage() - 1);
+                else if (slot == 50) manager.openFindItemGui(player, extractQuery(event), holder.getPage() + 1);
+            }
+        }
+    }
+
+    private String extractQuery(InventoryClickEvent event) {
+        String title = PlainTextComponentSerializer.plainText().serialize(event.getView().title());
+        if (title.startsWith("Find: ")) {
+            int dash = title.lastIndexOf(" — ");
+            if (dash > 6) return title.substring(6, dash);
+        }
+        return "";
+    }
+
     @EventHandler(priority = EventPriority.LOW)
     public void onChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
-        if (!manager.hasPendingTransaction(player.getUniqueId())) return;
-        event.setCancelled(true);
-
         String message = PlainTextComponentSerializer.plainText().serialize(event.message()).trim();
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            if (!player.isOnline()) return;
-            manager.handleTransactionInput(player, message);
-        });
+
+        if (manager.hasPendingTransaction(player.getUniqueId())) {
+            event.setCancelled(true);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (!player.isOnline()) return;
+                manager.handleTransactionInput(player, message);
+            });
+            return;
+        }
+
+        if (manager.hasPendingPriceChange(player.getUniqueId())) {
+            event.setCancelled(true);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (!player.isOnline()) return;
+                manager.handlePriceInput(player, message);
+            });
+            return;
+        }
+
+        if (manager.hasPendingNameChange(player.getUniqueId())) {
+            event.setCancelled(true);
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (!player.isOnline()) return;
+                manager.handleNameInput(player, message);
+            });
+        }
     }
 
     @EventHandler

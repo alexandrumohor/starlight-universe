@@ -2604,6 +2604,65 @@
 
     </div>
 
+    <div class="phase-section">
+    <h2>Crate Overhaul — Step 7: ChestShop Management (Menu + Bank + FindItem)</h2>
+
+    <h3>/chestshop menu — Shop Management GUI</h3>
+    <label><input type="checkbox" id="co7_menu_cmd"> Type <code>/chestshop menu</code>. Confirm you get the message "Left-click on your chest shop to open the menu."</label>
+    <label><input type="checkbox" id="co7_menu_click_own"> Left-click on your own shop chest. Confirm a GUI opens with 6 options: Toggle Type, Change Item, Change Price, Open Chest, Change Shop Name, Remove Shop.</label>
+    <label><input type="checkbox" id="co7_menu_click_other"> Type <code>/chestshop menu</code> and left-click on someone else's shop chest. Confirm you get "This is not your shop!" error.</label>
+    <label><input type="checkbox" id="co7_menu_click_noshop"> Type <code>/chestshop menu</code> and left-click on a regular chest (no shop). Confirm you get "This chest has no shop!" error.</label>
+
+    <h3>Toggle Type</h3>
+    <label><input type="checkbox" id="co7_toggle_buy_sell"> Open your shop's menu and click "Toggle Type". Confirm the shop switches from BUY to SELL (or vice versa). Check the sign updates to show the new type.</label>
+
+    <h3>Change Item</h3>
+    <label><input type="checkbox" id="co7_change_item"> Open menu, click "Change Item". Put a different item in the chest. Right-click the chest. Confirm the shop now sells the new item and the sign updates.</label>
+    <label><input type="checkbox" id="co7_change_item_empty"> Click "Change Item" and right-click the chest while it's empty. Confirm you get "The chest is empty!" and it asks you to try again.</label>
+
+    <h3>Change Price</h3>
+    <label><input type="checkbox" id="co7_change_price"> Open menu, click "Change Price". Type a new price in chat (e.g. "500"). Confirm the price updates and the sign shows the new price.</label>
+    <label><input type="checkbox" id="co7_change_price_cancel"> Click "Change Price", then type "cancel" in chat. Confirm the price change is cancelled with a message.</label>
+    <label><input type="checkbox" id="co7_change_price_invalid"> Click "Change Price", then type "abc" in chat. Confirm you get "Invalid price!" error.</label>
+    <label><input type="checkbox" id="co7_change_price_zero"> Click "Change Price", then type "0" in chat. Confirm you get "Price must be greater than 0!" error.</label>
+
+    <h3>Open Chest</h3>
+    <label><input type="checkbox" id="co7_open_chest"> Open menu, click "Open Chest". Confirm the shop chest opens and you can add/remove items.</label>
+    <label><input type="checkbox" id="co7_open_chest_stock"> Add or remove items from the chest, close it. Check that the sign stock count updates automatically.</label>
+
+    <h3>Change Shop Name</h3>
+    <label><input type="checkbox" id="co7_change_name"> Open menu, click "Change Shop Name". Type a new name in chat. Confirm the name updates and the sign shows the new name.</label>
+    <label><input type="checkbox" id="co7_change_name_cancel"> Click "Change Shop Name", then type "cancel". Confirm it cancels with a message.</label>
+    <label><input type="checkbox" id="co7_change_name_long"> Give it a long name (over 15 characters). Confirm the sign scrolls (marquee animation) the long name.</label>
+
+    <h3>Remove Shop</h3>
+    <label><input type="checkbox" id="co7_remove_shop"> Open menu, click "Remove Shop". Confirm the shop is deleted — signs are removed, the chest becomes a normal chest again.</label>
+    <label><input type="checkbox" id="co7_remove_shop_reopen"> After removing, confirm you can break the chest and it no longer blocks you.</label>
+
+    <h3>/chestshop bank — Earnings Collection</h3>
+    <label><input type="checkbox" id="co7_bank_gui"> Type <code>/chestshop bank</code>. Confirm a GUI opens showing all your shops with item icons.</label>
+    <label><input type="checkbox" id="co7_bank_info"> Check that each shop slot shows: shop name, type (BUY/SELL), price per item, earnings amount, and location.</label>
+    <label><input type="checkbox" id="co7_bank_collect_one"> Have someone buy from your shop, then open bank. Left-click on that shop's slot. Confirm you collect the earnings with a chat message showing the amount.</label>
+    <label><input type="checkbox" id="co7_bank_collect_none"> Click on a shop with $0 earnings. Confirm you get "No earnings to collect from this shop."</label>
+    <label><input type="checkbox" id="co7_bank_collect_all"> Click the "Collect All" gold block button. Confirm you collect earnings from all shops at once with a total and breakdown per shop.</label>
+    <label><input type="checkbox" id="co7_bank_no_shops"> On a player with no shops, type <code>/chestshop bank</code>. Confirm the GUI opens but is empty.</label>
+    <label><input type="checkbox" id="co7_bank_pagination"> Create many shops (over 45). Confirm the bank GUI has Previous/Next page arrows and you can navigate between pages.</label>
+    <label><input type="checkbox" id="co7_bank_order"> Confirm shops appear newest first (the last shop you created shows at the top/left).</label>
+
+    <h3>/chestshop finditem — Item Search</h3>
+    <label><input type="checkbox" id="co7_find_exact"> Type <code>/chestshop finditem diamond_pickaxe</code>. Confirm a GUI shows all shops selling diamond pickaxes with owner name, stock, price, and coordinates.</label>
+    <label><input type="checkbox" id="co7_find_enchant"> Create a shop selling an Enchanted Book with Mending. Type <code>/chestshop finditem mending</code>. Confirm that shop appears in results.</label>
+    <label><input type="checkbox" id="co7_find_enchbook"> Type <code>/chestshop finditem enchanted_book</code>. Confirm all enchanted book shops appear.</label>
+    <label><input type="checkbox" id="co7_find_noresult"> Type <code>/chestshop finditem netherite_hoe</code> (assuming no one sells it). Confirm you get "No shops found matching 'netherite_hoe'."</label>
+    <label><input type="checkbox" id="co7_find_pagination"> If there are many results, confirm Previous/Next page navigation works.</label>
+    <label><input type="checkbox" id="co7_find_enchant_lore"> In finditem results, if a shop sells an enchanted book, confirm the enchantment name and level appear in the lore.</label>
+
+    <h3>Tab Completion</h3>
+    <label><input type="checkbox" id="co7_tab_sub"> Type <code>/chestshop </code> and press Tab. Confirm "create", "menu", "bank", "finditem" all appear as suggestions.</label>
+    <label><input type="checkbox" id="co7_alias_menu"> Type <code>/cs menu</code>. Confirm the /cs alias still works for all new subcommands.</label>
+
+    </div>
+
     <script>
         (function() {
             document.querySelectorAll('input[type="checkbox"]').forEach(function(cb) {

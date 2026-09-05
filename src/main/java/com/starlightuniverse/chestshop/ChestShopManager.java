@@ -5,6 +5,7 @@ import com.starlightuniverse.economy.EconomyManager;
 import com.starlightuniverse.util.Msg;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -12,9 +13,12 @@ import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Chest;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -27,6 +31,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChestShopManager {
@@ -37,6 +42,7 @@ public class ChestShopManager {
     private static final TextColor RED = TextColor.color(0xFF5555);
     private static final TextColor CYAN = TextColor.color(0x55FFFF);
     private static final TextColor YELLOW = TextColor.color(0xFFFF55);
+    private static final TextColor GRAY = TextColor.color(0xAAAAAA);
 
     private static final int SIGN_MAX_CHARS = 15;
     private static final BlockFace[] SIGN_FACES = {
@@ -52,6 +58,10 @@ public class ChestShopManager {
 
     private final Map<UUID, PendingCreation> pendingCreations = new ConcurrentHashMap<>();
     private final Map<UUID, PendingTransaction> pendingTransactions = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> pendingMenuClick = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> pendingPriceChange = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> pendingNameChange = new ConcurrentHashMap<>();
+    private final Map<UUID, Integer> pendingItemChange = new ConcurrentHashMap<>();
 
     private final Map<String, MarqueeEntry> marqueeEntries = new ConcurrentHashMap<>();
     private BukkitTask marqueeTask;
@@ -813,7 +823,7 @@ public class ChestShopManager {
         });
     }
 
-    public java.util.concurrent.CompletableFuture<Double> getShopBank(int shopId) {
+    public CompletableFuture<Double> getShopBank(int shopId) {
         return db.queryAsync(conn -> {
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT balance FROM su_chestshop_bank WHERE shop_id = ?")) {
@@ -824,6 +834,734 @@ public class ChestShopManager {
             }
             return 0.0;
         });
+    }
+
+    public void collectBank(int shopId, double amount) {
+        withdrawFromBank(shopId, amount);
+    }
+
+    // ========== Menu System ==========
+
+    public void startMenu(Player player) {
+        pendingMenuClick.put(player.getUniqueId(), 0);
+        Msg.info(player, "Left-click on your chest shop to open the menu.");
+    }
+
+    public boolean hasPendingMenu(UUID uuid) {
+        return pendingMenuClick.containsKey(uuid);
+    }
+
+    public void cancelPendingMenu(UUID uuid) {
+        pendingMenuClick.remove(uuid);
+    }
+
+    public void handleMenuClick(Player player, Block block) {
+        pendingMenuClick.remove(player.getUniqueId());
+
+        Block canonical = getCanonicalChest(block);
+        ChestShop shop = getShopAt(canonical);
+        if (shop == null) {
+            Msg.error(player, "This chest has no shop!");
+            return;
+        }
+        if (!shop.getOwnerUsername().equals(player.getName().toLowerCase())) {
+            Msg.error(player, "This is not your shop!");
+            return;
+        }
+        openMenuGui(player, shop);
+    }
+
+    void openMenuGui(Player player, ChestShop shop) {
+        ChestShopHolder holder = new ChestShopHolder(ChestShopHolder.Type.MENU);
+        holder.setShopId(shop.getId());
+        Inventory inv = Bukkit.createInventory(holder, 27,
+                Component.text("Shop Menu — " + shop.getShopName(), GOLD));
+        holder.setInventory(inv);
+
+        ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta fillerMeta = filler.getItemMeta();
+        fillerMeta.displayName(Component.text(" "));
+        filler.setItemMeta(fillerMeta);
+        for (int i = 0; i < 27; i++) inv.setItem(i, filler);
+
+        String typeLabel = shop.getShopType() == ChestShop.ShopType.BUY ? "BUY" : "SELL";
+        String otherType = shop.getShopType() == ChestShop.ShopType.BUY ? "SELL" : "BUY";
+        ItemStack toggleType = new ItemStack(Material.REDSTONE_TORCH);
+        ItemMeta toggleMeta = toggleType.getItemMeta();
+        toggleMeta.displayName(Component.text("Toggle Type", YELLOW).decoration(TextDecoration.ITALIC, false));
+        toggleMeta.lore(List.of(
+                Component.text("Current: " + typeLabel, GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("Click to switch to " + otherType, GRAY).decoration(TextDecoration.ITALIC, false)
+        ));
+        toggleType.setItemMeta(toggleMeta);
+        inv.setItem(10, toggleType);
+
+        ItemStack changeItem = new ItemStack(Material.HOPPER);
+        ItemMeta changeMeta = changeItem.getItemMeta();
+        changeMeta.displayName(Component.text("Change Item", YELLOW).decoration(TextDecoration.ITALIC, false));
+        changeMeta.lore(List.of(
+                Component.text("Current: " + shop.getShopName(), GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("Click, then put the new item in the chest", GRAY).decoration(TextDecoration.ITALIC, false)
+        ));
+        changeItem.setItemMeta(changeMeta);
+        inv.setItem(11, changeItem);
+
+        ItemStack changePrice = new ItemStack(Material.GOLD_INGOT);
+        ItemMeta priceMeta = changePrice.getItemMeta();
+        priceMeta.displayName(Component.text("Change Price", YELLOW).decoration(TextDecoration.ITALIC, false));
+        priceMeta.lore(List.of(
+                Component.text("Current: $" + EconomyManager.format(shop.getPrice()), GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("Click, then type the new price in chat", GRAY).decoration(TextDecoration.ITALIC, false)
+        ));
+        changePrice.setItemMeta(priceMeta);
+        inv.setItem(12, changePrice);
+
+        ItemStack openChest = new ItemStack(Material.CHEST);
+        ItemMeta chestMeta = openChest.getItemMeta();
+        chestMeta.displayName(Component.text("Open Chest", YELLOW).decoration(TextDecoration.ITALIC, false));
+        chestMeta.lore(List.of(
+                Component.text("Add or remove items", GRAY).decoration(TextDecoration.ITALIC, false)
+        ));
+        openChest.setItemMeta(chestMeta);
+        inv.setItem(14, openChest);
+
+        ItemStack changeName = new ItemStack(Material.NAME_TAG);
+        ItemMeta nameMeta = changeName.getItemMeta();
+        nameMeta.displayName(Component.text("Change Shop Name", YELLOW).decoration(TextDecoration.ITALIC, false));
+        nameMeta.lore(List.of(
+                Component.text("Current: " + shop.getShopName(), GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("Click, then type the new name in chat", GRAY).decoration(TextDecoration.ITALIC, false)
+        ));
+        changeName.setItemMeta(nameMeta);
+        inv.setItem(15, changeName);
+
+        ItemStack removeShop = new ItemStack(Material.BARRIER);
+        ItemMeta removeMeta = removeShop.getItemMeta();
+        removeMeta.displayName(Component.text("Remove Shop", RED).decoration(TextDecoration.ITALIC, false));
+        removeMeta.lore(List.of(
+                Component.text("Click to delete this shop", GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("Signs will be removed", GRAY).decoration(TextDecoration.ITALIC, false)
+        ));
+        removeShop.setItemMeta(removeMeta);
+        inv.setItem(16, removeShop);
+
+        player.openInventory(inv);
+    }
+
+    public void handleMenuAction(Player player, int slot, ChestShop shop) {
+        switch (slot) {
+            case 10 -> toggleShopType(player, shop);
+            case 11 -> startItemChange(player, shop);
+            case 12 -> startPriceChange(player, shop);
+            case 14 -> openShopChest(player, shop);
+            case 15 -> startNameChange(player, shop);
+            case 16 -> deleteShop(player, shop);
+        }
+    }
+
+    private void toggleShopType(Player player, ChestShop shop) {
+        ChestShop.ShopType newType = shop.getShopType() == ChestShop.ShopType.BUY
+                ? ChestShop.ShopType.SELL : ChestShop.ShopType.BUY;
+        shop.setShopType(newType);
+        db.executeAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE su_chestshops SET shop_type = ? WHERE id = ?")) {
+                ps.setString(1, newType.name());
+                ps.setInt(2, shop.getId());
+                ps.executeUpdate();
+            }
+        });
+        refreshSigns(shop);
+        player.closeInventory();
+        Msg.success(player, "Shop type changed to " + newType.name() + "!");
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+    }
+
+    private void startItemChange(Player player, ChestShop shop) {
+        player.closeInventory();
+        pendingItemChange.put(player.getUniqueId(), shop.getId());
+        Msg.info(player, "Put the new item in the chest, then right-click the chest.");
+    }
+
+    public boolean hasPendingItemChange(UUID uuid) {
+        return pendingItemChange.containsKey(uuid);
+    }
+
+    public void handleItemChange(Player player, Block block) {
+        Integer shopId = pendingItemChange.remove(player.getUniqueId());
+        if (shopId == null) return;
+        ChestShop shop = shopsById.get(shopId);
+        if (shop == null) {
+            Msg.error(player, "Shop no longer exists!");
+            return;
+        }
+
+        Block canonical = getCanonicalChest(block);
+        if (!shop.locationKey().equals(locationKey(canonical))) {
+            Msg.error(player, "Wrong chest! Click on the shop's chest.");
+            pendingItemChange.put(player.getUniqueId(), shopId);
+            return;
+        }
+
+        Inventory inv = getFullInventory(canonical);
+        ItemStack firstItem = findFirstItem(inv);
+        if (firstItem == null) {
+            Msg.error(player, "The chest is empty! Put the new item in first.");
+            pendingItemChange.put(player.getUniqueId(), shopId);
+            return;
+        }
+
+        Material newMat = firstItem.getType();
+        ItemStack template = firstItem.clone();
+        template.setAmount(1);
+        String itemData = serializeItem(template);
+        if (itemData == null) {
+            Msg.error(player, "Failed to process item data!");
+            return;
+        }
+
+        String newName = formatMaterialName(newMat);
+        shop.setItemType(newMat.name());
+        shop.setItemData(itemData);
+        shop.setShopName(newName);
+
+        db.executeAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE su_chestshops SET item_type = ?, item_data = ?, shop_name = ? WHERE id = ?")) {
+                ps.setString(1, newMat.name());
+                ps.setString(2, itemData);
+                ps.setString(3, newName);
+                ps.setInt(4, shop.getId());
+                ps.executeUpdate();
+            }
+        });
+
+        refreshSigns(shop);
+        Msg.success(player, Component.text("Shop item changed to ")
+                .append(Component.text(newName, GOLD))
+                .append(Component.text("!")));
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+    }
+
+    private void startPriceChange(Player player, ChestShop shop) {
+        player.closeInventory();
+        pendingPriceChange.put(player.getUniqueId(), shop.getId());
+        Msg.info(player, "Type the new price in chat (or 'cancel'):");
+    }
+
+    public boolean hasPendingPriceChange(UUID uuid) {
+        return pendingPriceChange.containsKey(uuid);
+    }
+
+    public void handlePriceInput(Player player, String input) {
+        Integer shopId = pendingPriceChange.remove(player.getUniqueId());
+        if (shopId == null) return;
+
+        if (input.equalsIgnoreCase("cancel")) {
+            Msg.info(player, "Price change cancelled.");
+            return;
+        }
+
+        double newPrice;
+        try {
+            newPrice = Double.parseDouble(input.trim());
+        } catch (NumberFormatException e) {
+            Msg.error(player, "Invalid price! Change cancelled.");
+            return;
+        }
+        if (newPrice <= 0) {
+            Msg.error(player, "Price must be greater than 0!");
+            return;
+        }
+
+        ChestShop shop = shopsById.get(shopId);
+        if (shop == null) {
+            Msg.error(player, "Shop no longer exists!");
+            return;
+        }
+
+        shop.setPrice(newPrice);
+        db.executeAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE su_chestshops SET price = ? WHERE id = ?")) {
+                ps.setDouble(1, newPrice);
+                ps.setInt(2, shop.getId());
+                ps.executeUpdate();
+            }
+        });
+
+        refreshSigns(shop);
+        Msg.success(player, Component.text("Price changed to ")
+                .append(EconomyManager.moneyText(newPrice))
+                .append(Component.text("!")));
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+    }
+
+    private void startNameChange(Player player, ChestShop shop) {
+        player.closeInventory();
+        pendingNameChange.put(player.getUniqueId(), shop.getId());
+        Msg.info(player, "Type the new shop name in chat (or 'cancel'):");
+    }
+
+    public boolean hasPendingNameChange(UUID uuid) {
+        return pendingNameChange.containsKey(uuid);
+    }
+
+    public void handleNameInput(Player player, String input) {
+        Integer shopId = pendingNameChange.remove(player.getUniqueId());
+        if (shopId == null) return;
+
+        if (input.equalsIgnoreCase("cancel")) {
+            Msg.info(player, "Name change cancelled.");
+            return;
+        }
+
+        String newName = input.trim();
+        if (newName.isEmpty() || newName.length() > 64) {
+            Msg.error(player, "Name must be 1-64 characters!");
+            return;
+        }
+
+        ChestShop shop = shopsById.get(shopId);
+        if (shop == null) {
+            Msg.error(player, "Shop no longer exists!");
+            return;
+        }
+
+        shop.setShopName(newName);
+        db.executeAsync(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE su_chestshops SET shop_name = ? WHERE id = ?")) {
+                ps.setString(1, newName);
+                ps.setInt(2, shop.getId());
+                ps.executeUpdate();
+            }
+        });
+
+        refreshSigns(shop);
+        Msg.success(player, Component.text("Shop name changed to ")
+                .append(Component.text(newName, GOLD))
+                .append(Component.text("!")));
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1f);
+    }
+
+    private void openShopChest(Player player, ChestShop shop) {
+        player.closeInventory();
+        World w = Bukkit.getWorld(shop.getWorld());
+        if (w == null) {
+            Msg.error(player, "Shop world is not loaded!");
+            return;
+        }
+        Block chestBlock = w.getBlockAt(shop.getX(), shop.getY(), shop.getZ());
+        if (!(chestBlock.getState() instanceof Container container)) {
+            Msg.error(player, "Shop chest is missing!");
+            return;
+        }
+        player.openInventory(getFullInventory(chestBlock));
+    }
+
+    private void deleteShop(Player player, ChestShop shop) {
+        player.closeInventory();
+        removeShop(shop);
+        Msg.success(player, "Shop removed!");
+        player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
+    }
+
+    private void refreshSigns(ChestShop shop) {
+        World w = Bukkit.getWorld(shop.getWorld());
+        if (w == null) return;
+        Block chestBlock = w.getBlockAt(shop.getX(), shop.getY(), shop.getZ());
+        if (!isChest(chestBlock.getType())) return;
+
+        Material itemMat;
+        try {
+            itemMat = Material.valueOf(shop.getItemType());
+        } catch (IllegalArgumentException e) {
+            return;
+        }
+        int stock = countStock(chestBlock, itemMat);
+        refreshSignsAround(chestBlock, shop, stock);
+        Block other = getOtherChestHalf(chestBlock);
+        if (other != null) refreshSignsAround(other, shop, stock);
+    }
+
+    private void refreshSignsAround(Block block, ChestShop shop, int stock) {
+        for (BlockFace face : SIGN_FACES) {
+            Block adj = block.getRelative(face);
+            if (isShopSign(adj, block)) {
+                Sign sign = (Sign) adj.getState();
+
+                String itemName = shop.getShopName();
+                String signKey = locKey(adj);
+                marqueeEntries.remove(signKey);
+                if (itemName.length() > SIGN_MAX_CHARS) {
+                    sign.line(0, Component.text(itemName.substring(0, SIGN_MAX_CHARS), GOLD));
+                    marqueeEntries.put(signKey, new MarqueeEntry(itemName));
+                } else {
+                    sign.line(0, Component.text(itemName, GOLD));
+                }
+
+                String shopTypeLabel = shop.getShopType() == ChestShop.ShopType.BUY ? "[BUY]" : "[SELL]";
+                if (stock <= 0 && shop.getShopType() == ChestShop.ShopType.BUY) {
+                    sign.line(1, Component.text("OUT OF STOCK", RED));
+                } else {
+                    sign.line(1, Component.text(shopTypeLabel + " Stock: " + stock, WHITE));
+                }
+
+                sign.line(2, Component.text("$" + EconomyManager.format(shop.getPrice()) + " each", GREEN));
+                sign.update();
+            }
+        }
+    }
+
+    // ========== Bank GUI ==========
+
+    private static final int BANK_PAGE_SIZE = 45;
+
+    public void openBankGui(Player player, int page) {
+        List<ChestShop> owned = getShopsByOwner(player.getName());
+        owned.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
+
+        int totalPages = Math.max(1, (int) Math.ceil((double) owned.size() / BANK_PAGE_SIZE));
+        int safePage = Math.max(0, Math.min(page, totalPages - 1));
+
+        int start = safePage * BANK_PAGE_SIZE;
+        int end = Math.min(start + BANK_PAGE_SIZE, owned.size());
+        List<ChestShop> pageShops = owned.subList(start, end);
+
+        int[] shopIds = pageShops.stream().mapToInt(ChestShop::getId).toArray();
+
+        db.queryAsync(conn -> {
+            Map<Integer, Double> balances = new HashMap<>();
+            if (shopIds.length == 0) return balances;
+            StringBuilder sb = new StringBuilder("SELECT shop_id, balance FROM su_chestshop_bank WHERE shop_id IN (");
+            for (int i = 0; i < shopIds.length; i++) {
+                if (i > 0) sb.append(',');
+                sb.append('?');
+            }
+            sb.append(')');
+            try (PreparedStatement ps = conn.prepareStatement(sb.toString())) {
+                for (int i = 0; i < shopIds.length; i++) {
+                    ps.setInt(i + 1, shopIds[i]);
+                }
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        balances.put(rs.getInt("shop_id"), rs.getDouble("balance"));
+                    }
+                }
+            }
+            return balances;
+        }).thenAccept(balances -> {
+            if (balances == null) balances = new HashMap<>();
+            Map<Integer, Double> bal = balances;
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (!player.isOnline()) return;
+                buildBankGui(player, pageShops, bal, safePage, totalPages);
+            });
+        });
+    }
+
+    private void buildBankGui(Player player, List<ChestShop> shops,
+                              Map<Integer, Double> balances, int page, int totalPages) {
+        ChestShopHolder holder = new ChestShopHolder(ChestShopHolder.Type.BANK);
+        holder.setPage(page);
+        Inventory inv = Bukkit.createInventory(holder, 54,
+                Component.text("Shop Bank — Page " + (page + 1) + "/" + totalPages, GOLD));
+        holder.setInventory(inv);
+
+        for (int i = 0; i < shops.size(); i++) {
+            ChestShop shop = shops.get(i);
+            Material mat;
+            try {
+                mat = Material.valueOf(shop.getItemType());
+            } catch (IllegalArgumentException e) {
+                mat = Material.BARRIER;
+            }
+
+            ItemStack icon = new ItemStack(mat);
+            ItemMeta meta = icon.getItemMeta();
+            double earnings = balances.getOrDefault(shop.getId(), 0.0);
+            String typeLabel = shop.getShopType() == ChestShop.ShopType.BUY ? "BUY" : "SELL";
+
+            meta.displayName(Component.text(shop.getShopName(), GOLD).decoration(TextDecoration.ITALIC, false));
+            meta.lore(List.of(
+                    Component.text("Type: " + typeLabel, GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.text("Price: $" + EconomyManager.format(shop.getPrice()) + " each", GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.text("Earnings: $" + EconomyManager.format(earnings), earnings > 0 ? GREEN : GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.text("Location: " + shop.getWorld() + " " + shop.getX() + ", " + shop.getY() + ", " + shop.getZ(), GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.empty(),
+                    Component.text("Left-click to collect earnings", YELLOW).decoration(TextDecoration.ITALIC, false)
+            ));
+            icon.setItemMeta(meta);
+            inv.setItem(i, icon);
+        }
+
+        ItemStack collectAll = new ItemStack(Material.GOLD_BLOCK);
+        ItemMeta caMeta = collectAll.getItemMeta();
+        caMeta.displayName(Component.text("Collect All", GREEN).decoration(TextDecoration.ITALIC, false));
+        caMeta.lore(List.of(
+                Component.text("Click to collect earnings from all shops", GRAY).decoration(TextDecoration.ITALIC, false)
+        ));
+        collectAll.setItemMeta(caMeta);
+        inv.setItem(49, collectAll);
+
+        if (page > 0) {
+            ItemStack prev = new ItemStack(Material.ARROW);
+            ItemMeta pm = prev.getItemMeta();
+            pm.displayName(Component.text("Previous Page", YELLOW).decoration(TextDecoration.ITALIC, false));
+            prev.setItemMeta(pm);
+            inv.setItem(48, prev);
+        }
+        if (page < totalPages - 1) {
+            ItemStack next = new ItemStack(Material.ARROW);
+            ItemMeta nm = next.getItemMeta();
+            nm.displayName(Component.text("Next Page", YELLOW).decoration(TextDecoration.ITALIC, false));
+            next.setItemMeta(nm);
+            inv.setItem(50, next);
+        }
+
+        player.openInventory(inv);
+    }
+
+    public void handleBankClick(Player player, int slot, ChestShopHolder holder) {
+        if (slot == 48 && holder.getPage() > 0) {
+            openBankGui(player, holder.getPage() - 1);
+            return;
+        }
+        if (slot == 50) {
+            openBankGui(player, holder.getPage() + 1);
+            return;
+        }
+        if (slot == 49) {
+            collectAllEarnings(player);
+            return;
+        }
+        if (slot < 0 || slot >= BANK_PAGE_SIZE) return;
+
+        List<ChestShop> owned = getShopsByOwner(player.getName());
+        owned.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
+        int index = holder.getPage() * BANK_PAGE_SIZE + slot;
+        if (index >= owned.size()) return;
+
+        ChestShop shop = owned.get(index);
+        getShopBank(shop.getId()).thenAccept(balance -> {
+            if (balance == null || balance <= 0) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (player.isOnline()) Msg.info(player, "No earnings to collect from this shop.");
+                });
+                return;
+            }
+            collectBank(shop.getId(), balance);
+            economy.addMoney(player.getUniqueId(), balance);
+            double bal = balance;
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (!player.isOnline()) return;
+                Msg.success(player, Component.text("Collected ")
+                        .append(EconomyManager.moneyText(bal))
+                        .append(Component.text(" from "))
+                        .append(Component.text(shop.getShopName(), GOLD))
+                        .append(Component.text("!")));
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+                openBankGui(player, holder.getPage());
+            });
+        });
+    }
+
+    private void collectAllEarnings(Player player) {
+        List<ChestShop> owned = getShopsByOwner(player.getName());
+        if (owned.isEmpty()) {
+            Msg.info(player, "You have no shops.");
+            return;
+        }
+
+        int[] ids = owned.stream().mapToInt(ChestShop::getId).toArray();
+        db.queryAsync(conn -> {
+            Map<Integer, Double> balances = new HashMap<>();
+            StringBuilder sb = new StringBuilder("SELECT shop_id, balance FROM su_chestshop_bank WHERE shop_id IN (");
+            for (int i = 0; i < ids.length; i++) {
+                if (i > 0) sb.append(',');
+                sb.append('?');
+            }
+            sb.append(") AND balance > 0");
+            try (PreparedStatement ps = conn.prepareStatement(sb.toString())) {
+                for (int i = 0; i < ids.length; i++) {
+                    ps.setInt(i + 1, ids[i]);
+                }
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        balances.put(rs.getInt("shop_id"), rs.getDouble("balance"));
+                    }
+                }
+            }
+            return balances;
+        }).thenAccept(balances -> {
+            if (balances == null || balances.isEmpty()) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (player.isOnline()) Msg.info(player, "No earnings to collect.");
+                });
+                return;
+            }
+
+            double total = 0;
+            List<String> breakdown = new ArrayList<>();
+            for (var entry : balances.entrySet()) {
+                int shopId = entry.getKey();
+                double amount = entry.getValue();
+                total += amount;
+                collectBank(shopId, amount);
+                ChestShop shop = shopsById.get(shopId);
+                String name = shop != null ? shop.getShopName() : "Shop #" + shopId;
+                breakdown.add(name + ": $" + EconomyManager.format(amount));
+            }
+
+            double finalTotal = total;
+            economy.addMoney(player.getUniqueId(), finalTotal);
+
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (!player.isOnline()) return;
+                Msg.success(player, Component.text("Collected ")
+                        .append(EconomyManager.moneyText(finalTotal))
+                        .append(Component.text(" from all shops!")));
+                for (String line : breakdown) {
+                    Msg.gray(player, "  " + line);
+                }
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.2f);
+                openBankGui(player, 0);
+            });
+        });
+    }
+
+    // ========== Find Item GUI ==========
+
+    private static final int FIND_PAGE_SIZE = 45;
+
+    public void openFindItemGui(Player player, String query, int page) {
+        String upperQuery = query.toUpperCase().replace(' ', '_');
+        List<ChestShop> matches = new ArrayList<>();
+
+        for (ChestShop shop : shopsById.values()) {
+            if (matchesQuery(shop, upperQuery)) {
+                matches.add(shop);
+            }
+        }
+
+        if (matches.isEmpty()) {
+            Msg.info(player, "No shops found matching '" + query + "'.");
+            return;
+        }
+
+        matches.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
+
+        int totalPages = Math.max(1, (int) Math.ceil((double) matches.size() / FIND_PAGE_SIZE));
+        int safePage = Math.max(0, Math.min(page, totalPages - 1));
+
+        int start = safePage * FIND_PAGE_SIZE;
+        int end = Math.min(start + FIND_PAGE_SIZE, matches.size());
+        List<ChestShop> pageShops = matches.subList(start, end);
+
+        ChestShopHolder holder = new ChestShopHolder(ChestShopHolder.Type.FIND_ITEM);
+        holder.setPage(safePage);
+        Inventory inv = Bukkit.createInventory(holder, 54,
+                Component.text("Find: " + query + " — " + (safePage + 1) + "/" + totalPages, GOLD));
+        holder.setInventory(inv);
+
+        for (int i = 0; i < pageShops.size(); i++) {
+            ChestShop shop = pageShops.get(i);
+            Material mat;
+            try {
+                mat = Material.valueOf(shop.getItemType());
+            } catch (IllegalArgumentException e) {
+                mat = Material.BARRIER;
+            }
+
+            ItemStack icon = new ItemStack(mat);
+            ItemMeta meta = icon.getItemMeta();
+            String typeLabel = shop.getShopType() == ChestShop.ShopType.BUY ? "BUY" : "SELL";
+
+            World w = Bukkit.getWorld(shop.getWorld());
+            int stock = 0;
+            if (w != null) {
+                Block chestBlock = w.getBlockAt(shop.getX(), shop.getY(), shop.getZ());
+                if (isChest(chestBlock.getType())) {
+                    stock = countStock(chestBlock, mat);
+                }
+            }
+
+            meta.displayName(Component.text(shop.getShopName(), GOLD).decoration(TextDecoration.ITALIC, false));
+
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Owner: " + shop.getOwnerUsername(), CYAN).decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text("Type: " + typeLabel, GRAY).decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text("Stock: " + stock, GRAY).decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text("Price: $" + EconomyManager.format(shop.getPrice()) + " each", GREEN).decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text("Location: " + shop.getWorld() + " " + shop.getX() + ", " + shop.getY() + ", " + shop.getZ(), GRAY).decoration(TextDecoration.ITALIC, false));
+
+            ItemStack template = deserializeItem(shop.getItemData());
+            if (template != null && template.getType() == Material.ENCHANTED_BOOK) {
+                EnchantmentStorageMeta esm = (EnchantmentStorageMeta) template.getItemMeta();
+                if (esm != null) {
+                    for (var e : esm.getStoredEnchants().entrySet()) {
+                        lore.add(Component.text("  " + formatEnchantName(e.getKey()) + " " + e.getValue(), YELLOW)
+                                .decoration(TextDecoration.ITALIC, false));
+                    }
+                }
+            }
+
+            meta.lore(lore);
+            icon.setItemMeta(meta);
+            inv.setItem(i, icon);
+        }
+
+        if (safePage > 0) {
+            ItemStack prev = new ItemStack(Material.ARROW);
+            ItemMeta pm = prev.getItemMeta();
+            pm.displayName(Component.text("Previous Page", YELLOW).decoration(TextDecoration.ITALIC, false));
+            prev.setItemMeta(pm);
+            inv.setItem(48, prev);
+        }
+        if (safePage < totalPages - 1) {
+            ItemStack next = new ItemStack(Material.ARROW);
+            ItemMeta nm = next.getItemMeta();
+            nm.displayName(Component.text("Next Page", YELLOW).decoration(TextDecoration.ITALIC, false));
+            next.setItemMeta(nm);
+            inv.setItem(50, next);
+        }
+
+        player.openInventory(inv);
+    }
+
+    private boolean matchesQuery(ChestShop shop, String upperQuery) {
+        if (shop.getItemType().contains(upperQuery)) return true;
+        if (shop.getShopName().toUpperCase().replace(' ', '_').contains(upperQuery)) return true;
+
+        ItemStack template = deserializeItem(shop.getItemData());
+        if (template == null) return false;
+
+        if (template.getType() == Material.ENCHANTED_BOOK) {
+            if ("ENCHANTED_BOOK".contains(upperQuery)) return true;
+            EnchantmentStorageMeta esm = (EnchantmentStorageMeta) template.getItemMeta();
+            if (esm != null) {
+                for (Enchantment ench : esm.getStoredEnchants().keySet()) {
+                    if (ench.getKey().getKey().toUpperCase().contains(upperQuery)) return true;
+                }
+            }
+        } else {
+            for (Enchantment ench : template.getEnchantments().keySet()) {
+                if (ench.getKey().getKey().toUpperCase().contains(upperQuery)) return true;
+            }
+        }
+        return false;
+    }
+
+    private static String formatEnchantName(Enchantment ench) {
+        String raw = ench.getKey().getKey().replace('_', ' ');
+        StringBuilder sb = new StringBuilder();
+        boolean cap = true;
+        for (char c : raw.toCharArray()) {
+            if (c == ' ') { sb.append(' '); cap = true; }
+            else { sb.append(cap ? Character.toUpperCase(c) : Character.toLowerCase(c)); cap = false; }
+        }
+        return sb.toString();
     }
 
     // ========== Serialization ==========
@@ -894,5 +1632,14 @@ public class ChestShopManager {
     public void cleanupPlayer(UUID uuid) {
         pendingCreations.remove(uuid);
         pendingTransactions.remove(uuid);
+        pendingMenuClick.remove(uuid);
+        pendingPriceChange.remove(uuid);
+        pendingNameChange.remove(uuid);
+        pendingItemChange.remove(uuid);
+    }
+
+    public boolean hasAnyChatPending(UUID uuid) {
+        return pendingPriceChange.containsKey(uuid)
+                || pendingNameChange.containsKey(uuid);
     }
 }
